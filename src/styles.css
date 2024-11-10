@@ -1,0 +1,17 @@
+
+/* ...existing styles... */
+:root {
+  --primary-color: #070F2B;
+  --secondary-color: #1B1A55;
+  --accent-color: #535C91;
+  --background-dark: #0D0D0D;
+  --text-primary: #FFFFFF;
+  --text-secondary: #B3B3B3;
+  /* ...additional variables... */
+}
+/* ...existing styles... */
+body {
+  background-color: var(--background-dark);
+  color: var(--text-primary);
+}
+/* ...existing styles... */
