@@ -1,7 +1,11 @@
+import MediaType from "../../components/media-tabs"
 
 const MyVibe = () => {
   return (
-    <div>myVibe</div>
+    <>
+    <MediaType/>
+    {/* <MediaCard /> */}
+    </>
   )
 }
 

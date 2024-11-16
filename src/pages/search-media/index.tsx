@@ -1,7 +1,11 @@
+import MediaType from "../../components/media-tabs"
 
 const SearchMedia = () => {
   return (
-    <div>searchMedia</div>
+    <>
+    <MediaType/>
+    {/* <MediaCard /> */}
+    </>
   )
 }
 

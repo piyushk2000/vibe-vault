@@ -14,6 +14,7 @@ import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import { useNavigate } from 'react-router-dom';
 import { COLORS } from '../../theme/colors';
+import MediaSeachBox from '../search-box';
 
 const pages = [{Name:'Explore', Path:'/explore'}, {Name:'My Vibe', Path:'/my-vibe'}];
 const settings = [{Name:'Profile', Path:'/profile'}, {Name:'Account', Path:'/account'}, {Name:'Dashboard', Path:'/dashboard'}];
@@ -125,7 +126,13 @@ function Navbar() {
                 {page.Name}
               </Button>
             ))}
+            <Box sx={{ml:2 , my:2}}>
+            < MediaSeachBox />
+            </Box>
+
+          
           </Box>
+          
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
