@@ -18,7 +18,7 @@ interface Anime {
 
 const AnimeList = () => {
   const [data, setData] = useState<Anime[]>([]);
-  const itemsPerPage = 48;
+  const itemsPerPage = 10;
   const [totalPage, setTotalPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortOption, _] = useState<string>('ranked');
@@ -79,10 +79,10 @@ const AnimeList = () => {
 
   return (
     <>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1rem' }}>
-        <Grid2 container gap={5} px={10}>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 2 }}>
+        <Grid2 container spacing={2}>
           {data.map((anime) => (
-            <Grid2 key={anime?.id} >
+            <Grid2 size={{ xs: 2.4 }} my={2} key={anime?.id}>
               <MediaCard
                 imageUrl={`https://shikimori.one${anime?.image?.original}`}
                 showName={anime?.name}
@@ -91,7 +91,7 @@ const AnimeList = () => {
           ))}
         </Grid2>
 
-        <Box sx={{ display: 'inline', justifyContent: 'center', marginTop: 2, mb: 2 }}>
+        <Box sx={{ display: 'inline', justifyContent: 'center', marginTop: 4, mb: 2 }}>
           <Pagination
             count={totalPage}
             page={currentPage}

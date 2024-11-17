@@ -52,19 +52,19 @@ const SeriesList = () => {
 
   return (
     <>
-      <Box sx={{ display: 'inline', flexWrap: 'wrap', justifyContent: 'center', gap: 2 }}>
-        <Grid2 container spacing={2}>
-          {data.map((series) => (
-            <Grid2 size={{ xs: 2.4 }} my={2} key={series.imdbID}>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 2 }}>
+        <Grid2 container spacing={2} >
+          {data.map((movie) => (
+            <Grid2 size={{ xs: 2.4 }} my={2} key={movie.imdbID}>
               <MediaCard
-                imageUrl={series.Poster}
-                showName={series.Title}
+                imageUrl={movie.Poster}
+                showName={movie.Title}
               />
             </Grid2>
           ))}
         </Grid2>
 
-        <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 4, mb: 2 }}>
+        <Box sx={{ display: 'inline', justifyContent: 'center', marginTop: 4, mb: 2 }}>
           <Pagination
             count={totalPage}
             page={currentPage}
