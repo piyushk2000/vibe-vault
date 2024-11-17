@@ -3,13 +3,13 @@ import InputBase from '@mui/material/InputBase';
 import IconButton from '@mui/material/IconButton';
 import SearchIcon from '@mui/icons-material/Search';
 import { COLORS } from '../../theme/colors'; // Import COLORS
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { setSearch } from '../../redux/searchSlice';
 import { useState } from 'react';
 
 export default function MediaSeachBox() {
 
-  const searchText = useSelector((state: any) => state.searchText.value)
+  // const searchText = useSelector((state: any) => state.searchText.value)
   const dispatch = useDispatch()
   const [localSearchText, setLocalSearchText] = useState('')
 

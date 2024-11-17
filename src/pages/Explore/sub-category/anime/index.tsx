@@ -21,7 +21,7 @@ const AnimeList = () => {
   const itemsPerPage = 48;
   const [totalPage, setTotalPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortOption, setSortOption] = useState<string>('ranked');
+  const [sortOption, _] = useState<string>('ranked');
   const theme = useTheme();
   const dispatch = useDispatch();
 
@@ -58,7 +58,7 @@ const AnimeList = () => {
     fetchData()
   }, [currentPage,sortOption,searchText])
 
-  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+  const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
     setCurrentPage(value);
     sessionStorage.setItem('pageNumber', value.toString());
   };
