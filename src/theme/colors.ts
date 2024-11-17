@@ -71,4 +71,6 @@ export const COLORS = {
   
   // Tab Indicator
   TAB: '#4A7BF7',             // Tab indicator color
+  TAB_INACTIVE: '#A0A7B7',    // Inactive tab color
+  TAB_SELECTED_BACKGROUND: '#2C3241', // Selected tab background color
 };

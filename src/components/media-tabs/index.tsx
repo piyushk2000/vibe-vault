@@ -3,7 +3,7 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import { COLORS } from '../../theme/colors';
-import AnimeList from '../../pages/my-vibe/sub-category/anime';
+import AnimeList from '../../pages/Explore/sub-category/anime';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -56,6 +56,7 @@ export default function MediaType() {
             },
             '& .Mui-selected': {
               color: COLORS.TEXT_PRIMARY,
+              backgroundColor: COLORS.TAB_SELECTED_BACKGROUND, // Add this line to set background color for selected tab
             },
           }}
         >

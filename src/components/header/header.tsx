@@ -22,6 +22,8 @@ const settings = [{Name:'Profile', Path:'/profile'}, {Name:'Account', Path:'/acc
 function Navbar() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
+  // const [search , setSearch] = React.useState('')
+
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);

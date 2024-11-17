@@ -1,17 +1,24 @@
 import { Box, Typography } from '@mui/material'
 
-const MediaCard = () => {
+interface MediaCardProps {
+  imageUrl?: string
+  showName?: string
+}
+
+const MediaCard: React.FC<MediaCardProps> = ({ imageUrl = '', showName = '' }) => {
   return ( 
-    <>
     <Box width={120} height={180}>
-    <Box>
-      <img src="https://via.placeholder.com/1920x1080" alt="My Vibe" width={120} height={180}/>
+      <Box>
+        {imageUrl ? (
+          <img src={imageUrl} alt={showName || 'My Vibe'} width={120} height={180}/>
+        ) : (
+          <Box width={120} height={180} bgcolor="grey.300" />
+        )}
+      </Box>
+      <Typography variant="body1" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 250 }}>
+        { showName || 'Unknown Title'}
+      </Typography>
     </Box>
-    <Typography variant="body1" sx={{ hyphens: 'auto', wordBreak: 'break-word' }}>
-      full metal alchamist
-    </Typography>
-    </Box>
-    </>
   )
 }
 
