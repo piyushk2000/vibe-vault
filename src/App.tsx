@@ -6,7 +6,8 @@ import MyVibe from './pages/my-vibe/index.js';
 import { useSelector } from 'react-redux';
 import { ThemeProvider } from '@mui/material/styles';
 import theme from './theme/theme';
-// import { COLORS } from './theme/colors';
+import CircularProgress from '@mui/material/CircularProgress';
+import { COLORS } from './theme/colors';
 
 export function PrivateRoute() {
   //@ts-ignore
@@ -17,9 +18,22 @@ return currentUser ? <Outlet/> : <Navigate to='/sign-in'/>
 
 
 function App() {
+  const isLoading = useSelector((state: any) => state.loading.isLoading);
+
   return (
     <ThemeProvider theme={theme}>
-      <div>
+      <>
+        {isLoading && (
+          <div style={{
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            zIndex: 1000,
+          }}>
+            <CircularProgress style={{ color: COLORS.ACCENT }} />
+          </div>
+        )}
         <BrowserRouter>
           <Navbar />
           <Routes>
@@ -40,7 +54,7 @@ function App() {
           
 
         </BrowserRouter>
-      </div>
+      </>
     </ThemeProvider>
   );
 }

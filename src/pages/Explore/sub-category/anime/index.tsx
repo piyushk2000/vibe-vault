@@ -1,5 +1,7 @@
 import { Box, Grid2, Pagination } from "@mui/material"
 import { useTheme } from '@mui/material/styles';
+import { useDispatch } from "react-redux";
+import { setLoading } from "../../../../redux/loadingSlice";
 
 import MediaCard from "../../../../components/cards"
 import { useEffect, useState } from "react"
@@ -21,6 +23,7 @@ const AnimeList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortOption, setSortOption] = useState<string>('ranked');
   const theme = useTheme();
+  const dispatch = useDispatch();
 
   const searchText = useSelector((state: any) => state.searchText.value)
 
@@ -32,6 +35,7 @@ const AnimeList = () => {
   }, [currentPage]);
 
   const fetchData = async () => {
+    dispatch(setLoading(true));
     try {
       
       const response = await axios.get<Anime[]>(`https://shikimori.one/api/animes`, {
@@ -46,7 +50,7 @@ const AnimeList = () => {
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
-      
+      dispatch(setLoading(false));
     }
   };
 
@@ -87,7 +91,7 @@ const AnimeList = () => {
           ))}
         </Grid2>
 
-        <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 2, mb: 2 }}>
+        <Box sx={{ display: 'inline', justifyContent: 'center', marginTop: 2, mb: 2 }}>
           <Pagination
             count={totalPage}
             page={currentPage}

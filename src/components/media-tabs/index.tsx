@@ -4,6 +4,8 @@ import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import { COLORS } from '../../theme/colors';
 import AnimeList from '../../pages/Explore/sub-category/anime';
+import MoviesList from '../../pages/Explore/sub-category/movies';
+import SeriesList from '../../pages/Explore/sub-category/series';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -52,11 +54,15 @@ export default function MediaType() {
           TabIndicatorProps={{ style: { backgroundColor: COLORS.TAB } }}
           sx={{
             '& .MuiTab-root': {
-              color: COLORS.TEXT_SECONDARY,
+              color: COLORS.TAB_INACTIVE,
             },
             '& .Mui-selected': {
               color: COLORS.TEXT_PRIMARY,
-              backgroundColor: COLORS.TAB_SELECTED_BACKGROUND, // Add this line to set background color for selected tab
+              backgroundColor: COLORS.TAB_SELECTED_BACKGROUND,
+            },
+            // Add hover effect for tabs
+            '& .MuiTab-root:hover': {
+              backgroundColor: COLORS.HOVER,
             },
           }}
         >
@@ -67,13 +73,13 @@ export default function MediaType() {
         </Tabs>
       </Box>
       <CustomTabPanel value={value} index={0}>
-        <AnimeList/>
+        <AnimeList />
       </CustomTabPanel>
       <CustomTabPanel value={value} index={1}>
-        Item Two
+        <MoviesList />
       </CustomTabPanel>
       <CustomTabPanel value={value} index={2}>
-        Item Three
+        <SeriesList />
       </CustomTabPanel>
       <CustomTabPanel value={value} index={3}>
         Item Four

@@ -43,7 +43,7 @@ function Navbar() {
   const navigate = useNavigate();
 
   return (
-    <AppBar position="static" sx={{ backgroundColor: COLORS.PRIMARY }}>
+    <AppBar position="static" sx={{ backgroundColor: COLORS.NAV_BACKGROUND }}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
@@ -123,7 +123,7 @@ function Navbar() {
               <Button
                 key={page.Name}
                 onClick={()=>{handleCloseNavMenu(); navigate(page.Path)}}
-                sx={{ my: 2, color: COLORS.TEXT_PRIMARY, display: 'block' }}
+                sx={{ my: 2, color: COLORS.TEXT_PRIMARY, display: 'block', '&:hover': { backgroundColor: COLORS.HOVER } }}
               >
                 {page.Name}
               </Button>

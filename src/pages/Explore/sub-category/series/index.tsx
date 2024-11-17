@@ -6,15 +6,14 @@ import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { setLoading } from "../../../../redux/loadingSlice";
 
-interface Movie {
+interface Series {
   imdbID: string;
   Poster: string;
   Title: string;
 }
 
-const MoviesList = () => {
-  const [data, setData] = useState<Movie[]>([]);
-  console.log("🚀 ~ MoviesList ~ data:", data)
+const SeriesList = () => {
+  const [data, setData] = useState<Series[]>([]);
   const itemsPerPage = 10;
   const [totalPage, setTotalPage] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
@@ -22,7 +21,6 @@ const MoviesList = () => {
   const dispatch = useDispatch();
 
   const searchText = useSelector((state: any) => state.searchText.value);
-  console.log("🚀 ~ MoviesList ~ searchText:", searchText)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -31,8 +29,8 @@ const MoviesList = () => {
         const response = await axios.get(`https://www.omdbapi.com/`, {
           params: {
             apikey: '1998618b',
-            s: searchText || 'movie',
-            type: 'movie',
+            s: searchText || 'series',
+            type: 'series',
             page: currentPage
           }
         });
@@ -54,19 +52,19 @@ const MoviesList = () => {
 
   return (
     <>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 2 }}>
-        <Grid2 container spacing={2} >
-          {data.map((movie) => (
-            <Grid2 size={{xs:2.4}} my={2}  key={movie.imdbID}>
+      <Box sx={{ display: 'inline', flexWrap: 'wrap', justifyContent: 'center', gap: 2 }}>
+        <Grid2 container spacing={2}>
+          {data.map((series) => (
+            <Grid2 size={{ xs: 2.4 }} my={2} key={series.imdbID}>
               <MediaCard
-                imageUrl={movie.Poster}
-                showName={movie.Title}
+                imageUrl={series.Poster}
+                showName={series.Title}
               />
             </Grid2>
           ))}
         </Grid2>
 
-        <Box sx={{ display: 'inline', justifyContent: 'center', marginTop: 4, mb: 2 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 4, mb: 2 }}>
           <Pagination
             count={totalPage}
             page={currentPage}
@@ -85,4 +83,4 @@ const MoviesList = () => {
   );
 };
 
-export default MoviesList;
+export default SeriesList;
