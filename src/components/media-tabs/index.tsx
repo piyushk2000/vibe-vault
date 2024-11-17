@@ -51,18 +51,18 @@ export default function MediaType() {
           value={value}
           onChange={handleChange}
           aria-label="basic tabs example"
-          TabIndicatorProps={{ style: { backgroundColor: COLORS.TAB } }}
+          TabIndicatorProps={{ style: { backgroundColor: COLORS.TAB + ' !important' } }}
           sx={{
             '& .MuiTab-root': {
-              color: COLORS.TAB_INACTIVE,
+              color: COLORS.TAB_INACTIVE + ' !important',
             },
             '& .Mui-selected': {
-              color: COLORS.TEXT_PRIMARY,
-              backgroundColor: COLORS.TAB_SELECTED_BACKGROUND,
+              color: COLORS.TAB_SELECTED_TEXT + ' !important', // Use the new color for selected tab text
+              backgroundColor: COLORS.TAB_SELECTED_BACKGROUND + ' !important',
             },
             // Add hover effect for tabs
             '& .MuiTab-root:hover': {
-              backgroundColor: COLORS.HOVER,
+              backgroundColor: COLORS.HOVER + ' !important',
             },
           }}
         >

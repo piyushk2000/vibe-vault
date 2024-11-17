@@ -73,4 +73,5 @@ export const COLORS = {
   TAB: '#58A6FF',
   TAB_INACTIVE: '#8B949E',
   TAB_SELECTED_BACKGROUND: '#21262D', // Lighter background for selected tab
+  TAB_SELECTED_TEXT: '#FFFFFF', // White text for selected tab
 };
