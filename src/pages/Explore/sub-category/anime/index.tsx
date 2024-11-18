@@ -57,7 +57,7 @@ const AnimeList = () => {
       {/* Cards Grid */}
       <Grid container spacing={2} justifyContent="center">
         {data.map((anime) => (
-          <Grid xs={12} sm={6} md={4} lg={3} key={anime.id}>
+          <Grid key={anime.id}>
             <MediaCard
               imageUrl={`https://shikimori.one${anime.image.original}`}
               showName={anime.name}

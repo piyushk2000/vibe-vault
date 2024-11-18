@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { setLoading } from "../../../../redux/loadingSlice";
+import Grid from '@mui/material/Grid2';
 
 interface Series {
   imdbID: string;
@@ -53,17 +54,17 @@ const SeriesList = () => {
   return (
     <>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 2 }}>
-        <Grid2 container spacing={2} justifyContent="center">
+        <Grid container spacing={2} justifyContent="center">
           {data.map((movie) => (
-            <Grid2  xs={12} sm={6} md={4} lg={3} my={2} key={movie.imdbID}>
+            <Grid my={2} key={movie.imdbID}>
               <MediaCard
                 imageUrl={movie.Poster}
                 showName={movie.Title}
               />
-            </Grid2>
+            </Grid>
           ))}
-        </Grid2>
-
+        </Grid>
+        
         <Box sx={{ display: 'inline', justifyContent: 'center', marginTop: 4, mb: 2 }}>
           <Pagination
             count={totalPage}
