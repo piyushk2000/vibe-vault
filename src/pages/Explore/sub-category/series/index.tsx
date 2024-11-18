@@ -53,9 +53,9 @@ const SeriesList = () => {
   return (
     <>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 2 }}>
-        <Grid2 container spacing={2} >
+        <Grid2 container spacing={2} justifyContent="center">
           {data.map((movie) => (
-            <Grid2 size={{ xs: 2.4 }} my={2} key={movie.imdbID}>
+            <Grid2  xs={12} sm={6} md={4} lg={3} my={2} key={movie.imdbID}>
               <MediaCard
                 imageUrl={movie.Poster}
                 showName={movie.Title}
