@@ -25,22 +25,20 @@ const AnimeList = () => {
   const theme = useTheme();
   const dispatch = useDispatch();
   const searchText = useSelector((state: any) => state.searchText.value);
-  console.log("🚀 ~ AnimeList ~ searchText:", searchText)
 
   useEffect(() => {
     const fetchData = async () => {
       dispatch(setLoading(true));
       try {
-        const response = await axios.get<Anime[]>(`https://shikimori.one/api/animes`, {
+        const response = await axios.get(`http://localhost:3000/media/anime`, {
           params: {
             page: currentPage,
-            limit: 20, 
+            limit: 20,
             order: 'ranked',
             search: searchText
           }
         });
-        setData(response.data);
-        // Assuming the API returns total count in headers or response
+        setData(response.data.data);
         setTotalPage(10); // Set a reasonable default or calculate based on total items
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -59,15 +57,16 @@ const AnimeList = () => {
   const handleCardClick = async (item: Anime) => {
     dispatch(setLoading(true));
     try {
-      const response = await axios.get(`https://api.jikan.moe/v4/anime/${item.id}/full`);
-      setSelectedItemDetails(response.data.data);
-      setSelectedItem(item);
+        const response = await axios.get(`http://localhost:3000/media/anime/${item.id}`);
+        setSelectedItemDetails(response.data.data.data);
+        console.log("🚀 ~ handleCardClick ~ response:", response)
+        setSelectedItem(item);
     } catch (error) {
-      console.error('Error fetching item details:', error);
+        console.error('Error fetching item details:', error);
     } finally {
-      dispatch(setLoading(false));
+        dispatch(setLoading(false));
     }
-  };
+};
 
   const handleCloseDialog = () => {
     setSelectedItem(null);
@@ -78,7 +77,7 @@ const AnimeList = () => {
     <Box sx={{ padding: 2 }}>
       {/* Cards Grid */}
       <Grid container spacing={2} justifyContent="center">
-        {data.map((anime) => (
+        {data?.map((anime) => (
           <Grid key={anime.id} my={2} onClick={() => handleCardClick(anime)}>
             <MediaCard
               imageUrl={`https://shikimori.one${anime.image.original}`}
@@ -89,9 +88,9 @@ const AnimeList = () => {
       </Grid>
 
       {/* Pagination - Separated with margin */}
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'center',
         marginTop: 4,
         marginBottom: 2,
         width: '100%'
@@ -116,7 +115,8 @@ const AnimeList = () => {
           open={Boolean(selectedItem)}
           onClose={handleCloseDialog}
           item={selectedItemDetails}
-          imageUrl={selectedItemDetails.images.jpg.large_image_url}
+          discription={selectedItemDetails.synopsis}
+          imageUrl={`https://shikimori.one${selectedItem.image.original}`}
         />
       )}
     </Box>

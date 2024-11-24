@@ -25,24 +25,19 @@ const SeriesList = () => {
   const [selectedItemDetails, setSelectedItemDetails] = useState<any>(null);
 
   const searchText = useSelector((state: any) => state.searchText.value);
-  console.log("🚀 ~ SeriesList ~ searchText:", searchText)
 
   useEffect(() => {
     const fetchData = async () => {
       dispatch(setLoading(true));
       try {
-        const response = await axios.get(`https://api.themoviedb.org/3/search/tv`, {
+        const response = await axios.get(`http://localhost:3000/media/series`, {
           params: {
-            api_key: '291df334d6477bfda873f22a41a6f1c9',
             query: searchText || 'series',
             page: currentPage
-          },
-          headers: {
-            Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyOTFkZjMzNGQ2NDc3YmZkYTg3M2YyMmE0MWE2ZjFjOSIsIm5iZiI6MTczMTk1NTMxNC4yODQxNTI3LCJzdWIiOiI2NzNiOGExMjYyNzIyZTc5YTIxNTVhMTEiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.Luf3z_s74-3sqetUzBI1HKvQ95Qkh1zDn71jODiQLQg'
           }
         });
-        setData(response.data.results || []);
-        setTotalPage(response.data.total_pages);
+        setData(response.data.data.results || []);
+        setTotalPage(response.data.data.total_pages);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -51,28 +46,25 @@ const SeriesList = () => {
     };
 
     fetchData();
-  }, [currentPage, searchText]);
+  }, [currentPage, searchText, dispatch]);
 
   const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
     setCurrentPage(value);
   };
 
-  const handleCardClick = async (item: Series) => {
-    dispatch(setLoading(true));
-    try {
-      const response = await axios.get(`https://api.themoviedb.org/3/tv/${item.id}`, {
-        params: {
-          api_key: '291df334d6477bfda873f22a41a6f1c9'
-        }
-      });
-      setSelectedItemDetails(response.data);
+// Handle card click for Series
+const handleCardClick = async (item: Series) => {
+  dispatch(setLoading(true));
+  try {
+      const response = await axios.get(`http://localhost:3000/media/series/${item.id}`);
+      setSelectedItemDetails(response.data.data);
       setSelectedItem(item);
-    } catch (error) {
+  } catch (error) {
       console.error('Error fetching item details:', error);
-    } finally {
+  } finally {
       dispatch(setLoading(false));
-    }
-  };
+  }
+};
 
   const handleCloseDialog = () => {
     setSelectedItem(null);
@@ -81,19 +73,19 @@ const SeriesList = () => {
 
   return (
     <>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 2, mx:5 }}>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 2, mx: 5 }}>
         <Grid container spacing={2} justifyContent="center">
-          {data.map((series) => (
+          {data?.map((series) => (
             <Grid my={2} key={series.id} onClick={() => handleCardClick(series)}>
               <MediaCard
                 imageUrl={`https://image.tmdb.org/t/p/w500${series.poster_path}`}
                 showName={series.name}
-                
+
               />
             </Grid>
           ))}
         </Grid>
-        
+
         <Box sx={{ display: 'inline', justifyContent: 'center', marginTop: 4, mb: 2 }}>
           <Pagination
             count={totalPage}

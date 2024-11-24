@@ -24,13 +24,6 @@ return currentUser ? <Outlet/> : <Navigate to='/sign-in'/>
 function App() {
   const isLoading = useSelector((state: any) => state.loading.isLoading);
 
-  
-
-
-
-  useEffect(()=>{
-    console.log('hii')
-  })
 
 
   return (

@@ -1,5 +1,5 @@
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, Box, useTheme } from '@mui/material';
-import { useState } from 'react';
+import { Dialog, DialogContent, DialogActions, Button, Typography, Box, useTheme } from '@mui/material';
+import { useEffect, useState } from 'react';
 import { FormControl, InputLabel, Select, MenuItem, TextField, Checkbox, FormControlLabel } from '@mui/material';
 import { COLORS } from '../../theme/colors';
 
@@ -8,11 +8,12 @@ interface DetailDialogProps {
   onClose: () => void;
   item: any;
   imageUrl: string; // Accept imageUrl as a prop
+  discription?: string;
 }
 
-const DetailDialog = ({ open, onClose, item, imageUrl }: DetailDialogProps) => {
+const DetailDialog = ({ open, onClose, item, imageUrl, discription }: DetailDialogProps) => {
   const [status, setStatus] = useState('');
-  const [score, setScore] = useState<number | ''>('');
+  const [score, setScore] = useState<number | null>(null);
   const [shortlisted, setShortlisted] = useState(false);
 
   const handleStatusChange = (event: React.ChangeEvent<{ value: unknown }>) => {
@@ -20,7 +21,14 @@ const DetailDialog = ({ open, onClose, item, imageUrl }: DetailDialogProps) => {
   };
 
   const handleScoreChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setScore(Number(event.target.value));
+    const value = event.target.value;
+    console.log("🚀 ~ handleScoreChange ~ value:", value)
+    if (Number(value) > 10) {
+      setScore(10);
+    } else {
+      setScore(value === '' ? null : Number(value));
+    }
+
   };
 
   const handleShortlistedChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,7 +63,7 @@ const DetailDialog = ({ open, onClose, item, imageUrl }: DetailDialogProps) => {
               </Typography>
             )}
             <Typography variant="body1" gutterBottom>
-              {item.overview || item.description}
+              {discription || item.overview || item.description}
             </Typography>
 
             {/* Status Dropdown */}
@@ -82,6 +90,7 @@ const DetailDialog = ({ open, onClose, item, imageUrl }: DetailDialogProps) => {
                 <MenuItem value="Plan to Watch">Plan to Watch</MenuItem>
                 <MenuItem value="Watching">Watching</MenuItem>
                 <MenuItem value="Completed">Completed</MenuItem>
+                <MenuItem value="Dropped">Completed</MenuItem>
               </Select>
             </FormControl>
 
@@ -93,7 +102,7 @@ const DetailDialog = ({ open, onClose, item, imageUrl }: DetailDialogProps) => {
               type="number"
               value={score}
               onChange={handleScoreChange}
-              inputProps={{ min: 0, max: 10 }}
+              inputProps={{ max: 10 }}
               sx={{
                 color: COLORS.TEXT_PRIMARY,
                 '.MuiInputLabel-root': { color: COLORS.TEXT_SECONDARY },

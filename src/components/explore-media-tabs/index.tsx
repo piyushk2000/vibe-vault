@@ -36,7 +36,7 @@ function a11yProps(index: number) {
   };
 }
 
-export default function MediaType() {
+export default function ExploreMediaType() {
   const [value, setValue] = React.useState(0);
 
   //@ts-ignore
@@ -69,7 +69,7 @@ export default function MediaType() {
           <Tab label="Anime" {...a11yProps(0)} />
           <Tab label="Movies" {...a11yProps(1)} />
           <Tab label="TV-Shows" {...a11yProps(2)} />
-          <Tab label="Books" {...a11yProps(3)} />
+          {/* <Tab label="Books" {...a11yProps(3)} /> */}
         </Tabs>
       </Box>
       <CustomTabPanel value={value} index={0}>
@@ -81,9 +81,9 @@ export default function MediaType() {
       <CustomTabPanel value={value} index={2}>
         <SeriesList />
       </CustomTabPanel>
-      <CustomTabPanel value={value} index={3}>
+      {/* <CustomTabPanel value={value} index={3}>
         Item Four
-      </CustomTabPanel>
+      </CustomTabPanel> */}
     </Box>
   );
 }

@@ -1,9 +1,9 @@
-import MediaType from "../../components/media-tabs"
+import ExploreMediaType from "../../components/explore-media-tabs"
 
 const SearchMedia = () => {
   return (
     <>
-    <MediaType/>
+    <ExploreMediaType/>
     {/* <MediaCard /> */}
     </>
   )
