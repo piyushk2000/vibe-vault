@@ -74,4 +74,10 @@ export const COLORS = {
   TAB_INACTIVE: '#8B949E',
   TAB_SELECTED_BACKGROUND: '#21262D', // Lighter background for selected tab
   TAB_SELECTED_TEXT: '#FFFFFF', // White text for selected tab
+
+  // Dialog Specific Colors
+  DIALOG_BACKGROUND: '#161B22',     // Matches card background
+  DIALOG_TEXT: '#C9D1D9',           // Primary text color
+  DIALOG_TITLE: '#FFFFFF',          // Title text color
+  DIALOG_ACCENT: '#58A6FF',         // Accent color for highlights
 };

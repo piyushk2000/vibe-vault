@@ -8,6 +8,8 @@ import { ThemeProvider } from '@mui/material/styles';
 import theme from './theme/theme';
 import CircularProgress from '@mui/material/CircularProgress';
 import { COLORS } from './theme/colors';
+import CssBaseline from '@mui/material/CssBaseline';
+import { useEffect } from 'react';
 
 export function PrivateRoute() {
   //@ts-ignore
@@ -17,11 +19,23 @@ return currentUser ? <Outlet/> : <Navigate to='/sign-in'/>
 
 
 
+
+
 function App() {
   const isLoading = useSelector((state: any) => state.loading.isLoading);
 
+  
+
+
+
+  useEffect(()=>{
+    console.log('hii')
+  })
+
+
   return (
     <ThemeProvider theme={theme}>
+      <CssBaseline />
       <>
         {isLoading && (
           <div style={{
