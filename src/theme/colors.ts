@@ -80,4 +80,22 @@ export const COLORS = {
   DIALOG_TEXT: '#C9D1D9',           // Primary text color
   DIALOG_TITLE: '#FFFFFF',          // Title text color
   DIALOG_ACCENT: '#58A6FF',         // Accent color for highlights
+
+  // Login Page Specific
+  LOGIN_GRADIENT_START: 'rgba(88, 166, 255, 0.1)',
+  LOGIN_GRADIENT_END: 'rgba(31, 111, 235, 0.05)',
+  LOGIN_CARD_BG: 'rgba(22, 27, 34, 0.8)',
+  LOGIN_INPUT_BG: 'rgba(13, 17, 23, 0.7)',
+  LOGIN_BUTTON_GRADIENT: ['#58A6FF', '#1F6FEB'],
+  LOGIN_SHADOW: 'rgba(88, 166, 255, 0.15)',
+  LOGIN_HOVER_SHADOW: 'rgba(88, 166, 255, 0.25)',
+
+  // Social Login Colors
+  GOOGLE_BUTTON_BG: '#ffffff',
+  GOOGLE_BUTTON_TEXT: '#757575',
+  GOOGLE_BUTTON_BORDER: '#dadce0',
+  GOOGLE_BUTTON_HOVER: '#f8f9fa',
+
+  // Divider Colors
+  DIVIDER_TEXT: '#8B949E',
 };
