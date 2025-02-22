@@ -1,12 +1,13 @@
 import { Box, Pagination } from "@mui/material";
-import { useTheme } from '@mui/material/styles';
-import { useDispatch, useSelector } from "react-redux";
-import { setLoading } from "../../../../redux/loadingSlice";
-import MediaCard from "../../../../components/cards";
+import Grid from "@mui/material/Grid2";
+import { useTheme } from "@mui/material/styles";
 import { useEffect, useState } from "react";
-import axios from "axios";
-import Grid from '@mui/material/Grid2';
-import DetailDialog from '../../../details-view';
+import { useDispatch, useSelector } from "react-redux";
+import MediaCard from "../../../../components/cards";
+import { setLoading } from "../../../../redux/loadingSlice";
+import { SearchStateRoot } from "../../../../redux/searchSlice";
+import { getDataFromServer } from "../../../../services/fetchData";
+import DetailDialog from "../../../details-view";
 
 interface Anime {
   id: number;
@@ -14,6 +15,11 @@ interface Anime {
     original: string;
   };
   name: string;
+  synopsis: string;
+}
+
+interface AnimeResponse {
+  data: Anime[];
 }
 
 const AnimeList = () => {
@@ -21,52 +27,65 @@ const AnimeList = () => {
   const [totalPage, setTotalPage] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedItem, setSelectedItem] = useState<Anime | null>(null);
-  const [selectedItemDetails, setSelectedItemDetails] = useState<any>(null);
+  const [selectedItemDetails, setSelectedItemDetails] = useState<Anime | null>(
+    null
+  );
   const theme = useTheme();
   const dispatch = useDispatch();
-  const searchText = useSelector((state: any) => state.searchText.value);
+  const searchText = useSelector(
+    (state: SearchStateRoot) => state.searchText.value
+  );
+
+  const fetchAnimeList = async () => {
+    const responseData = await getDataFromServer<AnimeResponse>({
+      endPoint: "/media/anime",
+      customParams: {
+        page: currentPage,
+        limit: 20,
+        order: "ranked",
+        search: searchText,
+      },
+    });
+    console.log({ responseData });
+
+    if (!responseData) {
+      // Handle null case (optional error logging here)
+      console.warn("Failed to fetch anime data");
+      return;
+    }
+    setData(responseData.data);
+    setTotalPage(10); // Set a reasonable default or calculate based on total items
+  };
+
+  async function Setup() {
+    dispatch(setLoading(true));
+    fetchAnimeList();
+    dispatch(setLoading(false));
+  }
 
   useEffect(() => {
-    const fetchData = async () => {
-      dispatch(setLoading(true));
-      try {
-        const response = await axios.get(`http://localhost:3000/media/anime`, {
-          params: {
-            page: currentPage,
-            limit: 20,
-            order: 'ranked',
-            search: searchText
-          }
-        });
-        setData(response.data.data);
-        setTotalPage(10); // Set a reasonable default or calculate based on total items
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        dispatch(setLoading(false));
-      }
-    };
-
-    fetchData();
+    Setup();
   }, [currentPage, searchText, dispatch]);
 
   const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
     setCurrentPage(value);
   };
 
-  const handleCardClick = async (item: Anime) => {
+  const getSingleAnimeData = async (item: Anime) => {
     dispatch(setLoading(true));
-    try {
-        const response = await axios.get(`http://localhost:3000/media/anime/${item.id}`);
-        setSelectedItemDetails(response.data.data.data);
-        console.log("🚀 ~ handleCardClick ~ response:", response)
-        setSelectedItem(item);
-    } catch (error) {
-        console.error('Error fetching item details:', error);
-    } finally {
-        dispatch(setLoading(false));
+    const responseData = await getDataFromServer<Anime>({
+      endPoint: `/media/anime/${item.id}`,
+    });
+    if (!responseData) {
+      // Handle null case (optional error logging here)
+      console.warn("Failed to fetch data");
+      return;
     }
-};
+
+    setSelectedItemDetails(responseData);
+    setSelectedItem(item);
+    dispatch(setLoading(false));
+  };
 
   const handleCloseDialog = () => {
     setSelectedItem(null);
@@ -78,7 +97,7 @@ const AnimeList = () => {
       {/* Cards Grid */}
       <Grid container spacing={2} justifyContent="center">
         {data?.map((anime) => (
-          <Grid key={anime.id} my={2} onClick={() => handleCardClick(anime)}>
+          <Grid key={anime.id} my={2} onClick={() => getSingleAnimeData(anime)}>
             <MediaCard
               imageUrl={`https://shikimori.one${anime.image.original}`}
               showName={anime.name}
@@ -88,20 +107,22 @@ const AnimeList = () => {
       </Grid>
 
       {/* Pagination - Separated with margin */}
-      <Box sx={{
-        display: 'flex',
-        justifyContent: 'center',
-        marginTop: 4,
-        marginBottom: 2,
-        width: '100%'
-      }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          marginTop: 4,
+          marginBottom: 2,
+          width: "100%",
+        }}
+      >
         <Pagination
           count={totalPage}
           page={currentPage}
           color="primary"
           onChange={handlePageChange}
           sx={{
-            '& .Mui-selected': {
+            "& .Mui-selected": {
               backgroundColor: theme.palette.primary.main,
               color: theme.palette.primary.contrastText,
             },
