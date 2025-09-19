@@ -4,6 +4,7 @@ export const COLORS = {
   SECONDARY: '#161B22',       // Adjusted for contrast
   ACCENT: '#58A6FF',          // Brighter blue accent
   ACCENT_LIGHT: '#79C0FF',    // Lighter blue for hover states
+  ACCENT_HOVER: '#4589dd',    // Darker blue for hovering over accent elements
 
   // Background Variations
   BACKGROUND_DARKEST: '#010409',

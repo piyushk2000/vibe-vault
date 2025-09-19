@@ -1,204 +1,247 @@
-import AdbIcon from "@mui/icons-material/Adb";
-import MenuIcon from "@mui/icons-material/Menu";
-import AppBar from "@mui/material/AppBar";
-import Avatar from "@mui/material/Avatar";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import Container from "@mui/material/Container";
-import IconButton from "@mui/material/IconButton";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import Toolbar from "@mui/material/Toolbar";
-import Tooltip from "@mui/material/Tooltip";
-import Typography from "@mui/material/Typography";
-import * as React from "react";
-import { useNavigate } from "react-router-dom";
-import { COLORS } from "../../theme/colors";
-import MediaSeachBox from "../search-box";
+import React, { useState, useEffect } from 'react';
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Box,
+  IconButton,
+  Menu,
+  MenuItem,
+  Avatar,
+  Tabs,
+  Tab,
+  Badge,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material';
+import { AccountCircle, Logout, Person, Edit } from '@mui/icons-material';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { logout } from '../../redux/authSlice';
+import { fetchProfile } from '../../redux/profileSlice';
+import { fetchMatchRequests } from '../../redux/matchRequestSlice';
+import { AppDispatch, RootState } from '../../redux/store';
+import { COLORS } from '../../theme/colors';
+import ProfileModal from '../profile/ProfileModal';
 
-const pages = [
-  { Name: "Explore", Path: "/explore" },
-  { Name: "My Vibe", Path: "/my-vibe" },
-];
-const settings = [
-  { Name: "Profile", Path: "/profile" },
-  { Name: "Account", Path: "/account" },
-  { Name: "Dashboard", Path: "/dashboard" },
-  { Name: "Login", Path: "/login" },
-];
-
-function Navbar() {
-  const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
-    null
-  );
-  const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
-    null
-  );
-  // const [search , setSearch] = React.useState('')
-
-  const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElNav(event.currentTarget);
-  };
-  const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElUser(event.currentTarget);
-  };
-
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
-  };
-
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
-  };
-
+const Navbar: React.FC = () => {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  
+  const { user } = useSelector((state: RootState) => state.auth);
+  const { profile } = useSelector((state: RootState) => state.profile);
+  const { requests } = useSelector((state: RootState) => state.matchRequest);
+
+  useEffect(() => {
+    if (user) {
+      dispatch(fetchProfile());
+      dispatch(fetchMatchRequests());
+    }
+  }, [user, dispatch]);
+
+  const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/login');
+    handleClose();
+  };
+
+  const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
+    navigate(newValue);
+  };
+
+  const getCurrentTab = () => {
+    const path = location.pathname;
+    if (path === '/explore') return '/explore';
+    if (path === '/my-vibe') return '/my-vibe';
+    if (path === '/find-matches') return '/find-matches';
+    if (path === '/match-requests') return '/match-requests';
+    if (path === '/matched') return '/matched';
+    return '/explore';
+  };
 
   return (
-    <AppBar position="static" sx={{ backgroundColor: COLORS.NAV_BACKGROUND }}>
-      <Container maxWidth="xl">
-        <Toolbar disableGutters>
-          <AdbIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
-          <Typography
-            variant="h6"
-            noWrap
-            component="a"
-            href="#app-bar-with-responsive-menu"
-            sx={{
-              mr: 2,
-              display: { xs: "none", md: "flex" },
-              fontFamily: "monospace",
-              fontWeight: 700,
-              letterSpacing: ".3rem",
-              color: COLORS.TEXT_PRIMARY,
-              textDecoration: "none",
-            }}
-          >
-            Vibe
-          </Typography>
+    <AppBar
+      position="sticky"
+      sx={{
+        backgroundColor: COLORS.NAV_BACKGROUND,
+        borderBottom: `1px solid ${COLORS.BORDER}`,
+        boxShadow: 'none',
+      }}
+    >
+      <Toolbar sx={{ justifyContent: 'space-between' }}>
+        {/* Logo */}
+        <Typography
+          variant="h6"
+          component="div"
+          sx={{
+            fontWeight: 'bold',
+            background: `linear-gradient(45deg, ${COLORS.ACCENT} 30%, ${COLORS.ACCENT_LIGHT} 90%)`,
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            cursor: 'pointer',
+          }}
+          onClick={() => navigate('/explore')}
+        >
+          VibeVault
+        </Typography>
 
-          <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
-            <IconButton
-              size="large"
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={handleOpenNavMenu}
-              color="inherit"
-            >
-              <MenuIcon />
-            </IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorElNav}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "left",
+        {/* Navigation Tabs - Hidden on mobile */}
+        {!isMobile && (
+          <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
+            <Tabs
+              value={getCurrentTab()}
+              onChange={handleTabChange}
+              sx={{
+                '& .MuiTabs-indicator': {
+                  backgroundColor: COLORS.ACCENT,
+                },
+                '& .MuiTab-root': {
+                  color: COLORS.NAV_INACTIVE,
+                  '&.Mui-selected': {
+                    color: COLORS.NAV_ACTIVE,
+                  },
+                },
               }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "left",
-              }}
-              open={Boolean(anchorElNav)}
-              onClose={handleCloseNavMenu}
-              sx={{ display: { xs: "block", md: "none" } }}
             >
-              {pages.map((page) => (
-                <MenuItem
-                  key={page.Name}
-                  onClick={() => {
-                    navigate(page.Path);
-                  }}
-                >
-                  <Typography sx={{ textAlign: "center" }}>
-                    {page.Name}
-                  </Typography>
-                </MenuItem>
-              ))}
-            </Menu>
+              <Tab label="Explore" value="/explore" />
+              <Tab label="My Vibe" value="/my-vibe" />
+              <Tab label="Find Matches" value="/find-matches" />
+              <Tab 
+                label={
+                  <Badge 
+                    badgeContent={requests.length} 
+                    sx={{
+                      '& .MuiBadge-badge': {
+                        backgroundColor: COLORS.ERROR,
+                        color: 'white',
+                        fontSize: '0.7rem',
+                        minWidth: 16,
+                        height: 16,
+                      },
+                    }}
+                  >
+                    Match Requests
+                  </Badge>
+                } 
+                value="/match-requests" 
+              />
+              <Tab label="Matched" value="/matched" />
+            </Tabs>
           </Box>
-          <AdbIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
-          <Typography
-            variant="h5"
-            noWrap
-            component="a"
-            href="#app-bar-with-responsive-menu"
-            sx={{
-              mr: 2,
-              display: { xs: "flex", md: "none" },
-              flexGrow: 1,
-              fontFamily: "monospace",
-              fontWeight: 700,
-              letterSpacing: ".3rem",
-              color: "inherit",
-              textDecoration: "none",
-            }}
+        )}
+
+        {/* User Menu */}
+        <Box>
+          <IconButton
+            size="large"
+            aria-label="account of current user"
+            aria-controls="menu-appbar"
+            aria-haspopup="true"
+            onClick={handleMenu}
+            color="inherit"
           >
-            Logo
-          </Typography>
-          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-            {pages.map((page) => (
-              <Button
-                key={page.Name}
-                onClick={() => {
-                  handleCloseNavMenu();
-                  navigate(page.Path);
-                }}
+            {profile?.avatar ? (
+              <Avatar
+                src={profile.avatar}
                 sx={{
-                  my: 2,
-                  color: COLORS.TEXT_PRIMARY,
-                  display: "block",
-                  "&:hover": { backgroundColor: COLORS.HOVER },
+                  width: 32,
+                  height: 32,
+                  border: `2px solid ${COLORS.ACCENT}`,
+                }}
+              />
+            ) : user?.name ? (
+              <Avatar
+                sx={{
+                  width: 32,
+                  height: 32,
+                  backgroundColor: COLORS.ACCENT,
+                  fontSize: '0.875rem',
                 }}
               >
-                {page.Name}
-              </Button>
-            ))}
-            <Box sx={{ ml: 2, my: 2 }}>
-              <MediaSeachBox />
-            </Box>
-          </Box>
-
-          <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-              </IconButton>
-            </Tooltip>
-            <Menu
-              sx={{ mt: "45px" }}
-              id="menu-appbar"
-              anchorEl={anchorElUser}
-              anchorOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
-            >
-              {settings.map((setting) => (
-                <MenuItem
-                  key={setting.Name}
-                  onClick={() => {
-                    handleCloseUserMenu();
-                    navigate(setting.Path);
-                  }}
-                >
-                  <Typography sx={{ textAlign: "center" }}>
-                    {setting.Name}
-                  </Typography>
-                </MenuItem>
-              ))}
-            </Menu>
-          </Box>
-        </Toolbar>
-      </Container>
+                {user.name.charAt(0).toUpperCase()}
+              </Avatar>
+            ) : (
+              <AccountCircle />
+            )}
+          </IconButton>
+          <Menu
+            id="menu-appbar"
+            anchorEl={anchorEl}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right',
+            }}
+            keepMounted
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+            open={Boolean(anchorEl)}
+            onClose={handleClose}
+            sx={{
+              '& .MuiPaper-root': {
+                backgroundColor: COLORS.CARD_BACKGROUND,
+                border: `1px solid ${COLORS.BORDER}`,
+                mt: 1,
+              },
+            }}
+          >
+            {user && (
+              <MenuItem disabled sx={{ opacity: 1 }}>
+                <Person sx={{ mr: 1 }} />
+                {user.name}
+              </MenuItem>
+            )}
+            <MenuItem onClick={() => { setProfileModalOpen(true); handleClose(); }}>
+              <Edit sx={{ mr: 1 }} />
+              Edit Profile
+            </MenuItem>
+            {isMobile && [
+              <MenuItem key="explore" onClick={() => { navigate('/explore'); handleClose(); }}>
+                Explore
+              </MenuItem>,
+              <MenuItem key="my-vibe" onClick={() => { navigate('/my-vibe'); handleClose(); }}>
+                My Vibe
+              </MenuItem>,
+              <MenuItem key="find-matches" onClick={() => { navigate('/find-matches'); handleClose(); }}>
+                Find Matches
+              </MenuItem>,
+              <MenuItem key="match-requests" onClick={() => { navigate('/match-requests'); handleClose(); }}>
+                Match Requests
+              </MenuItem>,
+              <MenuItem key="matched" onClick={() => { navigate('/matched'); handleClose(); }}>
+                Matched
+              </MenuItem>,
+            ]}
+            <MenuItem onClick={handleLogout}>
+              <Logout sx={{ mr: 1 }} />
+              Logout
+            </MenuItem>
+          </Menu>
+        </Box>
+      </Toolbar>
+      
+      {/* Profile Modal */}
+      <ProfileModal
+        open={profileModalOpen}
+        onClose={() => setProfileModalOpen(false)}
+      />
     </AppBar>
   );
-}
+};
+
 export default Navbar;
