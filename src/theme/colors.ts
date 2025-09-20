@@ -99,4 +99,39 @@ export const COLORS = {
 
   // Divider Colors
   DIVIDER_TEXT: '#8B949E',
+
+  // Enhanced Design Tokens
+  FOCUS_RING: '#58A6FF',
+  SKELETON_BASE: '#21262D',
+  SKELETON_HIGHLIGHT: '#30363D',
+  
+  // Interactive States
+  PRESSED: '#1F6FEB',
+  SELECTED: 'rgba(88, 166, 255, 0.15)',
+  DISABLED_BACKGROUND: '#21262D',
+  DISABLED_TEXT: '#484F58',
+  
+  // Feedback Colors
+  SUCCESS_BACKGROUND: 'rgba(86, 211, 100, 0.1)',
+  ERROR_BACKGROUND: 'rgba(248, 81, 73, 0.1)',
+  WARNING_BACKGROUND: 'rgba(227, 179, 65, 0.1)',
+  INFO_BACKGROUND: 'rgba(88, 166, 255, 0.1)',
+  ACCENT_BACKGROUND: 'rgba(88, 166, 255, 0.1)',
+  
+  // Surface Colors
+  SURFACE_RAISED: '#21262D',
+  SURFACE_OVERLAY: '#30363D',
+  SURFACE_PRESSED: '#161B22',
+  
+  // Border Variants
+  BORDER_SUBTLE: '#21262D',
+  BORDER_STRONG: '#484F58',
+  BORDER_ACCENT: '#58A6FF',
+  
+  // Text Variants
+  TEXT_LINK: '#58A6FF',
+  TEXT_LINK_HOVER: '#79C0FF',
+  TEXT_SUCCESS: '#56D364',
+  TEXT_ERROR: '#F85149',
+  TEXT_WARNING: '#E3B341',
 };

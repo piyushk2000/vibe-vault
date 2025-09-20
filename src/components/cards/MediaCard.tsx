@@ -19,10 +19,14 @@ import {
   Select,
   MenuItem,
   IconButton,
+  useMediaQuery,
+  useTheme,
+  Fade,
 } from '@mui/material';
-import { Add, Info, Close } from '@mui/icons-material';
+import { Add, Info, Close, Star } from '@mui/icons-material';
 import { COLORS } from '../../theme/colors';
 import { getDefaultMediaImage } from '../../utils/defaultImages';
+import { getTouchTargetStyles, createTransition } from '../../theme/utils';
 
 interface Media {
   id?: number;
@@ -47,6 +51,9 @@ interface MediaCardProps {
   userRating?: number;
   userStatus?: string;
   userReview?: string;
+  variant?: 'compact' | 'standard' | 'detailed';
+  showQuickActions?: boolean;
+  loading?: boolean;
 }
 
 const MediaCard: React.FC<MediaCardProps> = ({
@@ -56,6 +63,9 @@ const MediaCard: React.FC<MediaCardProps> = ({
   userRating,
   userStatus,
   userReview,
+  variant = 'standard',
+  showQuickActions = false,
+  loading = false,
 }) => {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
@@ -63,6 +73,10 @@ const MediaCard: React.FC<MediaCardProps> = ({
   const [status, setStatus] = useState(userStatus || 'PLAN_TO_WATCH');
   const [review, setReview] = useState(userReview || '');
   const [imageError, setImageError] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const handleAddToLibrary = () => {
     if (onAddToLibrary) {
@@ -106,74 +120,228 @@ const MediaCard: React.FC<MediaCardProps> = ({
     }
   };
 
+  const getCardDimensions = () => {
+    switch (variant) {
+      case 'compact':
+        return {
+          width: isMobile ? '100%' : 200,
+          imageHeight: isMobile ? 280 : 280,
+        };
+      case 'detailed':
+        return {
+          width: isMobile ? '100%' : 320,
+          imageHeight: isMobile ? 400 : 450,
+        };
+      default: // standard
+        return {
+          width: isMobile ? '100%' : 280,
+          imageHeight: isMobile ? 350 : 400,
+        };
+    }
+  };
+
+  const { width, imageHeight } = getCardDimensions();
+
+  if (loading) {
+    return (
+      <Card
+        sx={{
+          width,
+          backgroundColor: COLORS.CARD_BACKGROUND,
+          border: `1px solid ${COLORS.CARD_BORDER}`,
+          borderRadius: theme.customSpacing.md,
+        }}
+      >
+        {/* Loading skeleton would go here */}
+        <Box sx={{ p: 2, textAlign: 'center' }}>
+          <Typography variant="body2" color="textSecondary">
+            Loading...
+          </Typography>
+        </Box>
+      </Card>
+    );
+  }
+
   return (
     <>
       <Card
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
         sx={{
-          width: 280,
+          width,
+          maxWidth: '100%',
           backgroundColor: COLORS.CARD_BACKGROUND,
           border: `1px solid ${COLORS.CARD_BORDER}`,
-          transition: 'all 0.3s ease',
+          borderRadius: theme.customSpacing.md,
+          position: 'relative',
+          overflow: 'hidden',
+          transition: createTransition(
+            ['transform', 'box-shadow', 'background-color'], 
+            theme.customAnimations.duration.standard
+          ),
           '&:hover': {
             backgroundColor: COLORS.CARD_HOVER,
-            transform: 'translateY(-4px)',
-            boxShadow: `0 8px 25px ${COLORS.OVERLAY_DARK}`,
+            transform: isMobile ? 'none' : 'translateY(-4px)',
+            boxShadow: isMobile ? theme.customShadows.card : theme.customShadows.cardHover,
           },
+          cursor: 'pointer',
         }}
       >
-        <CardMedia
-          component="img"
-          height="400"
-          image={imageError ? getDefaultMediaImage(media.type) : media.image}
-          alt={media.title}
-          onError={() => setImageError(true)}
-          sx={{
-            objectFit: 'cover',
-          }}
-        />
+        {/* Image Container with Overlay */}
+        <Box sx={{ position: 'relative', overflow: 'hidden' }}>
+          <CardMedia
+            component="img"
+            height={imageHeight}
+            image={imageError ? getDefaultMediaImage(media.type) : media.image}
+            alt={media.title}
+            onError={() => setImageError(true)}
+            sx={{
+              objectFit: 'cover',
+              transition: createTransition(['transform'], theme.customAnimations.duration.standard),
+              '&:hover': {
+                transform: isMobile ? 'none' : 'scale(1.05)',
+              },
+            }}
+          />
+          
+          {/* Quick Actions Overlay - Desktop Only */}
+          {!isMobile && showQuickActions && (
+            <Fade in={isHovered}>
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  background: 'rgba(0, 0, 0, 0.7)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: theme.customSpacing.md,
+                }}
+              >
+                <IconButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDetailsOpen(true);
+                  }}
+                  sx={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    color: COLORS.PRIMARY,
+                    '&:hover': {
+                      backgroundColor: 'white',
+                      transform: 'scale(1.1)',
+                    },
+                  }}
+                >
+                  <Info />
+                </IconButton>
+                {showAddButton && (
+                  <IconButton
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setAddDialogOpen(true);
+                    }}
+                    sx={{
+                      backgroundColor: COLORS.ACCENT,
+                      color: 'white',
+                      '&:hover': {
+                        backgroundColor: COLORS.ACCENT_HOVER,
+                        transform: 'scale(1.1)',
+                      },
+                    }}
+                  >
+                    <Add />
+                  </IconButton>
+                )}
+              </Box>
+            </Fade>
+          )}
 
-        <CardContent sx={{ pb: 1 }}>
+          {/* Rating Badge */}
+          {userRating && (
+            <Box
+              sx={{
+                position: 'absolute',
+                top: theme.customSpacing.sm,
+                right: theme.customSpacing.sm,
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                borderRadius: theme.customSpacing.sm,
+                px: theme.customSpacing.sm,
+                py: theme.customSpacing.xs,
+                display: 'flex',
+                alignItems: 'center',
+                gap: theme.customSpacing.xs,
+              }}
+            >
+              <Star sx={{ fontSize: '1rem', color: COLORS.WARNING }} />
+              <Typography variant="caption" sx={{ color: 'white', fontWeight: 600 }}>
+                {userRating}
+              </Typography>
+            </Box>
+          )}
+        </Box>
+
+        <CardContent 
+          sx={{ 
+            pb: 1,
+            px: { xs: theme.customSpacing.md, sm: theme.customSpacing.md },
+            pt: theme.customSpacing.md,
+          }}
+        >
           <Typography
-            variant="h6"
+            variant={variant === 'compact' ? 'subtitle1' : 'h6'}
             component="div"
             sx={{
               fontWeight: 'bold',
-              mb: 1,
+              mb: theme.customSpacing.sm,
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
+              color: COLORS.TEXT_PRIMARY,
+              fontSize: {
+                xs: variant === 'compact' ? '1rem' : '1.125rem',
+                sm: variant === 'compact' ? '1rem' : '1.25rem',
+              },
             }}
           >
             {media.title}
           </Typography>
 
-          <Typography
-            variant="body2"
-            color="textSecondary"
-            sx={{
-              mb: 2,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              display: '-webkit-box',
-              WebkitLineClamp: 3,
-              WebkitBoxOrient: 'vertical',
-            }}
-          >
-            {media.description}
-          </Typography>
+          {variant !== 'compact' && (
+            <Typography
+              variant="body2"
+              color="textSecondary"
+              sx={{
+                mb: theme.customSpacing.md,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                display: '-webkit-box',
+                WebkitLineClamp: variant === 'detailed' ? 4 : 3,
+                WebkitBoxOrient: 'vertical',
+                lineHeight: 1.4,
+                color: COLORS.TEXT_SECONDARY,
+              }}
+            >
+              {media.description}
+            </Typography>
+          )}
 
-          <Box sx={{ mb: 2 }}>
+          <Box sx={{ mb: theme.customSpacing.md }}>
             <Chip
               label={media.type}
               size="small"
               sx={{
                 backgroundColor: COLORS.ACCENT,
                 color: 'white',
-                mr: 1,
-                mb: 1,
+                mr: theme.customSpacing.sm,
+                mb: theme.customSpacing.sm,
+                fontWeight: 600,
+                fontSize: '0.75rem',
               }}
             />
-            {media.genres.slice(0, 2).map((genre, index) => (
+            {media.genres.slice(0, variant === 'detailed' ? 3 : 2).map((genre, index) => (
               <Chip
                 key={index}
                 label={genre}
@@ -182,61 +350,90 @@ const MediaCard: React.FC<MediaCardProps> = ({
                 sx={{
                   borderColor: COLORS.BORDER,
                   color: COLORS.TEXT_SECONDARY,
-                  mr: 1,
-                  mb: 1,
+                  mr: theme.customSpacing.sm,
+                  mb: theme.customSpacing.sm,
+                  fontSize: '0.7rem',
+                  '&:hover': {
+                    borderColor: COLORS.ACCENT,
+                    color: COLORS.ACCENT,
+                  },
                 }}
               />
             ))}
           </Box>
 
-          {userRating && (
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-              <Rating value={userRating} readOnly size="small" />
-              <Typography variant="body2" sx={{ ml: 1 }}>
-                ({userRating}/5)
-              </Typography>
-            </Box>
-          )}
-
           {userStatus && (
-            <Chip
-              label={getStatusLabel(userStatus)}
-              size="small"
-              sx={{
-                backgroundColor: getStatusColor(userStatus),
-                color: 'white',
-              }}
-            />
+            <Box sx={{ mb: theme.customSpacing.sm }}>
+              <Chip
+                label={getStatusLabel(userStatus)}
+                size="small"
+                sx={{
+                  backgroundColor: getStatusColor(userStatus),
+                  color: 'white',
+                  fontWeight: 600,
+                }}
+              />
+            </Box>
           )}
         </CardContent>
 
-        <CardActions sx={{ justifyContent: 'space-between', px: 2, pb: 2 }}>
-          <Button
-            size="small"
-            startIcon={<Info />}
-            onClick={() => setDetailsOpen(true)}
-            sx={{ color: COLORS.ACCENT }}
+        {/* Mobile Actions - Always visible on mobile */}
+        {(isMobile || !showQuickActions) && (
+          <CardActions 
+            sx={{ 
+              justifyContent: 'space-between', 
+              px: { xs: theme.customSpacing.md, sm: theme.customSpacing.md },
+              pb: theme.customSpacing.md,
+              pt: 0,
+            }}
           >
-            Details
-          </Button>
-
-          {showAddButton && (
             <Button
               size="small"
-              startIcon={<Add />}
-              variant="contained"
-              onClick={() => setAddDialogOpen(true)}
+              startIcon={<Info />}
+              onClick={() => setDetailsOpen(true)}
               sx={{
-                backgroundColor: COLORS.ACCENT,
+                ...getTouchTargetStyles(),
+                color: COLORS.ACCENT,
+                textTransform: 'none',
+                fontWeight: 500,
+                transition: createTransition(['color', 'background-color'], theme.customAnimations.duration.shorter),
                 '&:hover': {
-                  backgroundColor: COLORS.ACCENT_HOVER,
+                  backgroundColor: COLORS.ACCENT_BACKGROUND,
+                  color: COLORS.ACCENT_LIGHT,
                 },
               }}
             >
-              Add
+              Details
             </Button>
-          )}
-        </CardActions>
+
+            {showAddButton && (
+              <Button
+                size="small"
+                startIcon={<Add />}
+                variant="contained"
+                onClick={() => setAddDialogOpen(true)}
+                sx={{
+                  ...getTouchTargetStyles(),
+                  backgroundColor: COLORS.ACCENT,
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  boxShadow: theme.customShadows.button,
+                  transition: createTransition(
+                    ['background-color', 'transform', 'box-shadow'], 
+                    theme.customAnimations.duration.shorter
+                  ),
+                  '&:hover': {
+                    backgroundColor: COLORS.ACCENT_HOVER,
+                    transform: 'translateY(-1px)',
+                    boxShadow: theme.customShadows.buttonHover,
+                  },
+                }}
+              >
+                Add
+              </Button>
+            )}
+          </CardActions>
+        )}
       </Card>
 
       {/* Details Dialog */}
@@ -245,42 +442,109 @@ const MediaCard: React.FC<MediaCardProps> = ({
         onClose={() => setDetailsOpen(false)}
         maxWidth="md"
         fullWidth
+        fullScreen={isMobile}
+        sx={{
+          '& .MuiDialog-paper': {
+            borderRadius: isMobile ? 0 : theme.customSpacing.md,
+            margin: isMobile ? 0 : theme.customSpacing.lg,
+          },
+        }}
       >
-        <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          {media.title}
-          <IconButton onClick={() => setDetailsOpen(false)}>
+        <DialogTitle 
+          sx={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            pb: theme.customSpacing.md,
+            borderBottom: `1px solid ${COLORS.BORDER}`,
+          }}
+        >
+          <Typography variant="h6" sx={{ fontWeight: 600, color: COLORS.TEXT_PRIMARY }}>
+            {media.title}
+          </Typography>
+          <IconButton 
+            onClick={() => setDetailsOpen(false)}
+            sx={{
+              ...getTouchTargetStyles(),
+              color: COLORS.TEXT_SECONDARY,
+              '&:hover': {
+                backgroundColor: COLORS.HOVER,
+                color: COLORS.TEXT_PRIMARY,
+              },
+            }}
+          >
             <Close />
           </IconButton>
         </DialogTitle>
-        <DialogContent>
-          <Box sx={{ display: 'flex', gap: 3 }}>
-            <Box sx={{ flexShrink: 0 }}>
+        <DialogContent sx={{ pt: theme.customSpacing.lg }}>
+          <Box 
+            sx={{ 
+              display: 'flex', 
+              gap: { xs: theme.customSpacing.md, sm: theme.customSpacing.xl },
+              flexDirection: { xs: 'column', sm: 'row' },
+            }}
+          >
+            <Box sx={{ flexShrink: 0, alignSelf: { xs: 'center', sm: 'flex-start' } }}>
               <img
                 src={imageError ? getDefaultMediaImage(media.type) : media.image}
                 alt={media.title}
                 onError={() => setImageError(true)}
-                style={{ width: 200, height: 300, objectFit: 'cover', borderRadius: 8 }}
+                style={{ 
+                  width: isMobile ? 200 : 250, 
+                  height: isMobile ? 300 : 375, 
+                  objectFit: 'cover', 
+                  borderRadius: theme.customSpacing.sm 
+                }}
               />
             </Box>
             <Box sx={{ flex: 1 }}>
-              <Typography variant="body1" sx={{ mb: 2 }}>
+              <Typography 
+                variant="body1" 
+                sx={{ 
+                  mb: theme.customSpacing.lg,
+                  lineHeight: 1.6,
+                  color: COLORS.TEXT_PRIMARY,
+                }}
+              >
                 {media.description}
               </Typography>
-              <Box sx={{ mb: 2 }}>
-                <Typography variant="subtitle2" sx={{ mb: 1 }}>
+              <Box sx={{ mb: theme.customSpacing.lg }}>
+                <Typography 
+                  variant="subtitle2" 
+                  sx={{ 
+                    mb: theme.customSpacing.md,
+                    fontWeight: 600,
+                    color: COLORS.TEXT_PRIMARY,
+                  }}
+                >
                   Genres:
                 </Typography>
-                {media.genres.map((genre, index) => (
-                  <Chip
-                    key={index}
-                    label={genre}
-                    size="small"
-                    variant="outlined"
-                    sx={{ mr: 1, mb: 1 }}
-                  />
-                ))}
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: theme.customSpacing.sm }}>
+                  {media.genres.map((genre, index) => (
+                    <Chip
+                      key={index}
+                      label={genre}
+                      size="small"
+                      variant="outlined"
+                      sx={{
+                        borderColor: COLORS.BORDER,
+                        color: COLORS.TEXT_SECONDARY,
+                        '&:hover': {
+                          borderColor: COLORS.ACCENT,
+                          color: COLORS.ACCENT,
+                        },
+                      }}
+                    />
+                  ))}
+                </Box>
               </Box>
-              <Typography variant="subtitle2">
+              <Typography 
+                variant="subtitle2"
+                sx={{
+                  fontWeight: 600,
+                  color: COLORS.TEXT_PRIMARY,
+                }}
+              >
                 Type: {media.type}
               </Typography>
             </Box>
@@ -294,26 +558,72 @@ const MediaCard: React.FC<MediaCardProps> = ({
         onClose={() => setAddDialogOpen(false)}
         maxWidth="sm"
         fullWidth
+        fullScreen={isMobile}
+        sx={{
+          '& .MuiDialog-paper': {
+            borderRadius: isMobile ? 0 : theme.customSpacing.md,
+            margin: isMobile ? 0 : theme.customSpacing.lg,
+          },
+        }}
       >
-        <DialogTitle>Add to Your Library</DialogTitle>
-        <DialogContent>
-          <Box sx={{ pt: 1 }}>
-            <Typography variant="subtitle1" sx={{ mb: 2 }}>
+        <DialogTitle 
+          sx={{
+            borderBottom: `1px solid ${COLORS.BORDER}`,
+            pb: theme.customSpacing.md,
+          }}
+        >
+          <Typography variant="h6" sx={{ fontWeight: 600, color: COLORS.TEXT_PRIMARY }}>
+            Add to Your Library
+          </Typography>
+        </DialogTitle>
+        <DialogContent sx={{ pt: theme.customSpacing.lg }}>
+          <Box>
+            <Typography 
+              variant="subtitle1" 
+              sx={{ 
+                mb: theme.customSpacing.lg,
+                fontWeight: 600,
+                color: COLORS.TEXT_PRIMARY,
+              }}
+            >
               {media.title}
             </Typography>
 
-            <Box sx={{ mb: 3 }}>
-              <Typography component="legend" sx={{ mb: 1 }}>
+            <Box sx={{ mb: theme.customSpacing.xl }}>
+              <Typography 
+                component="legend" 
+                sx={{ 
+                  mb: theme.customSpacing.md,
+                  fontWeight: 500,
+                  color: COLORS.TEXT_PRIMARY,
+                }}
+              >
                 Rating (Optional)
               </Typography>
               <Rating
                 value={rating}
                 onChange={(_, newValue) => setRating(newValue || 0)}
                 size="large"
+                sx={{
+                  '& .MuiRating-iconFilled': {
+                    color: COLORS.WARNING,
+                  },
+                  '& .MuiRating-iconHover': {
+                    color: COLORS.WARNING,
+                  },
+                }}
               />
             </Box>
 
-            <FormControl fullWidth sx={{ mb: 3 }}>
+            <FormControl 
+              fullWidth 
+              sx={{ 
+                mb: theme.customSpacing.xl,
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: theme.customSpacing.sm,
+                },
+              }}
+            >
               <InputLabel>Status</InputLabel>
               <Select
                 value={status}
@@ -331,25 +641,51 @@ const MediaCard: React.FC<MediaCardProps> = ({
               fullWidth
               label="Review (Optional)"
               multiline
-              rows={3}
+              rows={isMobile ? 4 : 3}
               value={review}
               onChange={(e) => setReview(e.target.value)}
               placeholder="Share your thoughts about this..."
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: theme.customSpacing.sm,
+                },
+              }}
             />
           </Box>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setAddDialogOpen(false)}>
+        <DialogActions 
+          sx={{ 
+            p: theme.customSpacing.lg,
+            borderTop: `1px solid ${COLORS.BORDER}`,
+            gap: theme.customSpacing.md,
+          }}
+        >
+          <Button 
+            onClick={() => setAddDialogOpen(false)}
+            sx={{
+              ...getTouchTargetStyles(),
+              color: COLORS.TEXT_SECONDARY,
+              textTransform: 'none',
+              '&:hover': {
+                backgroundColor: COLORS.HOVER,
+                color: COLORS.TEXT_PRIMARY,
+              },
+            }}
+          >
             Cancel
           </Button>
           <Button
             onClick={handleAddToLibrary}
             variant="contained"
-            disabled={false}
             sx={{
+              ...getTouchTargetStyles(),
               backgroundColor: COLORS.ACCENT,
+              textTransform: 'none',
+              fontWeight: 600,
+              boxShadow: theme.customShadows.button,
               '&:hover': {
                 backgroundColor: COLORS.ACCENT_HOVER,
+                boxShadow: theme.customShadows.buttonHover,
               },
             }}
           >

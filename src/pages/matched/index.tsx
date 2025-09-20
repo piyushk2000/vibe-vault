@@ -62,35 +62,38 @@ const Matched: React.FC = () => {
   if (isMobile) {
     if (selectedConnectionId && currentConnection) {
       return (
-        <ChatInterface
-          connection={currentConnection}
-          onBack={handleBackToList}
-          isMobile={true}
-        />
+        <Box sx={{ height: '100vh', overflow: 'hidden' }}>
+          <ChatInterface
+            connection={currentConnection}
+            onBack={handleBackToList}
+            isMobile={true}
+          />
+        </Box>
       );
     }
 
     return (
-      <Container maxWidth="lg" sx={{ py: 2, px: 1 }}>
-        {/* Header */}
-        <Box sx={{ textAlign: 'center', mb: 3 }}>
-          <Typography
-            variant="h5"
-            sx={{
-              fontWeight: 'bold',
-              mb: 1,
-              background: `linear-gradient(45deg, ${COLORS.ACCENT} 30%, ${COLORS.ACCENT_LIGHT} 90%)`,
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}
-          >
-            Your Matches
-          </Typography>
-          <Typography variant="body2" color="textSecondary">
-            {connections.length} connections
-          </Typography>
-        </Box>
+      <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <Container maxWidth="lg" sx={{ py: 2, px: 1, flex: 1, display: 'flex', flexDirection: 'column' }}>
+          {/* Header */}
+          <Box sx={{ textAlign: 'center', mb: 3, flexShrink: 0 }}>
+            <Typography
+              variant="h5"
+              sx={{
+                fontWeight: 'bold',
+                mb: 1,
+                background: `linear-gradient(45deg, ${COLORS.ACCENT} 30%, ${COLORS.ACCENT_LIGHT} 90%)`,
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}
+            >
+              Your Matches
+            </Typography>
+            <Typography variant="body2" color="textSecondary">
+              {connections.length} connections
+            </Typography>
+          </Box>
 
         {/* Loading State */}
         {isLoading && (
@@ -99,103 +102,142 @@ const Matched: React.FC = () => {
           </Box>
         )}
 
-        {/* Connections List */}
-        {!isLoading && (
-          <Paper
-            sx={{
-              backgroundColor: COLORS.CARD_BACKGROUND,
-              border: `1px solid ${COLORS.BORDER}`,
-              borderRadius: 2,
-            }}
-          >
-            {connections.length > 0 ? (
-              <List sx={{ p: 0 }}>
-                {connections.map((connection, index) => (
-                  <React.Fragment key={connection.id}>
-                    <ListItem
-                      onClick={() => handleConnectionSelect(connection)}
-                      sx={{
-                        cursor: 'pointer',
-                        '&:hover': {
-                          backgroundColor: COLORS.CARD_HOVER,
-                        },
-                        py: 2,
-                      }}
-                    >
-                      <ListItemAvatar>
-                        <Badge
-                          overlap="circular"
-                          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                          badgeContent={
-                            connection.lastMessage && !connection.lastMessage.isFromMe && !connection.lastMessage.isRead ? (
-                              <Circle sx={{ color: COLORS.ACCENT, fontSize: 12 }} />
-                            ) : null
-                          }
-                        >
-                          <Avatar
-                            src={connection.user.avatar || undefined}
-                            sx={{
-                              width: 56,
-                              height: 56,
-                              backgroundColor: COLORS.ACCENT,
-                            }}
+          {/* Connections List */}
+          {!isLoading && (
+            <Paper
+              sx={{
+                backgroundColor: COLORS.CARD_BACKGROUND,
+                border: `1px solid ${COLORS.BORDER}`,
+                borderRadius: 2,
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden',
+              }}
+            >
+              {connections.length > 0 ? (
+                <List sx={{ p: 0, flex: 1, overflow: 'auto' }}>
+                  {connections.map((connection, index) => (
+                    <React.Fragment key={connection.id}>
+                      <ListItem
+                        onClick={() => handleConnectionSelect(connection)}
+                        sx={{
+                          cursor: 'pointer',
+                          '&:hover': {
+                            backgroundColor: COLORS.CARD_HOVER,
+                          },
+                          '&:active': {
+                            backgroundColor: COLORS.PRESSED,
+                          },
+                          py: 2,
+                          px: 2,
+                          minHeight: '80px',
+                        }}
+                      >
+                        <ListItemAvatar>
+                          <Badge
+                            overlap="circular"
+                            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                            badgeContent={
+                              connection.lastMessage && !connection.lastMessage.isFromMe && !connection.lastMessage.isRead ? (
+                                <Circle sx={{ color: COLORS.ACCENT, fontSize: 12 }} />
+                              ) : null
+                            }
                           >
-                            {connection.user.name.charAt(0).toUpperCase()}
-                          </Avatar>
-                        </Badge>
-                      </ListItemAvatar>
-                      <ListItemText
-                        primary={
-                          <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-                            {connection.user.name}
-                          </Typography>
-                        }
-                        secondary={
-                          <Box>
-                            {connection.lastMessage ? (
-                              <Typography
-                                variant="body2"
+                            <Avatar
+                              src={connection.user.avatar || undefined}
+                              sx={{
+                                width: { xs: 50, sm: 56 },
+                                height: { xs: 50, sm: 56 },
+                                backgroundColor: COLORS.ACCENT,
+                              }}
+                            >
+                              {connection.user.name.charAt(0).toUpperCase()}
+                            </Avatar>
+                          </Badge>
+                        </ListItemAvatar>
+                        <ListItemText
+                          primary={
+                            <Typography 
+                              variant="subtitle1" 
+                              sx={{ 
+                                fontWeight: 'bold',
+                                fontSize: { xs: '1rem', sm: '1.125rem' },
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
+                              {connection.user.name}
+                            </Typography>
+                          }
+                          secondary={
+                            <Box>
+                              {connection.lastMessage ? (
+                                <Typography
+                                  variant="body2"
+                                  color="textSecondary"
+                                  sx={{
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    whiteSpace: 'nowrap',
+                                    fontWeight: !connection.lastMessage.isFromMe && !connection.lastMessage.isRead ? 'bold' : 'normal',
+                                    fontSize: { xs: '0.875rem', sm: '0.875rem' },
+                                    mb: 0.5,
+                                  }}
+                                >
+                                  {connection.lastMessage.isFromMe ? 'You: ' : ''}
+                                  {connection.lastMessage.content}
+                                </Typography>
+                              ) : (
+                                <Typography 
+                                  variant="body2" 
+                                  color="textSecondary"
+                                  sx={{
+                                    fontSize: { xs: '0.875rem', sm: '0.875rem' },
+                                    mb: 0.5,
+                                  }}
+                                >
+                                  Say hello! 👋
+                                </Typography>
+                              )}
+                              <Typography 
+                                variant="caption" 
                                 color="textSecondary"
                                 sx={{
-                                  overflow: 'hidden',
-                                  textOverflow: 'ellipsis',
-                                  whiteSpace: 'nowrap',
-                                  fontWeight: !connection.lastMessage.isFromMe && !connection.lastMessage.isRead ? 'bold' : 'normal',
+                                  fontSize: { xs: '0.75rem', sm: '0.75rem' },
                                 }}
                               >
-                                {connection.lastMessage.isFromMe ? 'You: ' : ''}
-                                {connection.lastMessage.content}
+                                {formatDistanceToNow(new Date(connection.updatedAt), { addSuffix: true })}
                               </Typography>
-                            ) : (
-                              <Typography variant="body2" color="textSecondary">
-                                Say hello! 👋
-                              </Typography>
-                            )}
-                            <Typography variant="caption" color="textSecondary">
-                              {formatDistanceToNow(new Date(connection.updatedAt), { addSuffix: true })}
-                            </Typography>
-                          </Box>
-                        }
-                      />
-                      <Message sx={{ color: COLORS.TEXT_SECONDARY }} />
+                            </Box>
+                          }
+                        />
+                        <Message 
+                          sx={{ 
+                            color: COLORS.TEXT_SECONDARY,
+                            fontSize: { xs: '20px', sm: '24px' },
+                          }} 
+                        />
                     </ListItem>
-                    {index < connections.length - 1 && <Divider />}
-                  </React.Fragment>
-                ))}
-              </List>
-            ) : (
-              <Box sx={{ textAlign: 'center', py: 8 }}>
-                <Typography variant="h6" color="textSecondary" sx={{ mb: 1 }}>
-                  No matches yet
-                </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  Start swiping to find your perfect match!
-                </Typography>
-              </Box>
-            )}
-          </Paper>
-        )}
-      </Container>
+                      {index < connections.length - 1 && <Divider />}
+                    </React.Fragment>
+                  ))}
+                </List>
+              ) : (
+                <Box sx={{ textAlign: 'center', py: 8, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                  <Typography variant="h6" color="textSecondary" sx={{ mb: 1 }}>
+                    No matches yet
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary">
+                    Start swiping to find your perfect match!
+                  </Typography>
+                </Box>
+              )}
+            </Paper>
+          )}
+        </Container>
+      </Box>
     );
   }
 
