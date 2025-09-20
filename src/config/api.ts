@@ -2,13 +2,14 @@
 let apiUrl = "";
 let isDev = false;
 
-if (window.location.href.includes("vibe.pk.com")) {
-  apiUrl = "https://vibe-be.pk.com/api/v1";
-  isDev = false;
-} else {
-  // Default to localhost for development
+if (window.location.href.includes("localhost")) {
+  // Use localhost for development
   apiUrl = "http://localhost:3000";
   isDev = true;
+} else {
+  // Default to vibe-be for production
+  apiUrl = "https://vibe-be.pk.com/api/v1";
+  isDev = false;
 }
 
 export const API_BASE_URL = apiUrl;
