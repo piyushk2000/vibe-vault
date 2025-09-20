@@ -96,16 +96,26 @@ export const fetchMovies = createAsyncThunk(
     search?: string; 
     sort?: string;
     append?: boolean;
-  }) => {
-    const params = new URLSearchParams();
-    params.append('page', page.toString());
-    params.append('sort', sort);
-    if (search.trim()) {
-      params.append('search', search.trim());
+  }, { rejectWithValue }) => {
+    try {
+      const params = new URLSearchParams();
+      params.append('page', page.toString());
+      params.append('sort', sort);
+      if (search.trim()) {
+        params.append('search', search.trim());
+      }
+      
+      const response = await RequestServer(`/media/movies?${params}`, 'GET');
+      
+      // If the response indicates failure, return it so we can handle it in fulfilled
+      if (!response.success) {
+        return { ...response, append };
+      }
+      
+      return { ...response, append };
+    } catch (error: any) {
+      return rejectWithValue(error.message || 'Failed to fetch movies');
     }
-    
-    const response = await RequestServer(`/media/movies?${params}`, 'GET');
-    return { ...response, append };
   }
 );
 
@@ -116,16 +126,26 @@ export const fetchShows = createAsyncThunk(
     search?: string; 
     sort?: string;
     append?: boolean;
-  }) => {
-    const params = new URLSearchParams();
-    params.append('page', page.toString());
-    params.append('sort', sort);
-    if (search.trim()) {
-      params.append('search', search.trim());
+  }, { rejectWithValue }) => {
+    try {
+      const params = new URLSearchParams();
+      params.append('page', page.toString());
+      params.append('sort', sort);
+      if (search.trim()) {
+        params.append('search', search.trim());
+      }
+      
+      const response = await RequestServer(`/media/series?${params}`, 'GET');
+      
+      // If the response indicates failure, return it so we can handle it in fulfilled
+      if (!response.success) {
+        return { ...response, append };
+      }
+      
+      return { ...response, append };
+    } catch (error: any) {
+      return rejectWithValue(error.message || 'Failed to fetch shows');
     }
-    
-    const response = await RequestServer(`/media/series?${params}`, 'GET');
-    return { ...response, append };
   }
 );
 
@@ -230,6 +250,9 @@ const mediaSlice = createSlice({
             state.movies = action.payload.data.data;
           }
           state.moviesPagination = action.payload.data.pagination;
+        } else {
+          // Handle API error responses
+          state.error = action.payload.message || 'Failed to fetch movies';
         }
       })
       .addCase(fetchMovies.rejected, (state, action) => {
@@ -250,6 +273,9 @@ const mediaSlice = createSlice({
             state.shows = action.payload.data.data;
           }
           state.showsPagination = action.payload.data.pagination;
+        } else {
+          // Handle API error responses
+          state.error = action.payload.message || 'Failed to fetch shows';
         }
       })
       .addCase(fetchShows.rejected, (state, action) => {

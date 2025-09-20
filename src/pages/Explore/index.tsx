@@ -126,6 +126,11 @@ const SearchMedia: React.FC = () => {
   };
 
   const handlePageChange = (_: React.ChangeEvent<unknown>, page: number) => {
+    // Validate page number for TMDB API (Movies/Shows)
+    if ((currentTab === 1 || currentTab === 2) && (page < 1 || page > 500)) {
+      return; // Don't navigate to invalid pages
+    }
+    
     setCurrentPage(page);
     fetchPageData(page);
   };
@@ -138,6 +143,12 @@ const SearchMedia: React.FC = () => {
 
   const handleNextPage = () => {
     const newPage = currentPage + 1;
+    
+    // Validate page number for TMDB API (Movies/Shows)
+    if ((currentTab === 1 || currentTab === 2) && newPage > 500) {
+      return; // Don't navigate beyond page 500
+    }
+    
     setCurrentPage(newPage);
     fetchPageData(newPage);
   };
@@ -559,6 +570,11 @@ const SearchMedia: React.FC = () => {
                     Page {getCurrentPagination().currentPage} of {getCurrentPagination().totalPages}
                     {getCurrentPagination().totalResults && (
                       <> • {getCurrentPagination().totalResults} total results</>
+                    )}
+                    {getCurrentPagination().currentPage >= 500 && (
+                      <Typography variant="caption" display="block" sx={{ mt: 1, color: COLORS.WARNING }}>
+                        Note: API limits results to 500 pages maximum
+                      </Typography>
                     )}
                   </>
                 )}
