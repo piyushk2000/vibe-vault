@@ -4,11 +4,11 @@ let isDev = false;
 
 if (window.location.href.includes("localhost")) {
   // Use localhost for development
-  apiUrl = "http://localhost:3000";
+  apiUrl = "http://localhost:3200";
   isDev = true;
 } else {
   // Default to vibe-be for production
-  apiUrl = "https://vibe-be.pkcode.in/api/v1";
+  apiUrl = "https://vibe-be.pkcode.in";
   isDev = false;
 }
 
