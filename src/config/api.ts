@@ -8,7 +8,7 @@ if (window.location.href.includes("localhost")) {
   isDev = true;
 } else {
   // Default to vibe-be for production
-  apiUrl = "https://vibe-be.pk.com/api/v1";
+  apiUrl = "https://vibe-be.pkcode.in/api/v1";
   isDev = false;
 }
 
