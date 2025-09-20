@@ -9,6 +9,10 @@ interface User {
   bio: string;
   interests: string[];
   avatar: string | null;
+  photos: string[];
+  location: string | null;
+  mbtiType: string | null;
+  distance: number | null;
   topMedia: Array<{
     title: string;
     type: string;

@@ -31,7 +31,7 @@ interface Media {
   description: string;
   genres: string[];
   image: string;
-  type: 'ANIME' | 'MOVIE' | 'SHOW';
+  type: 'ANIME' | 'MOVIE' | 'SHOW' | 'BOOK';
   meta?: any;
 }
 
@@ -304,11 +304,11 @@ const MediaCard: React.FC<MediaCardProps> = ({
 
             <Box sx={{ mb: 3 }}>
               <Typography component="legend" sx={{ mb: 1 }}>
-                Rating *
+                Rating (Optional)
               </Typography>
               <Rating
                 value={rating}
-                onChange={(event, newValue) => setRating(newValue || 0)}
+                onChange={(_, newValue) => setRating(newValue || 0)}
                 size="large"
               />
             </Box>

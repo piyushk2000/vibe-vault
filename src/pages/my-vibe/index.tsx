@@ -12,11 +12,10 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Chip,
 } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
-import MediaCard from '../../components/cards/MediaCard';
+import EditableMediaCard from '../../components/cards/EditableMediaCard';
 import { COLORS } from '../../theme/colors';
 import axios from 'axios';
 
@@ -110,7 +109,7 @@ const MyVibe: React.FC = () => {
     setFilteredMedia(filtered);
   };
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setCurrentTab(newValue);
   };
 
@@ -150,6 +149,66 @@ const MyVibe: React.FC = () => {
     if (userMedia.length === 0) return 0;
     const totalRating = userMedia.reduce((sum, item) => sum + item.rating, 0);
     return (totalRating / userMedia.length).toFixed(1);
+  };
+
+  const handleUpdateMedia = async (mediaData: {
+    id: number;
+    rating: number;
+    status: string;
+    review?: string;
+  }) => {
+    try {
+      const response = await axios.put(
+        `${API_BASE_URL}/myMedia/${mediaData.id}`,
+        {
+          rating: mediaData.rating,
+          status: mediaData.status,
+          review: mediaData.review,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.data.success) {
+        // Update the local state
+        setUserMedia(prevMedia =>
+          prevMedia.map(item =>
+            item.id === mediaData.id
+              ? {
+                  ...item,
+                  rating: mediaData.rating,
+                  status: mediaData.status as any,
+                  review: mediaData.review,
+                }
+              : item
+          )
+        );
+      }
+    } catch (error) {
+      console.error('Failed to update media:', error);
+      setError('Failed to update media');
+    }
+  };
+
+  const handleDeleteMedia = async (id: number) => {
+    try {
+      const response = await axios.delete(`${API_BASE_URL}/myMedia/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.data.success) {
+        // Remove from local state
+        setUserMedia(prevMedia => prevMedia.filter(item => item.id !== id));
+      }
+    } catch (error) {
+      console.error('Failed to delete media:', error);
+      setError('Failed to remove media from library');
+    }
   };
 
   if (error) {
@@ -317,12 +376,10 @@ const MyVibe: React.FC = () => {
             filteredMedia.map((userMediaItem) => (
               <Grid item key={userMediaItem.id} xs={12} sm={6} md={4} lg={3}>
                 <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                  <MediaCard
-                    media={userMediaItem.media}
-                    showAddButton={false}
-                    userRating={userMediaItem.rating}
-                    userStatus={userMediaItem.status}
-                    userReview={userMediaItem.review}
+                  <EditableMediaCard
+                    userMedia={userMediaItem}
+                    onUpdate={handleUpdateMedia}
+                    onDelete={handleDeleteMedia}
                   />
                 </Box>
               </Grid>

@@ -48,7 +48,7 @@ interface CommonMedia {
   id: number;
   title: string;
   image: string;
-  type: 'ANIME' | 'MOVIE' | 'SHOW';
+  type: 'ANIME' | 'MOVIE' | 'SHOW' | 'BOOK';
   userRating: number;
   matchRating: number;
 }

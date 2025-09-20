@@ -3,7 +3,6 @@ import { animated, useSpring } from '@react-spring/web';
 import { useDrag } from '@use-gesture/react';
 import {
   Card,
-  CardMedia,
   CardContent,
   Typography,
   Box,
@@ -13,7 +12,7 @@ import {
   useTheme,
   useMediaQuery,
 } from '@mui/material';
-import { Favorite, Close, TrendingUp } from '@mui/icons-material';
+import { Favorite, Close, TrendingUp, LocationOn } from '@mui/icons-material';
 import { COLORS } from '../../theme/colors';
 import { calculateMatchPercentage, getCurrentUserMockData } from '../../utils/matchCalculator';
 import { getDefaultMediaImage } from '../../utils/defaultImages';
@@ -24,6 +23,10 @@ interface User {
   bio: string;
   interests: string[];
   avatar: string | null;
+  photos: string[];
+  location: string | null;
+  mbtiType: string | null;
+  distance: number | null;
   topMedia: Array<{
     title: string;
     type: string;
@@ -45,6 +48,9 @@ const SwipeCard: React.FC<SwipeCardProps> = ({ user, onSwipe, isActive, style })
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [imageErrors, setImageErrors] = useState<{[key: number]: boolean}>({});
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  
+  const allPhotos = [user.avatar, ...user.photos].filter(Boolean) as string[];
   
   // Calculate match percentage
   // TODO: Replace getCurrentUserMockData with actual current user data from Redux store
@@ -192,19 +198,20 @@ const SwipeCard: React.FC<SwipeCardProps> = ({ user, onSwipe, isActive, style })
           </Typography>
         </Box>
         
-        {/* Main Image/Avatar */}
+        {/* Photo Carousel */}
         <Box
           sx={{
             height: '50%',
-            background: user.avatar 
-              ? `url(${user.avatar}) center/cover`
+            position: 'relative',
+            background: allPhotos.length > 0 
+              ? `url(${allPhotos[currentPhotoIndex]}) center/cover`
               : `linear-gradient(135deg, ${COLORS.ACCENT} 0%, ${COLORS.ACCENT_LIGHT} 100%)`,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
           }}
         >
-          {!user.avatar && (
+          {allPhotos.length === 0 && (
             <Avatar
               sx={{
                 width: 120,
@@ -217,14 +224,67 @@ const SwipeCard: React.FC<SwipeCardProps> = ({ user, onSwipe, isActive, style })
               {user.name.charAt(0).toUpperCase()}
             </Avatar>
           )}
+          
+          {/* Photo Navigation Dots */}
+          {allPhotos.length > 1 && (
+            <Box
+              sx={{
+                position: 'absolute',
+                bottom: 16,
+                left: '50%',
+                transform: 'translateX(-50%)',
+                display: 'flex',
+                gap: 1,
+                zIndex: 5,
+              }}
+            >
+              {allPhotos.map((_, index) => (
+                <Box
+                  key={index}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCurrentPhotoIndex(index);
+                  }}
+                  sx={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    backgroundColor: index === currentPhotoIndex ? 'white' : 'rgba(255,255,255,0.5)',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                  }}
+                />
+              ))}
+            </Box>
+          )}
         </Box>
 
         <CardContent sx={{ height: '50%', overflow: 'auto', p: 2 }}>
           {/* User Info */}
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-            <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-              {user.name}
-            </Typography>
+            <Box>
+              <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                {user.name}
+              </Typography>
+              {(user.location || user.distance !== null) && (
+                <Typography variant="body2" color="textSecondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <LocationOn sx={{ fontSize: 14 }} />
+                  {user.location}
+                  {user.distance !== null && ` • ${user.distance}km away`}
+                </Typography>
+              )}
+            </Box>
+            {user.mbtiType && (
+              <Chip
+                label={user.mbtiType}
+                size="small"
+                sx={{
+                  backgroundColor: COLORS.WARNING,
+                  color: 'white',
+                  fontSize: '0.7rem',
+                }}
+              />
+            )}
           </Box>
           
           {/* Match Compatibility Bar */}

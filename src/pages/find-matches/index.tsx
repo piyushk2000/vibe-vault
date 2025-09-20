@@ -12,8 +12,11 @@ import {
   useMediaQuery,
   CircularProgress,
   Alert,
+  Slider,
+  Switch,
+  FormControlLabel,
 } from '@mui/material';
-import { Favorite, Close, Refresh, Celebration } from '@mui/icons-material';
+import { Favorite, Close, Refresh, Celebration, FilterList, LocationOn } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../redux/store';
 import { fetchDiscoverUsers, swipeUser, clearLastMatch, resetDiscovery } from '../../redux/swipeSlice';
@@ -34,6 +37,9 @@ const FindMatches: React.FC = () => {
   } = useSelector((state: RootState) => state.swipe);
 
   const [showMatchDialog, setShowMatchDialog] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [locationFilter, setLocationFilter] = useState(false);
+  const [maxDistance, setMaxDistance] = useState(50); // km
 
   useEffect(() => {
     dispatch(fetchDiscoverUsers(10));
@@ -116,6 +122,112 @@ const FindMatches: React.FC = () => {
         <Typography variant="body1" color="textSecondary">
           Swipe right to like, left to pass
         </Typography>
+        
+        {/* Filter Controls */}
+        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 2 }}>
+          <Button
+            variant="outlined"
+            startIcon={<FilterList />}
+            onClick={() => setShowFilters(!showFilters)}
+            sx={{
+              borderColor: COLORS.ACCENT,
+              color: COLORS.ACCENT,
+              '&:hover': {
+                borderColor: COLORS.ACCENT_HOVER,
+                backgroundColor: `${COLORS.ACCENT}20`,
+              },
+            }}
+          >
+            Filters
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<Refresh />}
+            onClick={handleRefresh}
+            sx={{
+              borderColor: COLORS.ACCENT,
+              color: COLORS.ACCENT,
+              '&:hover': {
+                borderColor: COLORS.ACCENT_HOVER,
+                backgroundColor: `${COLORS.ACCENT}20`,
+              },
+            }}
+          >
+            Refresh
+          </Button>
+        </Box>
+
+        {/* Filter Panel */}
+        {showFilters && (
+          <Box
+            sx={{
+              mt: 2,
+              p: 3,
+              backgroundColor: COLORS.CARD_BACKGROUND,
+              borderRadius: 2,
+              border: `1px solid ${COLORS.BORDER}`,
+              maxWidth: 400,
+              mx: 'auto',
+            }}
+          >
+            <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+              <LocationOn fontSize="small" />
+              Location Filters
+            </Typography>
+            
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={locationFilter}
+                  onChange={(e) => setLocationFilter(e.target.checked)}
+                  sx={{
+                    '& .MuiSwitch-switchBase.Mui-checked': {
+                      color: COLORS.ACCENT,
+                    },
+                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                      backgroundColor: COLORS.ACCENT,
+                    },
+                  }}
+                />
+              }
+              label="Filter by location"
+              sx={{ mb: 2 }}
+            />
+
+            {locationFilter && (
+              <Box>
+                <Typography variant="body2" sx={{ mb: 1 }}>
+                  Maximum distance: {maxDistance} km
+                </Typography>
+                <Slider
+                  value={maxDistance}
+                  onChange={(_, newValue) => setMaxDistance(newValue as number)}
+                  min={1}
+                  max={500}
+                  step={5}
+                  marks={[
+                    { value: 10, label: '10km' },
+                    { value: 50, label: '50km' },
+                    { value: 100, label: '100km' },
+                    { value: 500, label: '500km' },
+                  ]}
+                  sx={{
+                    color: COLORS.ACCENT,
+                    '& .MuiSlider-thumb': {
+                      backgroundColor: COLORS.ACCENT,
+                    },
+                    '& .MuiSlider-track': {
+                      backgroundColor: COLORS.ACCENT,
+                    },
+                    '& .MuiSlider-rail': {
+                      backgroundColor: COLORS.BORDER,
+                    },
+                  }}
+                />
+              </Box>
+            )}
+          </Box>
+        )}
       </Box>
 
       {/* Loading State */}
@@ -352,7 +464,7 @@ const FindMatches: React.FC = () => {
         </DialogActions>
       </Dialog>
 
-      <style jsx>{`
+      <style>{`
         @keyframes bounce {
           0%, 20%, 50%, 80%, 100% {
             transform: translateY(0);

@@ -28,11 +28,10 @@ interface UserMedia {
   id: number;
   userId: number;
   mediaId: number;
-  type: 'ANIME' | 'MOVIE' | 'SHOW' | 'BOOK';
+  type: 'ANIME' | 'MOVIE' | 'SHOW';
   status: 'WATCHING' | 'COMPLETED' | 'PLAN_TO_WATCH' | 'DROPPED';
   rating: number;
   review?: string;
-  progress?: number;
   createdAt: string;
   updatedAt: string;
   media: {
@@ -42,7 +41,7 @@ interface UserMedia {
     description: string;
     genres: string[];
     image: string;
-    type: 'ANIME' | 'MOVIE' | 'SHOW' | 'BOOK';
+    type: 'ANIME' | 'MOVIE' | 'SHOW';
     meta: any;
   };
 }
@@ -111,11 +110,11 @@ const EditableMediaCard: React.FC<EditableMediaCardProps> = ({
   const getStatusLabel = (status: string) => {
     switch (status) {
       case 'WATCHING':
-        return userMedia.type === 'BOOK' ? 'Reading' : 'Watching';
+        return 'Watching';
       case 'COMPLETED':
         return 'Completed';
       case 'PLAN_TO_WATCH':
-        return userMedia.type === 'BOOK' ? 'Plan to Read' : 'Plan to Watch';
+        return 'Plan to Watch';
       case 'DROPPED':
         return 'Dropped';
       default:
@@ -172,7 +171,7 @@ const EditableMediaCard: React.FC<EditableMediaCardProps> = ({
               label={userMedia.media.type}
               size="small"
               sx={{
-                backgroundColor: userMedia.media.type === 'BOOK' ? '#8B4513' : COLORS.ACCENT,
+                backgroundColor: COLORS.ACCENT,
                 color: 'white',
                 mr: 1,
                 mb: 1,
@@ -207,8 +206,6 @@ const EditableMediaCard: React.FC<EditableMediaCardProps> = ({
               ({userMedia.rating}/5)
             </Typography>
           </Box>
-
-
 
           <Typography
             variant="body2"
@@ -307,13 +304,9 @@ const EditableMediaCard: React.FC<EditableMediaCardProps> = ({
                 label="Status"
                 onChange={(e) => setStatus(e.target.value as any)}
               >
-                <MenuItem value="WATCHING">
-                  {userMedia.media.type === 'BOOK' ? 'Reading' : 'Watching'}
-                </MenuItem>
+                <MenuItem value="WATCHING">Watching</MenuItem>
                 <MenuItem value="COMPLETED">Completed</MenuItem>
-                <MenuItem value="PLAN_TO_WATCH">
-                  {userMedia.media.type === 'BOOK' ? 'Plan to Read' : 'Plan to Watch'}
-                </MenuItem>
+                <MenuItem value="PLAN_TO_WATCH">Plan to Watch</MenuItem>
                 <MenuItem value="DROPPED">Dropped</MenuItem>
               </Select>
             </FormControl>
@@ -324,7 +317,7 @@ const EditableMediaCard: React.FC<EditableMediaCardProps> = ({
               </Typography>
               <Rating
                 value={rating}
-                onChange={(event, newValue) => {
+                onChange={(_, newValue) => {
                   setRating(newValue || 0);
                 }}
                 sx={{
@@ -334,8 +327,6 @@ const EditableMediaCard: React.FC<EditableMediaCardProps> = ({
                 }}
               />
             </Box>
-
-
 
             <TextField
               label="Review (Optional)"

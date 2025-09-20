@@ -272,7 +272,7 @@ const MatchRequests: React.FC = () => {
         </DialogActions>
       </Dialog>
 
-      <style jsx>{`
+      <style>{`
         @keyframes bounce {
           0%, 20%, 50%, 80%, 100% {
             transform: translateY(0);

@@ -8,6 +8,11 @@ interface Profile {
   bio: string;
   interests: string[];
   avatar: string | null;
+  photos?: string[];
+  location?: string;
+  latitude?: number;
+  longitude?: number;
+  mbtiType?: string;
   userId: number;
   User: {
     id: number;
@@ -47,7 +52,16 @@ export const fetchProfile = createAsyncThunk(
 
 export const updateProfile = createAsyncThunk(
   'profile/updateProfile',
-  async (profileData: { bio?: string; interests?: string[]; avatar?: string }, { rejectWithValue }) => {
+  async (profileData: { 
+    bio?: string; 
+    interests?: string[]; 
+    avatar?: string;
+    photos?: string[];
+    location?: string;
+    latitude?: number;
+    longitude?: number;
+    mbtiType?: string;
+  }, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.put(`${API_BASE_URL}/profile`, profileData, {
