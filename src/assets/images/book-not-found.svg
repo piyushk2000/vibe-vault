@@ -1,0 +1,26 @@
+<svg width="300" height="400" viewBox="0 0 300 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="300" height="400" fill="#f5f5f5" stroke="#e0e0e0" stroke-width="2"/>
+  
+  <!-- Book Icon -->
+  <g transform="translate(75, 120)">
+    <!-- Book Cover -->
+    <rect x="0" y="0" width="150" height="180" fill="#8B4513" rx="8"/>
+    <rect x="10" y="10" width="130" height="160" fill="#A0522D" rx="4"/>
+    
+    <!-- Book Spine -->
+    <rect x="0" y="0" width="20" height="180" fill="#654321" rx="8 0 0 8"/>
+    
+    <!-- Book Pages -->
+    <rect x="140" y="5" width="10" height="170" fill="#ffffff" rx="0 4 4 0"/>
+    <rect x="135" y="8" width="10" height="164" fill="#f8f8f8" rx="0 2 2 0"/>
+    
+    <!-- Question Mark -->
+    <circle cx="75" cy="70" r="25" fill="#ffffff" opacity="0.9"/>
+    <text x="75" y="85" text-anchor="middle" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#8B4513">?</text>
+  </g>
+  
+  <!-- Text -->
+  <text x="150" y="340" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="500" fill="#666666">No Cover Available</text>
+  <text x="150" y="365" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#999999">Book Image Not Found</text>
+</svg>

@@ -350,7 +350,10 @@ const MatchPage: React.FC = () => {
                               <Chip
                                 label={media.type}
                                 size="small"
-                                sx={{ backgroundColor: COLORS.ACCENT, color: 'white' }}
+                                sx={{ 
+                                  backgroundColor: media.type === 'BOOK' ? '#8B4513' : COLORS.ACCENT, 
+                                  color: 'white' 
+                                }}
                               />
                               <Typography variant="body2" color="textSecondary">
                                 Your rating: {media.userRating}/5

@@ -272,6 +272,11 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
                         borderRadius: 2,
                         borderTopRightRadius: msg.isFromMe ? 0.5 : 2,
                         borderTopLeftRadius: msg.isFromMe ? 2 : 0.5,
+                        borderBottomRightRadius: msg.isFromMe ? 0.5 : 2,
+                        borderBottomLeftRadius: msg.isFromMe ? 2 : 0.5,
+                        alignSelf: msg.isFromMe ? 'flex-end' : 'flex-start',
+                        marginLeft: msg.isFromMe ? 'auto' : 0,
+                        marginRight: msg.isFromMe ? 0 : 'auto',
                       }}
                     >
                       <Typography variant="body1" sx={{ mb: 0.5 }}>

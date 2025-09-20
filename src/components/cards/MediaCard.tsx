@@ -22,6 +22,7 @@ import {
 } from '@mui/material';
 import { Add, Info, Close } from '@mui/icons-material';
 import { COLORS } from '../../theme/colors';
+import { getDefaultMediaImage } from '../../utils/defaultImages';
 
 interface Media {
   id?: number;
@@ -61,12 +62,13 @@ const MediaCard: React.FC<MediaCardProps> = ({
   const [rating, setRating] = useState<number>(userRating || 0);
   const [status, setStatus] = useState(userStatus || 'PLAN_TO_WATCH');
   const [review, setReview] = useState(userReview || '');
+  const [imageError, setImageError] = useState(false);
 
   const handleAddToLibrary = () => {
-    if (onAddToLibrary && rating > 0) {
+    if (onAddToLibrary) {
       onAddToLibrary({
         mediaId: media.id || media.apiId,
-        rating,
+        rating: rating > 0 ? rating : 0, // Allow 0 rating (no rating)
         status,
         review: review.trim() || undefined,
       });
@@ -122,13 +124,14 @@ const MediaCard: React.FC<MediaCardProps> = ({
         <CardMedia
           component="img"
           height="400"
-          image={media.image}
+          image={imageError ? getDefaultMediaImage(media.type) : media.image}
           alt={media.title}
+          onError={() => setImageError(true)}
           sx={{
             objectFit: 'cover',
           }}
         />
-        
+
         <CardContent sx={{ pb: 1 }}>
           <Typography
             variant="h6"
@@ -143,7 +146,7 @@ const MediaCard: React.FC<MediaCardProps> = ({
           >
             {media.title}
           </Typography>
-          
+
           <Typography
             variant="body2"
             color="textSecondary"
@@ -216,7 +219,7 @@ const MediaCard: React.FC<MediaCardProps> = ({
           >
             Details
           </Button>
-          
+
           {showAddButton && (
             <Button
               size="small"
@@ -253,8 +256,9 @@ const MediaCard: React.FC<MediaCardProps> = ({
           <Box sx={{ display: 'flex', gap: 3 }}>
             <Box sx={{ flexShrink: 0 }}>
               <img
-                src={media.image}
+                src={imageError ? getDefaultMediaImage(media.type) : media.image}
                 alt={media.title}
+                onError={() => setImageError(true)}
                 style={{ width: 200, height: 300, objectFit: 'cover', borderRadius: 8 }}
               />
             </Box>
@@ -297,7 +301,7 @@ const MediaCard: React.FC<MediaCardProps> = ({
             <Typography variant="subtitle1" sx={{ mb: 2 }}>
               {media.title}
             </Typography>
-            
+
             <Box sx={{ mb: 3 }}>
               <Typography component="legend" sx={{ mb: 1 }}>
                 Rating *
@@ -341,7 +345,7 @@ const MediaCard: React.FC<MediaCardProps> = ({
           <Button
             onClick={handleAddToLibrary}
             variant="contained"
-            disabled={rating === 0}
+            disabled={false}
             sx={{
               backgroundColor: COLORS.ACCENT,
               '&:hover': {

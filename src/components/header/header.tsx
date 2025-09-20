@@ -14,7 +14,7 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
-import { AccountCircle, Logout, Person, Edit } from '@mui/icons-material';
+import { AccountCircle, Logout, Person, Edit, Menu as MenuIcon } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { logout } from '../../redux/authSlice';
@@ -26,6 +26,7 @@ import ProfileModal from '../profile/ProfileModal';
 
 const Navbar: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [mobileMenuAnchorEl, setMobileMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
@@ -52,14 +53,28 @@ const Navbar: React.FC = () => {
     setAnchorEl(null);
   };
 
+  const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setMobileMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleMobileMenuClose = () => {
+    setMobileMenuAnchorEl(null);
+  };
+
   const handleLogout = () => {
     dispatch(logout());
     navigate('/login');
     handleClose();
+    handleMobileMenuClose();
   };
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
     navigate(newValue);
+  };
+
+  const handleMobileNavigation = (path: string) => {
+    navigate(path);
+    handleMobileMenuClose();
   };
 
   const getCurrentTab = () => {
@@ -82,6 +97,19 @@ const Navbar: React.FC = () => {
       }}
     >
       <Toolbar sx={{ justifyContent: 'space-between' }}>
+        {/* Mobile Hamburger Menu */}
+        {isMobile && (
+          <IconButton
+            edge="start"
+            color="inherit"
+            aria-label="menu"
+            onClick={handleMobileMenuOpen}
+            sx={{ mr: 2 }}
+          >
+            <MenuIcon />
+          </IconButton>
+        )}
+
         {/* Logo */}
         <Typography
           variant="h6"
@@ -93,6 +121,7 @@ const Navbar: React.FC = () => {
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             cursor: 'pointer',
+            flexGrow: isMobile ? 1 : 0,
           }}
           onClick={() => navigate('/explore')}
         >
@@ -210,26 +239,66 @@ const Navbar: React.FC = () => {
               <Edit sx={{ mr: 1 }} />
               Edit Profile
             </MenuItem>
-            {isMobile && [
-              <MenuItem key="explore" onClick={() => { navigate('/explore'); handleClose(); }}>
-                Explore
-              </MenuItem>,
-              <MenuItem key="my-vibe" onClick={() => { navigate('/my-vibe'); handleClose(); }}>
-                My Vibe
-              </MenuItem>,
-              <MenuItem key="find-matches" onClick={() => { navigate('/find-matches'); handleClose(); }}>
-                Find Matches
-              </MenuItem>,
-              <MenuItem key="match-requests" onClick={() => { navigate('/match-requests'); handleClose(); }}>
-                Match Requests
-              </MenuItem>,
-              <MenuItem key="matched" onClick={() => { navigate('/matched'); handleClose(); }}>
-                Matched
-              </MenuItem>,
-            ]}
             <MenuItem onClick={handleLogout}>
               <Logout sx={{ mr: 1 }} />
               Logout
+            </MenuItem>
+          </Menu>
+
+          {/* Mobile Navigation Menu */}
+          <Menu
+            id="mobile-menu"
+            anchorEl={mobileMenuAnchorEl}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'left',
+            }}
+            keepMounted
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'left',
+            }}
+            open={Boolean(mobileMenuAnchorEl)}
+            onClose={handleMobileMenuClose}
+            sx={{
+              '& .MuiPaper-root': {
+                backgroundColor: COLORS.CARD_BACKGROUND,
+                border: `1px solid ${COLORS.BORDER}`,
+                mt: 1,
+                minWidth: 200,
+              },
+            }}
+          >
+            <MenuItem onClick={() => handleMobileNavigation('/explore')}>
+              Explore
+            </MenuItem>
+            <MenuItem onClick={() => handleMobileNavigation('/my-vibe')}>
+              My Vibe
+            </MenuItem>
+            <MenuItem onClick={() => handleMobileNavigation('/find-matches')}>
+              Find Matches
+            </MenuItem>
+            <MenuItem onClick={() => handleMobileNavigation('/match-requests')}>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                Match Requests
+                {requests.length > 0 && (
+                  <Badge
+                    badgeContent={requests.length}
+                    sx={{
+                      '& .MuiBadge-badge': {
+                        backgroundColor: COLORS.ERROR,
+                        color: 'white',
+                        fontSize: '0.7rem',
+                        minWidth: 16,
+                        height: 16,
+                      },
+                    }}
+                  />
+                )}
+              </Box>
+            </MenuItem>
+            <MenuItem onClick={() => handleMobileNavigation('/matched')}>
+              Matched
             </MenuItem>
           </Menu>
         </Box>

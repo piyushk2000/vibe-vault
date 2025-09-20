@@ -13,11 +13,17 @@ import {
   Pagination,
   Button,
   IconButton,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  useTheme,
+  useMediaQuery,
 } from '@mui/material';
-import { Search, Clear, ChevronLeft, ChevronRight } from '@mui/icons-material';
+import { Search, Clear, ChevronLeft, ChevronRight, Sort } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../redux/store';
-import { fetchAnime, fetchMovies, fetchShows, clearAnime, clearMovies, clearShows } from '../../redux/mediaSlice';
+import { fetchAnime, fetchMovies, fetchShows, fetchBooks, clearAnime, clearMovies, clearShows, clearBooks } from '../../redux/mediaSlice';
 import { setSearch } from '../../redux/searchSlice';
 import MediaCard from '../../components/cards/MediaCard';
 import { COLORS } from '../../theme/colors';
@@ -27,57 +33,89 @@ import { debounce } from 'lodash';
 const API_BASE_URL = 'http://localhost:3000';
 
 const SearchMedia: React.FC = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [currentTab, setCurrentTab] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortBy, setSortBy] = useState('popularity');
   
   const dispatch = useDispatch<AppDispatch>();
   const { 
     anime, 
     movies, 
     shows, 
+    books,
     isLoading, 
     error, 
     animePagination, 
     moviesPagination, 
-    showsPagination 
+    showsPagination,
+    booksPagination
   } = useSelector((state: RootState) => state.media);
   const { token } = useSelector((state: RootState) => state.auth);
 
   // Debounced search function
   const debouncedSearch = useCallback(
-    debounce((query: string, tab: number, page: number) => {
+    debounce((query: string, tab: number, page: number, sort: string) => {
+      const sortParam = getSortParam(tab, sort);
       switch (tab) {
         case 0:
-          dispatch(fetchAnime({ page, search: query, append: false }));
+          dispatch(fetchAnime({ page, search: query, sort: sortParam, append: false }));
           break;
         case 1:
-          dispatch(fetchMovies({ page, search: query, append: false }));
+          dispatch(fetchMovies({ page, search: query, sort: sortParam, append: false }));
           break;
         case 2:
-          dispatch(fetchShows({ page, search: query, append: false }));
+          dispatch(fetchShows({ page, search: query, sort: sortParam, append: false }));
+          break;
+        case 3:
+          dispatch(fetchBooks({ page, search: query, sort: sortParam, append: false }));
           break;
       }
     }, 500),
     [dispatch]
   );
 
+  // Get sort parameter based on tab and sort option
+  const getSortParam = (tab: number, sort: string) => {
+    if (tab === 0) {
+      // Anime - Shikimori API
+      return sort; // popularity, ranked, name, aired_on, episodes, status
+    } else if (tab === 3) {
+      // Books - Open Library API
+      return sort; // new, old, random, title, rating
+    } else {
+      // Movies/Shows - TMDB API
+      return sort; // popularity.desc, release_date.desc, vote_average.desc, vote_count.desc
+    }
+  };
+
   // Initial load
   useEffect(() => {
-    dispatch(fetchAnime({ page: 1, search: '', append: false }));
-    dispatch(fetchMovies({ page: 1, search: '', append: false }));
-    dispatch(fetchShows({ page: 1, search: '', append: false }));
+    dispatch(fetchAnime({ page: 1, search: '', sort: 'popularity', append: false }));
+    dispatch(fetchMovies({ page: 1, search: '', sort: 'popularity.desc', append: false }));
+    dispatch(fetchShows({ page: 1, search: '', sort: 'popularity.desc', append: false }));
+    dispatch(fetchBooks({ page: 1, search: '', sort: 'new', append: false }));
   }, [dispatch]);
 
-  // Handle search changes
+  // Handle search and sort changes
   useEffect(() => {
     setCurrentPage(1);
-    debouncedSearch(searchQuery, currentTab, 1);
-  }, [searchQuery, currentTab, debouncedSearch]);
+    debouncedSearch(searchQuery, currentTab, 1, sortBy);
+  }, [searchQuery, currentTab, sortBy, debouncedSearch]);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setCurrentTab(newValue);
     setCurrentPage(1);
+    // Reset sort to default for new tab
+    if (newValue === 0) {
+      setSortBy('popularity'); // Anime
+    } else if (newValue === 3) {
+      setSortBy('new'); // Books
+    } else {
+      setSortBy('popularity.desc'); // Movies/Shows
+    }
   };
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -108,19 +146,54 @@ const SearchMedia: React.FC = () => {
   };
 
   const fetchPageData = (page: number) => {
+    const sortParam = getSortParam(currentTab, sortBy);
     switch (currentTab) {
       case 0:
-        dispatch(fetchAnime({ page, search: searchQuery, append: false }));
+        dispatch(fetchAnime({ page, search: searchQuery, sort: sortParam, append: false }));
         break;
       case 1:
-        dispatch(fetchMovies({ page, search: searchQuery, append: false }));
+        dispatch(fetchMovies({ page, search: searchQuery, sort: sortParam, append: false }));
         break;
       case 2:
-        dispatch(fetchShows({ page, search: searchQuery, append: false }));
+        dispatch(fetchShows({ page, search: searchQuery, sort: sortParam, append: false }));
+        break;
+      case 3:
+        dispatch(fetchBooks({ page, search: searchQuery, sort: sortParam, append: false }));
         break;
     }
     // Scroll to top when page changes
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const getSortOptions = () => {
+    if (currentTab === 0) {
+      // Anime options (Shikimori API)
+      return [
+        { value: 'popularity', label: 'Most Popular' },
+        { value: 'ranked', label: 'Highest Rated' },
+        { value: 'name', label: 'A-Z' },
+        { value: 'aired_on', label: 'Release Date' },
+        { value: 'episodes', label: 'Episode Count' },
+        { value: 'status', label: 'Status' },
+      ];
+    } else if (currentTab === 3) {
+      // Books options (Open Library API)
+      return [
+        { value: 'new', label: 'Newest First' },
+        { value: 'old', label: 'Oldest First' },
+        { value: 'rating', label: 'Highest Rated' },
+        { value: 'title', label: 'A-Z' },
+        { value: 'random', label: 'Random' },
+      ];
+    } else {
+      // Movies/Shows options (TMDB API)
+      return [
+        { value: 'popularity.desc', label: 'Most Popular' },
+        { value: 'vote_average.desc', label: 'Highest Rated' },
+        { value: 'release_date.desc', label: 'Newest First' },
+        { value: 'vote_count.desc', label: 'Most Voted' },
+      ];
+    }
   };
 
   const handleAddToLibrary = async (mediaData: {
@@ -134,7 +207,7 @@ const SearchMedia: React.FC = () => {
         `${API_BASE_URL}/myMedia`,
         {
           ...mediaData,
-          type: currentTab === 0 ? 'ANIME' : currentTab === 1 ? 'MOVIE' : 'SHOW',
+          type: currentTab === 0 ? 'ANIME' : currentTab === 1 ? 'MOVIE' : currentTab === 2 ? 'SHOW' : 'BOOK',
         },
         {
           headers: {
@@ -160,6 +233,8 @@ const SearchMedia: React.FC = () => {
         return movies;
       case 2:
         return shows;
+      case 3:
+        return books;
       default:
         return [];
     }
@@ -173,6 +248,8 @@ const SearchMedia: React.FC = () => {
         return moviesPagination;
       case 2:
         return showsPagination;
+      case 3:
+        return booksPagination;
       default:
         return { currentPage: 1, totalPages: null, hasNextPage: false, hasPrevPage: false };
     }
@@ -186,6 +263,8 @@ const SearchMedia: React.FC = () => {
         return `Movies`;
       case 2:
         return `Shows`;
+      case 3:
+        return `Books`;
       default:
         return '';
     }
@@ -219,58 +298,104 @@ const SearchMedia: React.FC = () => {
           Discover Your Next Favorite
         </Typography>
         <Typography variant="body1" color="textSecondary">
-          Explore anime, movies, and TV shows. Rate them to find your perfect matches!
+          Explore anime, movies, TV shows, and books. Rate them to find your perfect matches!
         </Typography>
       </Box>
 
-      {/* Search Bar */}
+      {/* Search Bar and Sort */}
       <Box sx={{ mb: 4 }}>
-        <TextField
-          fullWidth
-          placeholder={`Search ${getTabLabel(currentTab).toLowerCase()}...`}
-          value={searchQuery}
-          onChange={handleSearchChange}
-          sx={{
-            maxWidth: 600,
-            '& .MuiOutlinedInput-root': {
-              backgroundColor: COLORS.SEARCH_BOX_BACKGROUND,
-              '& fieldset': {
-                borderColor: COLORS.BORDER,
+        <Box sx={{ 
+          display: 'flex', 
+          gap: 2, 
+          alignItems: 'center',
+          flexDirection: isMobile ? 'column' : 'row',
+          maxWidth: 800,
+          mx: 'auto'
+        }}>
+          <TextField
+            fullWidth
+            placeholder={`Search ${getTabLabel(currentTab).toLowerCase()}...`}
+            value={searchQuery}
+            onChange={handleSearchChange}
+            sx={{
+              flex: 1,
+              '& .MuiOutlinedInput-root': {
+                backgroundColor: COLORS.SEARCH_BOX_BACKGROUND,
+                '& fieldset': {
+                  borderColor: COLORS.BORDER,
+                },
+                '&:hover fieldset': {
+                  borderColor: COLORS.ACCENT,
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: COLORS.ACCENT,
+                },
               },
-              '&:hover fieldset': {
-                borderColor: COLORS.ACCENT,
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Search sx={{ color: COLORS.TEXT_SECONDARY }} />
+                </InputAdornment>
+              ),
+              endAdornment: searchQuery && (
+                <InputAdornment position="end">
+                  <Button
+                    onClick={handleClearSearch}
+                    sx={{ 
+                      minWidth: 'auto', 
+                      p: 0.5,
+                      color: COLORS.TEXT_SECONDARY,
+                      '&:hover': {
+                        backgroundColor: 'transparent',
+                        color: COLORS.ACCENT,
+                      }
+                    }}
+                  >
+                    <Clear />
+                  </Button>
+                </InputAdornment>
+              ),
+            }}
+          />
+          
+          <FormControl 
+            size="medium" 
+            sx={{ 
+              minWidth: isMobile ? '100%' : 200,
+              '& .MuiOutlinedInput-root': {
+                backgroundColor: COLORS.SEARCH_BOX_BACKGROUND,
+                '& fieldset': {
+                  borderColor: COLORS.BORDER,
+                },
+                '&:hover fieldset': {
+                  borderColor: COLORS.ACCENT,
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: COLORS.ACCENT,
+                },
               },
-              '&.Mui-focused fieldset': {
-                borderColor: COLORS.ACCENT,
-              },
-            },
-          }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Search sx={{ color: COLORS.TEXT_SECONDARY }} />
-              </InputAdornment>
-            ),
-            endAdornment: searchQuery && (
-              <InputAdornment position="end">
-                <Button
-                  onClick={handleClearSearch}
-                  sx={{ 
-                    minWidth: 'auto', 
-                    p: 0.5,
-                    color: COLORS.TEXT_SECONDARY,
-                    '&:hover': {
-                      backgroundColor: 'transparent',
-                      color: COLORS.ACCENT,
-                    }
-                  }}
-                >
-                  <Clear />
-                </Button>
-              </InputAdornment>
-            ),
-          }}
-        />
+            }}
+          >
+            <InputLabel>Sort By</InputLabel>
+            <Select
+              value={sortBy}
+              label="Sort By"
+              onChange={(e) => setSortBy(e.target.value)}
+              startAdornment={
+                <InputAdornment position="start">
+                  <Sort sx={{ color: COLORS.TEXT_SECONDARY, mr: 1 }} />
+                </InputAdornment>
+              }
+            >
+              {getSortOptions().map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
       </Box>
 
       {/* Tabs */}
@@ -293,6 +418,7 @@ const SearchMedia: React.FC = () => {
           <Tab label={getTabLabel(0)} />
           <Tab label={getTabLabel(1)} />
           <Tab label={getTabLabel(2)} />
+          <Tab label={getTabLabel(3)} />
         </Tabs>
       </Box>
 
@@ -341,8 +467,8 @@ const SearchMedia: React.FC = () => {
           {/* Pagination */}
           {getCurrentMedia().length > 0 && (getCurrentPagination().hasNextPage || getCurrentPagination().hasPrevPage) && (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 4, mb: 2, gap: 2 }}>
-              {/* For Anime (no total pages) - use prev/next buttons */}
-              {currentTab === 0 ? (
+              {/* For Anime and Books (no total pages) - use prev/next buttons */}
+              {(currentTab === 0 || currentTab === 3) ? (
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                   <Button
                     variant="outlined"
@@ -424,9 +550,14 @@ const SearchMedia: React.FC = () => {
           {getCurrentMedia().length > 0 && (
             <Box sx={{ textAlign: 'center', mt: 2, mb: 4 }}>
               <Typography variant="body2" color="textSecondary">
-                {currentTab === 0 ? (
-                  /* Anime - no total pages */
-                  `Page ${getCurrentPagination().currentPage}`
+                {(currentTab === 0 || currentTab === 3) ? (
+                  /* Anime/Books - no total pages */
+                  <>
+                    Page {getCurrentPagination().currentPage}
+                    {getCurrentPagination().totalResults && (
+                      <> • {getCurrentPagination().totalResults.toLocaleString()} total results</>
+                    )}
+                  </>
                 ) : (
                   /* Movies/Shows - with total pages */
                   <>

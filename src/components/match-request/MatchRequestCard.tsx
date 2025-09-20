@@ -16,9 +16,11 @@ import {
   useTheme,
   useMediaQuery,
 } from '@mui/material';
-import { Favorite, Close, Info, PersonAdd } from '@mui/icons-material';
+import { Favorite, Close, Info, PersonAdd, TrendingUp } from '@mui/icons-material';
 import { COLORS } from '../../theme/colors';
 import { formatDistanceToNow } from 'date-fns';
+import { calculateMatchPercentage, getCurrentUserMockData } from '../../utils/matchCalculator';
+import { getDefaultMediaImage } from '../../utils/defaultImages';
 
 interface MatchRequest {
   id: number;
@@ -54,6 +56,15 @@ const MatchRequestCard: React.FC<MatchRequestCardProps> = ({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [imageErrors, setImageErrors] = useState<{[key: number]: boolean}>({});
+  
+  // Calculate match percentage
+  // TODO: Replace getCurrentUserMockData with actual current user data from Redux store
+  const currentUser = getCurrentUserMockData();
+  const matchPercentage = calculateMatchPercentage(currentUser, {
+    interests: request.user.interests,
+    topMedia: request.user.topMedia
+  });
 
   const handleAccept = () => {
     onRespond(request.swiperId, 'LIKE');
@@ -61,6 +72,13 @@ const MatchRequestCard: React.FC<MatchRequestCardProps> = ({
 
   const handleDecline = () => {
     onRespond(request.swiperId, 'PASS');
+  };
+
+  const getMatchColor = (percentage: number) => {
+    if (percentage >= 80) return COLORS.SUCCESS;
+    if (percentage >= 60) return COLORS.WARNING;
+    if (percentage >= 40) return COLORS.ACCENT;
+    return COLORS.ERROR;
   };
 
   return (
@@ -93,9 +111,24 @@ const MatchRequestCard: React.FC<MatchRequestCardProps> = ({
               {request.user.name.charAt(0).toUpperCase()}
             </Avatar>
             <Box sx={{ flex: 1 }}>
-              <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 0.5 }}>
-                {request.user.name}
-              </Typography>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
+                <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                  {request.user.name}
+                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <TrendingUp sx={{ fontSize: 16, color: getMatchColor(matchPercentage) }} />
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: getMatchColor(matchPercentage),
+                      fontWeight: 'bold',
+                      fontSize: '0.8rem',
+                    }}
+                  >
+                    {matchPercentage}%
+                  </Typography>
+                </Box>
+              </Box>
               <Typography variant="caption" color="textSecondary">
                 <PersonAdd sx={{ fontSize: 14, mr: 0.5, verticalAlign: 'middle' }} />
                 {formatDistanceToNow(new Date(request.createdAt), { addSuffix: true })}
@@ -175,8 +208,9 @@ const MatchRequestCard: React.FC<MatchRequestCardProps> = ({
                     }}
                   >
                     <img
-                      src={media.image}
+                      src={imageErrors[index] ? getDefaultMediaImage(media.type) : media.image}
                       alt={media.title}
+                      onError={() => setImageErrors(prev => ({...prev, [index]: true}))}
                       style={{
                         width: 50,
                         height: 70,
@@ -339,8 +373,10 @@ const MatchRequestCard: React.FC<MatchRequestCardProps> = ({
                     }}
                   >
                     <img
-                      src={media.image}
+                    //@ts-ignore
+                      src={imageErrors[`dialog-${index}`] ? getDefaultMediaImage(media.type) : media.image}
                       alt={media.title}
+                      onError={() => setImageErrors(prev => ({...prev, [`dialog-${index}`]: true}))}
                       style={{
                         width: 60,
                         height: 80,
@@ -357,7 +393,7 @@ const MatchRequestCard: React.FC<MatchRequestCardProps> = ({
                           label={media.type}
                           size="small"
                           sx={{
-                            backgroundColor: COLORS.TEXT_SECONDARY,
+                            backgroundColor: media.type === 'BOOK' ? '#8B4513' : COLORS.TEXT_SECONDARY,
                             color: 'white',
                             fontSize: '0.7rem',
                           }}

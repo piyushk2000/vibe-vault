@@ -10,7 +10,7 @@ interface Media {
   description: string;
   genres: string[];
   image: string;
-  type: 'ANIME' | 'MOVIE' | 'SHOW';
+  type: 'ANIME' | 'MOVIE' | 'SHOW' | 'BOOK';
   meta: any;
 }
 
@@ -26,18 +26,21 @@ interface MediaState {
   anime: Media[];
   movies: Media[];
   shows: Media[];
+  books: Media[];
   currentMedia: Media | null;
   isLoading: boolean;
   error: string | null;
   animePagination: PaginationInfo;
   moviesPagination: PaginationInfo;
   showsPagination: PaginationInfo;
+  booksPagination: PaginationInfo;
 }
 
 const initialState: MediaState = {
   anime: [],
   movies: [],
   shows: [],
+  books: [],
   currentMedia: null,
   isLoading: false,
   error: null,
@@ -59,14 +62,26 @@ const initialState: MediaState = {
     hasNextPage: false,
     hasPrevPage: false,
   },
+  booksPagination: {
+    currentPage: 1,
+    totalPages: null,
+    hasNextPage: false,
+    hasPrevPage: false,
+  },
 };
 
 // Async thunks
 export const fetchAnime = createAsyncThunk(
   'media/fetchAnime', 
-  async ({ page = 1, search = '', append = false }: { page?: number; search?: string; append?: boolean }) => {
+  async ({ page = 1, search = '', sort = 'popularity', append = false }: { 
+    page?: number; 
+    search?: string; 
+    sort?: string;
+    append?: boolean;
+  }) => {
     const params = new URLSearchParams();
     params.append('page', page.toString());
+    params.append('sort', sort);
     if (search.trim()) {
       params.append('search', search.trim());
     }
@@ -78,9 +93,15 @@ export const fetchAnime = createAsyncThunk(
 
 export const fetchMovies = createAsyncThunk(
   'media/fetchMovies', 
-  async ({ page = 1, search = '', append = false }: { page?: number; search?: string; append?: boolean }) => {
+  async ({ page = 1, search = '', sort = 'popularity.desc', append = false }: { 
+    page?: number; 
+    search?: string; 
+    sort?: string;
+    append?: boolean;
+  }) => {
     const params = new URLSearchParams();
     params.append('page', page.toString());
+    params.append('sort', sort);
     if (search.trim()) {
       params.append('search', search.trim());
     }
@@ -92,14 +113,40 @@ export const fetchMovies = createAsyncThunk(
 
 export const fetchShows = createAsyncThunk(
   'media/fetchShows', 
-  async ({ page = 1, search = '', append = false }: { page?: number; search?: string; append?: boolean }) => {
+  async ({ page = 1, search = '', sort = 'popularity.desc', append = false }: { 
+    page?: number; 
+    search?: string; 
+    sort?: string;
+    append?: boolean;
+  }) => {
     const params = new URLSearchParams();
     params.append('page', page.toString());
+    params.append('sort', sort);
     if (search.trim()) {
       params.append('search', search.trim());
     }
     
     const response = await axios.get(`${API_BASE_URL}/media/series?${params}`);
+    return { ...response.data, append };
+  }
+);
+
+export const fetchBooks = createAsyncThunk(
+  'media/fetchBooks', 
+  async ({ page = 1, search = '', sort = 'new', append = false }: { 
+    page?: number; 
+    search?: string; 
+    sort?: string;
+    append?: boolean;
+  }) => {
+    const params = new URLSearchParams();
+    params.append('page', page.toString());
+    params.append('sort', sort);
+    if (search.trim()) {
+      params.append('search', search.trim());
+    }
+    
+    const response = await axios.get(`${API_BASE_URL}/books?${params}`);
     return { ...response.data, append };
   }
 );
@@ -138,6 +185,15 @@ const mediaSlice = createSlice({
     clearShows: (state) => {
       state.shows = [];
       state.showsPagination = initialState.showsPagination;
+    },
+    clearBooks: (state) => {
+      state.books = [];
+      state.booksPagination = {
+        currentPage: 1,
+        totalPages: null,
+        hasNextPage: false,
+        hasPrevPage: false,
+      };
     },
   },
   extraReducers: (builder) => {
@@ -202,6 +258,26 @@ const mediaSlice = createSlice({
         state.isLoading = false;
         state.error = action.error.message || 'Failed to fetch shows';
       })
+      // Fetch Books
+      .addCase(fetchBooks.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchBooks.fulfilled, (state, action) => {
+        state.isLoading = false;
+        if (action.payload.success) {
+          if (action.payload.append) {
+            state.books = [...state.books, ...action.payload.data.data];
+          } else {
+            state.books = action.payload.data.data;
+          }
+          state.booksPagination = action.payload.data.pagination;
+        }
+      })
+      .addCase(fetchBooks.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.error.message || 'Failed to fetch books';
+      })
       // Fetch Media by ID
       .addCase(fetchMediaById.pending, (state) => {
         state.isLoading = true;
@@ -220,5 +296,5 @@ const mediaSlice = createSlice({
   },
 });
 
-export const { clearCurrentMedia, clearError, clearAnime, clearMovies, clearShows } = mediaSlice.actions;
+export const { clearCurrentMedia, clearError, clearAnime, clearMovies, clearShows, clearBooks } = mediaSlice.actions;
 export default mediaSlice.reducer;

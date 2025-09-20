@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { animated, useSpring } from '@react-spring/web';
 import { useDrag } from '@use-gesture/react';
 import {
@@ -9,11 +9,14 @@ import {
   Box,
   Chip,
   Avatar,
+  LinearProgress,
   useTheme,
   useMediaQuery,
 } from '@mui/material';
-import { Favorite, Close } from '@mui/icons-material';
+import { Favorite, Close, TrendingUp } from '@mui/icons-material';
 import { COLORS } from '../../theme/colors';
+import { calculateMatchPercentage, getCurrentUserMockData } from '../../utils/matchCalculator';
+import { getDefaultMediaImage } from '../../utils/defaultImages';
 
 interface User {
   id: number;
@@ -41,6 +44,15 @@ interface SwipeCardProps {
 const SwipeCard: React.FC<SwipeCardProps> = ({ user, onSwipe, isActive, style }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const [imageErrors, setImageErrors] = useState<{[key: number]: boolean}>({});
+  
+  // Calculate match percentage
+  // TODO: Replace getCurrentUserMockData with actual current user data from Redux store
+  const currentUser = getCurrentUserMockData();
+  const matchPercentage = calculateMatchPercentage(currentUser, {
+    interests: user.interests,
+    topMedia: user.topMedia
+  });
 
   const [{ x, y, rotate, scale }, api] = useSpring(() => ({
     x: 0,
@@ -116,6 +128,13 @@ const SwipeCard: React.FC<SwipeCardProps> = ({ user, onSwipe, isActive, style })
     );
   };
 
+  const getMatchColor = (percentage: number) => {
+    if (percentage >= 80) return COLORS.SUCCESS;
+    if (percentage >= 60) return COLORS.WARNING;
+    if (percentage >= 40) return COLORS.ACCENT;
+    return COLORS.ERROR;
+  };
+
   return (
     <animated.div
       {...bind()}
@@ -143,6 +162,35 @@ const SwipeCard: React.FC<SwipeCardProps> = ({ user, onSwipe, isActive, style })
         }}
       >
         {getSwipeIndicator()}
+        
+        {/* Match Percentage Badge */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 16,
+            right: 16,
+            zIndex: 10,
+            backgroundColor: 'rgba(0,0,0,0.8)',
+            borderRadius: 2,
+            px: 1.5,
+            py: 0.5,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 0.5,
+          }}
+        >
+          <TrendingUp sx={{ fontSize: 16, color: getMatchColor(matchPercentage) }} />
+          <Typography
+            variant="caption"
+            sx={{
+              color: getMatchColor(matchPercentage),
+              fontWeight: 'bold',
+              fontSize: '0.8rem',
+            }}
+          >
+            {matchPercentage}%
+          </Typography>
+        </Box>
         
         {/* Main Image/Avatar */}
         <Box
@@ -173,9 +221,36 @@ const SwipeCard: React.FC<SwipeCardProps> = ({ user, onSwipe, isActive, style })
 
         <CardContent sx={{ height: '50%', overflow: 'auto', p: 2 }}>
           {/* User Info */}
-          <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 1 }}>
-            {user.name}
-          </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+            <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+              {user.name}
+            </Typography>
+          </Box>
+          
+          {/* Match Compatibility Bar */}
+          <Box sx={{ mb: 2 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
+              <Typography variant="caption" color="textSecondary">
+                Compatibility
+              </Typography>
+              <Typography variant="caption" sx={{ fontWeight: 'bold', color: getMatchColor(matchPercentage) }}>
+                {matchPercentage}%
+              </Typography>
+            </Box>
+            <LinearProgress
+              variant="determinate"
+              value={matchPercentage}
+              sx={{
+                height: 6,
+                borderRadius: 3,
+                backgroundColor: COLORS.BACKGROUND_LIGHT,
+                '& .MuiLinearProgress-bar': {
+                  backgroundColor: getMatchColor(matchPercentage),
+                  borderRadius: 3,
+                },
+              }}
+            />
+          </Box>
           
           {user.bio && (
             <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
@@ -226,8 +301,9 @@ const SwipeCard: React.FC<SwipeCardProps> = ({ user, onSwipe, isActive, style })
                     }}
                   >
                     <img
-                      src={media.image}
+                      src={imageErrors[index] ? getDefaultMediaImage(media.type) : media.image}
                       alt={media.title}
+                      onError={() => setImageErrors(prev => ({...prev, [index]: true}))}
                       style={{
                         width: 40,
                         height: 40,
@@ -252,7 +328,7 @@ const SwipeCard: React.FC<SwipeCardProps> = ({ user, onSwipe, isActive, style })
                           label={media.type}
                           size="small"
                           sx={{
-                            backgroundColor: COLORS.TEXT_SECONDARY,
+                            backgroundColor: media.type === 'BOOK' ? '#8B4513' : COLORS.TEXT_SECONDARY,
                             color: 'white',
                             fontSize: '0.7rem',
                             height: 20,
