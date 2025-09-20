@@ -31,6 +31,12 @@ export const signUp = createAsyncThunk(
         email,
         password,
       });
+      
+      // Check if the response indicates failure
+      if (response && !response.success) {
+        return rejectWithValue(response.message || 'Sign up failed');
+      }
+      
       return response;
     } catch (error: any) {
       return rejectWithValue(error.message || 'Sign up failed');
@@ -46,6 +52,12 @@ export const signIn = createAsyncThunk(
         email,
         password,
       });
+      
+      // Check if the response indicates failure
+      if (response && !response.success) {
+        return rejectWithValue(response.message || 'Sign in failed');
+      }
+      
       return response;
     } catch (error: any) {
       return rejectWithValue(error.message || 'Sign in failed');
@@ -80,8 +92,9 @@ const authSlice = createSlice({
           state.user = action.payload.data.user;
           state.token = action.payload.data.token;
           localStorage.setItem('token', action.payload.data.token);
+          state.error = null;
         } else {
-          state.error = 'Invalid response format';
+          state.error = action.payload?.message || 'Invalid response format';
         }
       })
       .addCase(signUp.rejected, (state, action) => {
@@ -100,8 +113,9 @@ const authSlice = createSlice({
           state.user = action.payload.data.user;
           state.token = action.payload.data.token;
           localStorage.setItem('token', action.payload.data.token);
+          state.error = null;
         } else {
-          state.error = 'Invalid response format';
+          state.error = action.payload?.message || 'Invalid response format';
         }
       })
       .addCase(signIn.rejected, (state, action) => {

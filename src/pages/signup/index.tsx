@@ -45,9 +45,38 @@ const SignupPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setPasswordError('');
     
-    if (password !== confirmPassword) {
-      setPasswordError('Passwords do not match');
+    // Frontend validation
+    if (!name && !email && !password) {
+      setPasswordError('Please fill in all required fields');
+      return;
+    }
+    
+    if (!name) {
+      setPasswordError('Please enter your full name');
+      return;
+    }
+    
+    if (!email) {
+      setPasswordError('Please enter your email address');
+      return;
+    }
+    
+    if (!password) {
+      setPasswordError('Please enter a password');
+      return;
+    }
+    
+    if (!confirmPassword) {
+      setPasswordError('Please confirm your password');
+      return;
+    }
+    
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      setPasswordError('Please enter a valid email address');
       return;
     }
     
@@ -56,11 +85,12 @@ const SignupPage: React.FC = () => {
       return;
     }
     
-    setPasswordError('');
-    
-    if (name && email && password) {
-      dispatch(signUp({ name, email, password }));
+    if (password !== confirmPassword) {
+      setPasswordError('Passwords do not match');
+      return;
     }
+    
+    dispatch(signUp({ name: name.trim(), email: email.trim(), password }));
   };
 
   const handleTogglePasswordVisibility = () => {

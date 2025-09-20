@@ -26,6 +26,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import { COLORS } from '../../theme/colors';
 import { RequestServer } from '../../config/api';
+import { useErrorHandler } from '../../hooks/useErrorHandler';
 
 interface Match {
   id: number;
@@ -60,6 +61,7 @@ const MatchPage: React.FC = () => {
   const [detailsLoading, setDetailsLoading] = useState(false);
   
   const { token } = useSelector((state: RootState) => state.auth);
+  const { handleError } = useErrorHandler();
 
   useEffect(() => {
     fetchMatches();
@@ -72,9 +74,16 @@ const MatchPage: React.FC = () => {
 
       if (response?.success) {
         setMatches(response.data);
+      } else if (response?.message) {
+        setError(response.message);
       }
-    } catch (error) {
-      setError('Failed to fetch matches');
+    } catch (error: any) {
+      // Use the error handler to redirect to error page for serious errors
+      if (error?.response?.status >= 500) {
+        handleError(error, 'Failed to fetch matches');
+      } else {
+        setError('Failed to fetch matches. Please try again.');
+      }
       console.error('Failed to fetch matches:', error);
     } finally {
       setIsLoading(false);

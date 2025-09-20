@@ -22,6 +22,7 @@ const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [validationError, setValidationError] = useState('');
   
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
@@ -41,9 +42,32 @@ const LoginPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email && password) {
-      dispatch(signIn({ email, password }));
+    setValidationError('');
+    
+    // Frontend validation
+    if (!email && !password) {
+      setValidationError('Please enter your email and password');
+      return;
     }
+    
+    if (!email) {
+      setValidationError('Please enter your email address');
+      return;
+    }
+    
+    if (!password) {
+      setValidationError('Please enter your password');
+      return;
+    }
+    
+    // Basic email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      setValidationError('Please enter a valid email address');
+      return;
+    }
+    
+    dispatch(signIn({ email: email.trim(), password }));
   };
 
   const handleTogglePasswordVisibility = () => {
@@ -91,9 +115,9 @@ const LoginPage: React.FC = () => {
             </Typography>
           </Box>
 
-          {error && (
+          {(error || validationError) && (
             <Alert severity="error" sx={{ mb: 3 }}>
-              {error}
+              {validationError || error}
             </Alert>
           )}
 

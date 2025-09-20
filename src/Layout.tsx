@@ -9,6 +9,7 @@ import MatchPage from "./pages/match";
 import FindMatches from "./pages/find-matches";
 import MatchRequests from "./pages/match-requests";
 import Matched from "./pages/matched";
+import ErrorPage from "./pages/error";
 import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -33,15 +34,15 @@ export default function Layout() {
   // Check authentication and redirect if needed
   useEffect(() => {
     // Public routes that don't require redirection
-    const publicRoutes = ['/login', '/signup'];
+    const publicRoutes = ['/login', '/signup', '/error'];
     
     // If user is not logged in and not on a public route, redirect to login
-    if (!isLoggedIn && !publicRoutes.includes(location.pathname)) {
+    if (!isLoggedIn && !publicRoutes.includes(location.pathname) && !location.pathname.startsWith('/error')) {
       navigate('/login');
     }
     
     // If user is logged in and on login/signup page, redirect to explore
-    if (isLoggedIn && publicRoutes.includes(location.pathname)) {
+    if (isLoggedIn && ['/login', '/signup'].includes(location.pathname)) {
       navigate('/explore');
     }
     
@@ -53,8 +54,8 @@ export default function Layout() {
 
   return (
     <>
-      {/* Only show navbar if user is logged in or on explore page */}
-      {(isLoggedIn || location.pathname === '/explore') && <Navbar />}
+      {/* Only show navbar if user is logged in or on explore page, but not on error page */}
+      {(isLoggedIn || location.pathname === '/explore') && !location.pathname.startsWith('/error') && <Navbar />}
       
       <Routes>
         {/* Public Routes */}
@@ -62,9 +63,8 @@ export default function Layout() {
           <Route path="/explore" element={<SearchMedia />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/error" element={<ErrorPage />} />
         </Route>
-        
-        <Route path="*" element={<h1>Not Found</h1>} />
 
         {/* Protected Routes */}
         <Route element={<PrivateRoute />}>
@@ -74,6 +74,9 @@ export default function Layout() {
           <Route path="/match-requests" element={<MatchRequests />} />
           <Route path="/matched" element={<Matched />} />
         </Route>
+        
+        {/* Catch all route - redirect to error page */}
+        <Route path="*" element={<ErrorPage />} />
       </Routes>
     </>
   );
