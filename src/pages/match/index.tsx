@@ -27,6 +27,7 @@ import { RootState } from '../../redux/store';
 import { COLORS } from '../../theme/colors';
 import { RequestServer } from '../../config/api';
 import { useErrorHandler } from '../../hooks/useErrorHandler';
+import { useIsMobile } from '../../utils/mobile';
 
 interface Match {
   id: number;
@@ -62,6 +63,7 @@ const MatchPage: React.FC = () => {
   
   const { token } = useSelector((state: RootState) => state.auth);
   const { handleError } = useErrorHandler();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     fetchMatches();
@@ -148,23 +150,28 @@ const MatchPage: React.FC = () => {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{ py: isMobile ? 2 : 4 }}>
       {/* Header */}
-      <Box sx={{ mb: 4 }}>
+      <Box sx={{ mb: isMobile ? 2 : 4 }}>
         <Typography
-          variant="h4"
+          variant={isMobile ? "h5" : "h4"}
           sx={{
             fontWeight: 'bold',
-            mb: 2,
+            mb: isMobile ? 1 : 2,
             background: `linear-gradient(45deg, ${COLORS.ACCENT} 30%, ${COLORS.ACCENT_LIGHT} 90%)`,
             backgroundClip: 'text',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
+            fontSize: isMobile ? '1.75rem' : undefined,
           }}
         >
           Your Matches
         </Typography>
-        <Typography variant="body1" color="textSecondary">
+        <Typography 
+          variant={isMobile ? "body2" : "body1"} 
+          color="textSecondary"
+          sx={{ fontSize: isMobile ? '0.875rem' : undefined }}
+        >
           Find people with similar taste in anime, movies, and shows
         </Typography>
       </Box>
@@ -178,7 +185,7 @@ const MatchPage: React.FC = () => {
 
       {/* Matches Grid */}
       {!isLoading && (
-        <Grid container spacing={3}>
+        <Grid container spacing={isMobile ? 2 : 3}>
           {matches.length > 0 ? (
             matches.map((match) => (
               <Grid item key={match.id} xs={12} sm={6} md={4}>
@@ -278,12 +285,23 @@ const MatchPage: React.FC = () => {
             ))
           ) : (
             <Grid item xs={12}>
-              <Box sx={{ textAlign: 'center', py: 8 }}>
-                <Person sx={{ fontSize: 64, color: COLORS.TEXT_SECONDARY, mb: 2 }} />
-                <Typography variant="h6" color="textSecondary">
+              <Box sx={{ textAlign: 'center', py: isMobile ? 4 : 8 }}>
+                <Person sx={{ fontSize: isMobile ? 48 : 64, color: COLORS.TEXT_SECONDARY, mb: 2 }} />
+                <Typography 
+                  variant={isMobile ? "body1" : "h6"} 
+                  color="textSecondary"
+                  sx={{ fontSize: isMobile ? '1rem' : undefined }}
+                >
                   No matches found yet
                 </Typography>
-                <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
+                <Typography 
+                  variant="body2" 
+                  color="textSecondary" 
+                  sx={{ 
+                    mt: 1,
+                    fontSize: isMobile ? '0.875rem' : undefined,
+                  }}
+                >
                   Rate more anime, movies, and shows to find people with similar taste!
                 </Typography>
               </Box>

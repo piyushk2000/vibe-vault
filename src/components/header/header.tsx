@@ -11,7 +11,6 @@ import {
   Tabs,
   Tab,
   Badge,
-  useMediaQuery,
   useTheme,
 } from '@mui/material';
 import { AccountCircle, Logout, Person, Edit, Menu as MenuIcon } from '@mui/icons-material';
@@ -25,6 +24,7 @@ import { COLORS } from '../../theme/colors';
 import { getTouchTargetStyles, createTransition } from '../../theme/utils';
 import ProfileModal from '../profile/ProfileModal';
 import MobileNavDrawer from '../navigation/MobileNavDrawer';
+import { useIsMobile } from '../../utils/mobile';
 
 const Navbar: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -34,7 +34,7 @@ const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useIsMobile();
 
   const { user } = useSelector((state: RootState) => state.auth);
   const { profile } = useSelector((state: RootState) => state.profile);

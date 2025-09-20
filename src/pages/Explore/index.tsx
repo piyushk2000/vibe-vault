@@ -16,8 +16,6 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  useTheme,
-  useMediaQuery,
 } from '@mui/material';
 import { Search, Clear, ChevronLeft, ChevronRight, Sort } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
@@ -28,10 +26,10 @@ import MediaCard from '../../components/cards/MediaCard';
 import { COLORS } from '../../theme/colors';
 import { RequestServer } from '../../config/api';
 import { debounce } from 'lodash';
+import { useIsMobile } from '../../utils/mobile';
 
 const SearchMedia: React.FC = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useIsMobile();
   const [currentTab, setCurrentTab] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -287,23 +285,28 @@ const SearchMedia: React.FC = () => {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{ py: isMobile ? 2 : 4 }}>
       {/* Header */}
-      <Box sx={{ mb: 4 }}>
+      <Box sx={{ mb: isMobile ? 2 : 4 }}>
         <Typography
-          variant="h4"
+          variant={isMobile ? "h5" : "h4"}
           sx={{
             fontWeight: 'bold',
-            mb: 2,
+            mb: isMobile ? 1 : 2,
             background: `linear-gradient(45deg, ${COLORS.ACCENT} 30%, ${COLORS.ACCENT_LIGHT} 90%)`,
             backgroundClip: 'text',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
+            fontSize: isMobile ? '1.75rem' : undefined,
           }}
         >
           Discover Your Next Favorite
         </Typography>
-        <Typography variant="body1" color="textSecondary">
+        <Typography 
+          variant={isMobile ? "body2" : "body1"} 
+          color="textSecondary"
+          sx={{ fontSize: isMobile ? '0.875rem' : undefined }}
+        >
           Explore anime, movies, TV shows, and books. Rate them to find your perfect matches!
         </Typography>
       </Box>
@@ -405,16 +408,21 @@ const SearchMedia: React.FC = () => {
       </Box>
 
       {/* Tabs */}
-      <Box sx={{ mb: 4 }}>
+      <Box sx={{ mb: isMobile ? 2 : 4 }}>
         <Tabs
           value={currentTab}
           onChange={handleTabChange}
+          variant={isMobile ? "scrollable" : "standard"}
+          scrollButtons={isMobile ? "auto" : false}
           sx={{
             '& .MuiTabs-indicator': {
               backgroundColor: COLORS.ACCENT,
             },
             '& .MuiTab-root': {
               color: COLORS.TAB_INACTIVE,
+              fontSize: isMobile ? '0.875rem' : undefined,
+              minWidth: isMobile ? 'auto' : undefined,
+              padding: isMobile ? '8px 16px' : undefined,
               '&.Mui-selected': {
                 color: COLORS.TAB,
               },
@@ -438,7 +446,7 @@ const SearchMedia: React.FC = () => {
       {/* Media Grid */}
       {!isLoading && (
         <>
-          <Grid container spacing={3}>
+          <Grid container spacing={isMobile ? 2 : 3}>
             {getCurrentMedia().length > 0 ? (
               getCurrentMedia().map((media, index) => (
                 <Grid item key={`${media.apiId}-${index}`} xs={12} sm={6} md={4} lg={3}>
@@ -453,15 +461,26 @@ const SearchMedia: React.FC = () => {
               ))
             ) : (
               <Grid item xs={12}>
-                <Box sx={{ textAlign: 'center', py: 8 }}>
-                  <Typography variant="h6" color="textSecondary">
+                <Box sx={{ textAlign: 'center', py: isMobile ? 4 : 8 }}>
+                  <Typography 
+                    variant={isMobile ? "body1" : "h6"} 
+                    color="textSecondary"
+                    sx={{ fontSize: isMobile ? '1rem' : undefined }}
+                  >
                     {searchQuery.trim() 
                       ? `No results found for "${searchQuery}"`
                       : 'No media available'
                     }
                   </Typography>
                   {searchQuery.trim() && (
-                    <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
+                    <Typography 
+                      variant="body2" 
+                      color="textSecondary" 
+                      sx={{ 
+                        mt: 1,
+                        fontSize: isMobile ? '0.875rem' : undefined,
+                      }}
+                    >
                       Try adjusting your search terms
                     </Typography>
                   )}

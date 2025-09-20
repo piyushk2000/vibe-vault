@@ -18,6 +18,7 @@ import { RootState } from '../../redux/store';
 import EditableMediaCard from '../../components/cards/EditableMediaCard';
 import { COLORS } from '../../theme/colors';
 import { RequestServer } from '../../config/api';
+import { useIsMobile } from '../../utils/mobile';
 
 interface UserMedia {
   id: number;
@@ -51,6 +52,7 @@ const MyVibe: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   
   const { token } = useSelector((state: RootState) => state.auth);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     fetchUserMedia();
@@ -210,99 +212,180 @@ const MyVibe: React.FC = () => {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{ py: isMobile ? 2 : 4 }}>
       {/* Header */}
-      <Box sx={{ mb: 4 }}>
+      <Box sx={{ mb: isMobile ? 2 : 4 }}>
         <Typography
-          variant="h4"
+          variant={isMobile ? "h5" : "h4"}
           sx={{
             fontWeight: 'bold',
-            mb: 2,
+            mb: isMobile ? 1 : 2,
             background: `linear-gradient(45deg, ${COLORS.ACCENT} 30%, ${COLORS.ACCENT_LIGHT} 90%)`,
             backgroundClip: 'text',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
+            fontSize: isMobile ? '1.75rem' : undefined,
           }}
         >
           My Vibe
         </Typography>
-        <Typography variant="body1" color="textSecondary">
+        <Typography 
+          variant={isMobile ? "body2" : "body1"} 
+          color="textSecondary"
+          sx={{ fontSize: isMobile ? '0.875rem' : undefined }}
+        >
           Your personal collection of rated anime, movies, and shows
         </Typography>
       </Box>
 
       {/* Stats */}
       {!isLoading && userMedia.length > 0 && (
-        <Box sx={{ mb: 4 }}>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6} md={3}>
+        <Box sx={{ mb: isMobile ? 2 : 4 }}>
+          <Grid container spacing={isMobile ? 1.5 : 2}>
+            <Grid item xs={6} sm={6} md={3}>
               <Box
                 sx={{
-                  p: 2,
+                  p: isMobile ? 1.5 : 2,
                   backgroundColor: COLORS.CARD_BACKGROUND,
                   borderRadius: 2,
                   border: `1px solid ${COLORS.BORDER}`,
                   textAlign: 'center',
+                  minHeight: isMobile ? '70px' : '80px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
                 }}
               >
-                <Typography variant="h5" sx={{ fontWeight: 'bold', color: COLORS.ACCENT }}>
+                <Typography 
+                  variant={isMobile ? "h6" : "h5"} 
+                  sx={{ 
+                    fontWeight: 'bold', 
+                    color: COLORS.ACCENT,
+                    fontSize: isMobile ? '1.1rem' : undefined,
+                    lineHeight: 1.2,
+                  }}
+                >
                   {userMedia.length}
                 </Typography>
-                <Typography variant="body2" color="textSecondary">
+                <Typography 
+                  variant={isMobile ? "caption" : "body2"} 
+                  color="textSecondary"
+                  sx={{ 
+                    fontSize: isMobile ? '0.7rem' : undefined,
+                    mt: 0.5,
+                  }}
+                >
                   Total Items
                 </Typography>
               </Box>
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid item xs={6} sm={6} md={3}>
               <Box
                 sx={{
-                  p: 2,
+                  p: isMobile ? 1.5 : 2,
                   backgroundColor: COLORS.CARD_BACKGROUND,
                   borderRadius: 2,
                   border: `1px solid ${COLORS.BORDER}`,
                   textAlign: 'center',
+                  minHeight: isMobile ? '70px' : '80px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
                 }}
               >
-                <Typography variant="h5" sx={{ fontWeight: 'bold', color: COLORS.SUCCESS }}>
+                <Typography 
+                  variant={isMobile ? "h6" : "h5"} 
+                  sx={{ 
+                    fontWeight: 'bold', 
+                    color: COLORS.SUCCESS,
+                    fontSize: isMobile ? '1.1rem' : undefined,
+                    lineHeight: 1.2,
+                  }}
+                >
                   {getStatusStats().COMPLETED}
                 </Typography>
-                <Typography variant="body2" color="textSecondary">
+                <Typography 
+                  variant={isMobile ? "caption" : "body2"} 
+                  color="textSecondary"
+                  sx={{ 
+                    fontSize: isMobile ? '0.7rem' : undefined,
+                    mt: 0.5,
+                  }}
+                >
                   Completed
                 </Typography>
               </Box>
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid item xs={6} sm={6} md={3}>
               <Box
                 sx={{
-                  p: 2,
+                  p: isMobile ? 1.5 : 2,
                   backgroundColor: COLORS.CARD_BACKGROUND,
                   borderRadius: 2,
                   border: `1px solid ${COLORS.BORDER}`,
                   textAlign: 'center',
+                  minHeight: isMobile ? '70px' : '80px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
                 }}
               >
-                <Typography variant="h5" sx={{ fontWeight: 'bold', color: COLORS.WARNING }}>
+                <Typography 
+                  variant={isMobile ? "h6" : "h5"} 
+                  sx={{ 
+                    fontWeight: 'bold', 
+                    color: COLORS.WARNING,
+                    fontSize: isMobile ? '1.1rem' : undefined,
+                    lineHeight: 1.2,
+                  }}
+                >
                   {getStatusStats().WATCHING}
                 </Typography>
-                <Typography variant="body2" color="textSecondary">
+                <Typography 
+                  variant={isMobile ? "caption" : "body2"} 
+                  color="textSecondary"
+                  sx={{ 
+                    fontSize: isMobile ? '0.7rem' : undefined,
+                    mt: 0.5,
+                  }}
+                >
                   Watching
                 </Typography>
               </Box>
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid item xs={6} sm={6} md={3}>
               <Box
                 sx={{
-                  p: 2,
+                  p: isMobile ? 1.5 : 2,
                   backgroundColor: COLORS.CARD_BACKGROUND,
                   borderRadius: 2,
                   border: `1px solid ${COLORS.BORDER}`,
                   textAlign: 'center',
+                  minHeight: isMobile ? '70px' : '80px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
                 }}
               >
-                <Typography variant="h5" sx={{ fontWeight: 'bold', color: COLORS.ACCENT }}>
+                <Typography 
+                  variant={isMobile ? "h6" : "h5"} 
+                  sx={{ 
+                    fontWeight: 'bold', 
+                    color: COLORS.ACCENT,
+                    fontSize: isMobile ? '1.1rem' : undefined,
+                    lineHeight: 1.2,
+                  }}
+                >
                   {getAverageRating()}
                 </Typography>
-                <Typography variant="body2" color="textSecondary">
+                <Typography 
+                  variant={isMobile ? "caption" : "body2"} 
+                  color="textSecondary"
+                  sx={{ 
+                    fontSize: isMobile ? '0.7rem' : undefined,
+                    mt: 0.5,
+                  }}
+                >
                   Avg Rating
                 </Typography>
               </Box>
@@ -312,16 +395,29 @@ const MyVibe: React.FC = () => {
       )}
 
       {/* Filters */}
-      <Box sx={{ mb: 4, display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+      <Box sx={{ 
+        mb: isMobile ? 2 : 4, 
+        display: 'flex', 
+        gap: 2, 
+        alignItems: 'center', 
+        flexWrap: 'wrap',
+        flexDirection: isMobile ? 'column' : 'row',
+      }}>
         <Tabs
           value={currentTab}
           onChange={handleTabChange}
+          variant={isMobile ? "scrollable" : "standard"}
+          scrollButtons={isMobile ? "auto" : false}
           sx={{
+            width: isMobile ? '100%' : 'auto',
             '& .MuiTabs-indicator': {
               backgroundColor: COLORS.ACCENT,
             },
             '& .MuiTab-root': {
               color: COLORS.TAB_INACTIVE,
+              fontSize: isMobile ? '0.8rem' : undefined,
+              minWidth: isMobile ? 'auto' : undefined,
+              padding: isMobile ? '6px 12px' : undefined,
               '&.Mui-selected': {
                 color: COLORS.TAB,
               },
@@ -334,7 +430,13 @@ const MyVibe: React.FC = () => {
           <Tab label={getTabLabel(3)} />
         </Tabs>
 
-        <FormControl size="small" sx={{ minWidth: 120 }}>
+        <FormControl 
+          size="small" 
+          sx={{ 
+            minWidth: isMobile ? '100%' : 120,
+            maxWidth: isMobile ? '100%' : 200,
+          }}
+        >
           <InputLabel>Status</InputLabel>
           <Select
             value={statusFilter}
@@ -359,7 +461,7 @@ const MyVibe: React.FC = () => {
 
       {/* Media Grid */}
       {!isLoading && (
-        <Grid container spacing={3}>
+        <Grid container spacing={isMobile ? 2 : 3}>
           {filteredMedia.length > 0 ? (
             filteredMedia.map((userMediaItem) => (
               <Grid item key={userMediaItem.id} xs={12} sm={6} md={4} lg={3}>
@@ -374,14 +476,25 @@ const MyVibe: React.FC = () => {
             ))
           ) : (
             <Grid item xs={12}>
-              <Box sx={{ textAlign: 'center', py: 8 }}>
-                <Typography variant="h6" color="textSecondary">
+              <Box sx={{ textAlign: 'center', py: isMobile ? 4 : 8 }}>
+                <Typography 
+                  variant={isMobile ? "body1" : "h6"} 
+                  color="textSecondary"
+                  sx={{ fontSize: isMobile ? '1rem' : undefined }}
+                >
                   {userMedia.length === 0 
                     ? "You haven't added any media to your library yet"
                     : "No media matches your current filters"
                   }
                 </Typography>
-                <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
+                <Typography 
+                  variant="body2" 
+                  color="textSecondary" 
+                  sx={{ 
+                    mt: 1,
+                    fontSize: isMobile ? '0.875rem' : undefined,
+                  }}
+                >
                   {userMedia.length === 0 
                     ? "Start exploring and rating your favorite anime, movies, and shows!"
                     : "Try adjusting your filters to see more content"
