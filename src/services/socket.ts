@@ -1,12 +1,11 @@
 import { io, Socket } from 'socket.io-client';
+import { API_BASE_URL } from '../config/api';
 
 class SocketService {
   private socket: Socket | null = null;
-  private token: string | null = null;
 
   connect(token: string) {
-    this.token = token;
-    this.socket = io('http://localhost:3000', {
+    this.socket = io(API_BASE_URL, {
       auth: {
         token: token
       }

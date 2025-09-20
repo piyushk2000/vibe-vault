@@ -1,1 +1,3 @@
-export const BASE_END_POINT = "http://localhost:3000";
+import { API_BASE_URL } from './config/api';
+
+export const BASE_END_POINT = API_BASE_URL;

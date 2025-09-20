@@ -68,7 +68,7 @@ const Navbar: React.FC = () => {
     handleMobileMenuClose();
   };
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
+  const handleTabChange = (_: React.SyntheticEvent, newValue: string) => {
     navigate(newValue);
   };
 

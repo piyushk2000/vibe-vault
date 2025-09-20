@@ -1,7 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-
-const API_BASE_URL = 'http://localhost:3000';
+import { RequestServer } from '../config/api';
 
 interface MatchRequest {
   id: number;
@@ -41,10 +39,8 @@ export const fetchMatchRequests = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_BASE_URL}/swipes/pending`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      return response.data;
+      const response = await RequestServer('/swipes/pending', 'GET', undefined, false, token);
+      return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch match requests');
     }
@@ -56,13 +52,11 @@ export const respondToMatchRequest = createAsyncThunk(
   async ({ swiperId, action }: { swiperId: number; action: 'LIKE' | 'PASS' }, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post(`${API_BASE_URL}/swipes`, {
+      const response = await RequestServer('/swipes', 'POST', {
         swipedUserId: swiperId,
         action
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      return { ...response.data, swiperId, action };
+      }, false, token);
+      return { ...response, swiperId, action };
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to respond to match request');
     }

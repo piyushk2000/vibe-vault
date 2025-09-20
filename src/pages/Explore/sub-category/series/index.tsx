@@ -1,8 +1,8 @@
-import { Box, Grid2, Pagination } from "@mui/material";
+import { Box, Pagination } from "@mui/material";
 import { useTheme } from '@mui/material/styles';
-import MediaCard from "../../../../components/cards";
+import SimpleMediaCard from "../../../../components/cards/SimpleMediaCard";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { RequestServer } from "../../../../config/api";
 import { useSelector, useDispatch } from "react-redux";
 import { setLoading } from "../../../../redux/loadingSlice";
 import Grid from '@mui/material/Grid2';
@@ -16,7 +16,7 @@ interface Series {
 
 const SeriesList = () => {
   const [data, setData] = useState<Series[]>([]);
-  const itemsPerPage = 20; // TMDb API returns 20 items per page
+
   const [totalPage, setTotalPage] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
   const theme = useTheme();
@@ -30,14 +30,13 @@ const SeriesList = () => {
     const fetchData = async () => {
       dispatch(setLoading(true));
       try {
-        const response = await axios.get(`http://localhost:3000/media/series`, {
-          params: {
-            query: searchText || 'series',
-            page: currentPage
-          }
+        const queryParams = new URLSearchParams({
+          query: searchText || 'series',
+          page: currentPage.toString()
         });
-        setData(response.data.data.results || []);
-        setTotalPage(response.data.data.total_pages);
+        const response = await RequestServer(`/media/series?${queryParams}`, 'GET');
+        setData(response?.data?.results || []);
+        setTotalPage(response?.data?.total_pages || 1);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -56,8 +55,8 @@ const SeriesList = () => {
 const handleCardClick = async (item: Series) => {
   dispatch(setLoading(true));
   try {
-      const response = await axios.get(`http://localhost:3000/media/series/${item.id}`);
-      setSelectedItemDetails(response.data.data);
+      const response = await RequestServer(`/media/series/${item.id}`, 'GET');
+      setSelectedItemDetails(response?.data);
       setSelectedItem(item);
   } catch (error) {
       console.error('Error fetching item details:', error);
@@ -77,10 +76,9 @@ const handleCardClick = async (item: Series) => {
         <Grid container spacing={2} justifyContent="center">
           {data?.map((series) => (
             <Grid my={2} key={series.id} onClick={() => handleCardClick(series)}>
-              <MediaCard
+              <SimpleMediaCard
                 imageUrl={`https://image.tmdb.org/t/p/w500${series.poster_path}`}
                 showName={series.name}
-
               />
             </Grid>
           ))}

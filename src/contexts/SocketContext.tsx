@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, ReactNode } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '../redux/store';
-import { updateConnectionLastMessage, addMessage } from '../redux/connectionSlice';
+import { updateConnectionLastMessage } from '../redux/connectionSlice';
 import socketService from '../services/socket';
 
 interface SocketContextType {
@@ -29,7 +29,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
   useEffect(() => {
     if (token) {
       // Connect socket
-      const socket = socketService.connect(token);
+      socketService.connect(token);
 
       // Set up global listeners
       socketService.onMessageNotification((data) => {

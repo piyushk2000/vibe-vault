@@ -1,7 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-
-const API_BASE_URL = 'http://localhost:3000';
+import { RequestServer } from '../config/api';
 
 interface User {
   id: number;
@@ -28,14 +26,14 @@ export const signUp = createAsyncThunk(
   'auth/signUp',
   async ({ name, email, password }: { name: string; email: string; password: string }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/users/signup`, {
+      const response = await RequestServer('/users/signup', 'POST', {
         name,
         email,
         password,
       });
-      return response.data;
+      return response;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Sign up failed');
+      return rejectWithValue(error.message || 'Sign up failed');
     }
   }
 );
@@ -44,13 +42,13 @@ export const signIn = createAsyncThunk(
   'auth/signIn',
   async ({ email, password }: { email: string; password: string }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/users/signin`, {
+      const response = await RequestServer('/users/signin', 'POST', {
         email,
         password,
       });
-      return response.data;
+      return response;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Sign in failed');
+      return rejectWithValue(error.message || 'Sign in failed');
     }
   }
 );

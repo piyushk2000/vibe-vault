@@ -8,8 +8,7 @@ import {
   Paper,
   List,
   ListItem,
-  useTheme,
-  useMediaQuery,
+
   AppBar,
   Toolbar,
 } from '@mui/material';
@@ -24,7 +23,7 @@ import {
 } from '../../redux/connectionSlice';
 import { COLORS } from '../../theme/colors';
 import socketService from '../../services/socket';
-import { formatDistanceToNow, format, isToday, isYesterday } from 'date-fns';
+import { format, isToday, isYesterday } from 'date-fns';
 
 interface ChatInterfaceProps {
   connection: any;
@@ -33,7 +32,6 @@ interface ChatInterfaceProps {
 }
 
 const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMobile }) => {
-  const theme = useTheme();
   const dispatch = useDispatch<AppDispatch>();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
@@ -253,7 +251,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
                 </Box>
 
                 {/* Messages for this date */}
-                {dateMessages.map((msg, index) => (
+                {dateMessages.map((msg) => (
                   <ListItem
                     key={msg.id}
                     sx={{

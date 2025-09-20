@@ -17,9 +17,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import EditableMediaCard from '../../components/cards/EditableMediaCard';
 import { COLORS } from '../../theme/colors';
-import axios from 'axios';
-
-const API_BASE_URL = 'http://localhost:3000';
+import { RequestServer } from '../../config/api';
 
 interface UserMedia {
   id: number;
@@ -65,14 +63,10 @@ const MyVibe: React.FC = () => {
   const fetchUserMedia = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.get(`${API_BASE_URL}/myMedia`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await RequestServer('/myMedia', 'GET', undefined, false, token);
 
-      if (response.data.success) {
-        setUserMedia(response.data.data);
+      if (response?.success) {
+        setUserMedia(response.data);
       }
     } catch (error) {
       setError('Failed to fetch your library');
@@ -158,21 +152,19 @@ const MyVibe: React.FC = () => {
     review?: string;
   }) => {
     try {
-      const response = await axios.put(
-        `${API_BASE_URL}/myMedia/${mediaData.id}`,
+      const response = await RequestServer(
+        `/myMedia/${mediaData.id}`,
+        'PUT',
         {
           rating: mediaData.rating,
           status: mediaData.status,
           review: mediaData.review,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        false,
+        token
       );
 
-      if (response.data.success) {
+      if (response?.success) {
         // Update the local state
         setUserMedia(prevMedia =>
           prevMedia.map(item =>
@@ -195,13 +187,9 @@ const MyVibe: React.FC = () => {
 
   const handleDeleteMedia = async (id: number) => {
     try {
-      const response = await axios.delete(`${API_BASE_URL}/myMedia/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await RequestServer(`/myMedia/${id}`, 'DELETE', undefined, false, token);
 
-      if (response.data.success) {
+      if (response?.success) {
         // Remove from local state
         setUserMedia(prevMedia => prevMedia.filter(item => item.id !== id));
       }

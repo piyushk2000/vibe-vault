@@ -1,7 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-
-const API_BASE_URL = 'http://localhost:3000';
+import { RequestServer } from '../config/api';
 
 interface Media {
   id: number;
@@ -86,8 +84,8 @@ export const fetchAnime = createAsyncThunk(
       params.append('search', search.trim());
     }
     
-    const response = await axios.get(`${API_BASE_URL}/media/anime?${params}`);
-    return { ...response.data, append };
+    const response = await RequestServer(`/media/anime?${params}`, 'GET');
+    return { ...response, append };
   }
 );
 
@@ -106,8 +104,8 @@ export const fetchMovies = createAsyncThunk(
       params.append('search', search.trim());
     }
     
-    const response = await axios.get(`${API_BASE_URL}/media/movies?${params}`);
-    return { ...response.data, append };
+    const response = await RequestServer(`/media/movies?${params}`, 'GET');
+    return { ...response, append };
   }
 );
 
@@ -126,8 +124,8 @@ export const fetchShows = createAsyncThunk(
       params.append('search', search.trim());
     }
     
-    const response = await axios.get(`${API_BASE_URL}/media/series?${params}`);
-    return { ...response.data, append };
+    const response = await RequestServer(`/media/series?${params}`, 'GET');
+    return { ...response, append };
   }
 );
 
@@ -146,16 +144,16 @@ export const fetchBooks = createAsyncThunk(
       params.append('search', search.trim());
     }
     
-    const response = await axios.get(`${API_BASE_URL}/books?${params}`);
-    return { ...response.data, append };
+    const response = await RequestServer(`/books?${params}`, 'GET');
+    return { ...response, append };
   }
 );
 
 export const fetchMediaById = createAsyncThunk(
   'media/fetchById',
   async ({ type, id }: { type: string; id: number }) => {
-    const response = await axios.get(`${API_BASE_URL}/media/${type}/${id}`);
-    return response.data;
+    const response = await RequestServer(`/media/${type}/${id}`, 'GET');
+    return response;
   }
 );
 

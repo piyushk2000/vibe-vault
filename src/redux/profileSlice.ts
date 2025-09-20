@@ -1,7 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-
-const API_BASE_URL = 'http://localhost:3000';
+import { RequestServer } from '../config/api';
 
 interface Profile {
   id: number;
@@ -40,10 +38,8 @@ export const fetchProfile = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_BASE_URL}/profile`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      return response.data;
+      const response = await RequestServer('/profile', 'GET', undefined, false, token);
+      return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch profile');
     }
@@ -64,10 +60,8 @@ export const updateProfile = createAsyncThunk(
   }, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.put(`${API_BASE_URL}/profile`, profileData, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      return response.data;
+      const response = await RequestServer('/profile', 'PUT', profileData, false, token);
+      return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to update profile');
     }
@@ -79,10 +73,8 @@ export const updateUser = createAsyncThunk(
   async (userData: { name: string }, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.put(`${API_BASE_URL}/profile/user`, userData, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      return response.data;
+      const response = await RequestServer('/profile/user', 'PUT', userData, false, token);
+      return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to update user');
     }

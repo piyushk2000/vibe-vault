@@ -1,7 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-
-const API_BASE_URL = 'http://localhost:3000';
+import { RequestServer } from '../config/api';
 
 interface User {
   id: number;
@@ -47,12 +45,10 @@ export const fetchDiscoverUsers = createAsyncThunk(
   async (limit: number = 10, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_BASE_URL}/swipes/discover?limit=${limit}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      return response.data;
+      const response = await RequestServer(`/swipes/discover?limit=${limit}`, 'GET', undefined, false, token);
+      return response;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch users');
+      return rejectWithValue(error.message || 'Failed to fetch users');
     }
   }
 );
@@ -62,15 +58,13 @@ export const swipeUser = createAsyncThunk(
   async ({ swipedUserId, action }: { swipedUserId: number; action: 'LIKE' | 'PASS' }, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post(`${API_BASE_URL}/swipes`, {
+      const response = await RequestServer('/swipes', 'POST', {
         swipedUserId,
         action
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      return response.data;
+      }, false, token);
+      return response;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to record swipe');
+      return rejectWithValue(error.message || 'Failed to record swipe');
     }
   }
 );
@@ -80,12 +74,10 @@ export const fetchPendingSwipes = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_BASE_URL}/swipes/pending`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      return response.data;
+      const response = await RequestServer('/swipes/pending', 'GET', undefined, false, token);
+      return response;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch pending swipes');
+      return rejectWithValue(error.message || 'Failed to fetch pending swipes');
     }
   }
 );

@@ -1,7 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-
-const API_BASE_URL = 'http://localhost:3000';
+import { RequestServer } from '../config/api';
 
 interface Connection {
   id: number;
@@ -61,10 +59,8 @@ export const fetchConnections = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_BASE_URL}/connections`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      return response.data;
+      const response = await RequestServer('/connections', 'GET', undefined, false, token);
+      return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch connections');
     }
@@ -76,10 +72,8 @@ export const fetchMessages = createAsyncThunk(
   async ({ connectionId, page = 1 }: { connectionId: number; page?: number }, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_BASE_URL}/connections/${connectionId}/messages?page=${page}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      return response.data;
+      const response = await RequestServer(`/connections/${connectionId}/messages?page=${page}`, 'GET', undefined, false, token);
+      return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch messages');
     }
@@ -95,13 +89,11 @@ export const sendMessage = createAsyncThunk(
   }, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post(`${API_BASE_URL}/connections/${connectionId}/messages`, {
+      const response = await RequestServer(`/connections/${connectionId}/messages`, 'POST', {
         content,
         messageType
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      return response.data;
+      }, false, token);
+      return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to send message');
     }
@@ -202,7 +194,7 @@ const connectionSlice = createSlice({
         state.error = action.payload as string;
       })
       // Send Message
-      .addCase(sendMessage.fulfilled, (state, action) => {
+      .addCase(sendMessage.fulfilled, (_, action) => {
         if (action.payload.success) {
           // Message will be added via socket, so we don't add it here to avoid duplicates
         }

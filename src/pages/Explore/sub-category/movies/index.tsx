@@ -1,8 +1,8 @@
 import { Box, Pagination } from "@mui/material";
 import { useTheme } from '@mui/material/styles';
-import MediaCard from "../../../../components/cards";
+import SimpleMediaCard from "../../../../components/cards/SimpleMediaCard";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { RequestServer } from "../../../../config/api";
 import { useSelector, useDispatch } from "react-redux";
 import { setLoading } from "../../../../redux/loadingSlice";
 import Grid from '@mui/material/Grid2';
@@ -16,7 +16,7 @@ interface Movie {
 
 const MoviesList = () => {
   const [data, setData] = useState<Movie[]>([]);
-  const itemsPerPage = 20; // TMDb API returns 20 items per page
+
   const [totalPage, setTotalPage] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
   const theme = useTheme();
@@ -31,14 +31,13 @@ const MoviesList = () => {
     const fetchData = async () => {
       dispatch(setLoading(true));
       try {
-        const response = await axios.get(`http://localhost:3000/media/movies`, {
-          params: {
-            query: searchText || 'movie',
-            page: currentPage
-          }
+        const queryParams = new URLSearchParams({
+          query: searchText || 'movie',
+          page: currentPage.toString()
         });
-        setData(response.data.data.results || []);
-        setTotalPage(response.data.data.total_pages);
+        const response = await RequestServer(`/media/movies?${queryParams}`, 'GET');
+        setData(response?.data?.results || []);
+        setTotalPage(response?.data?.total_pages || 1);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -58,8 +57,8 @@ const MoviesList = () => {
 const handleCardClick = async (item: Movie) => {
   dispatch(setLoading(true));
   try {
-      const response = await axios.get(`http://localhost:3000/media/movies/${item.id}`);
-      setSelectedItemDetails(response.data.data);
+      const response = await RequestServer(`/media/movies/${item.id}`, 'GET');
+      setSelectedItemDetails(response?.data);
       setSelectedItem(item);
   } catch (error) {
       console.error('Error fetching item details:', error);
@@ -81,10 +80,9 @@ const handleCardClick = async (item: Movie) => {
           {data?.map((movie) => (
             movie.poster_path &&
             <Grid key={movie.id} my={2} onClick={() => handleCardClick(movie)}>
-              <MediaCard
+              <SimpleMediaCard
                 imageUrl={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
                 showName={movie.title}
-
               />
             </Grid>
           ))}

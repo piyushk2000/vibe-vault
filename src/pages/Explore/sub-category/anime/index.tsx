@@ -3,7 +3,7 @@ import Grid from "@mui/material/Grid2";
 import { useTheme } from "@mui/material/styles";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import MediaCard from "../../../../components/cards";
+import SimpleMediaCard from "../../../../components/cards/SimpleMediaCard";
 import { setLoading } from "../../../../redux/loadingSlice";
 import { SearchStateRoot } from "../../../../redux/searchSlice";
 import { getDataFromServer } from "../../../../services/fetchData";
@@ -98,7 +98,7 @@ const AnimeList = () => {
       <Grid container spacing={2} justifyContent="center">
         {data?.map((anime) => (
           <Grid key={anime.id} my={2} onClick={() => getSingleAnimeData(anime)}>
-            <MediaCard
+            <SimpleMediaCard
               imageUrl={`https://shikimori.one${anime.image.original}`}
               showName={anime.name}
             />

@@ -1,42 +1,85 @@
-import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
-import { BASE_END_POINT } from "../constants";
+import { RequestServer } from "../config/api";
 
-export async function getDataFromServer<T>(
-  config: {
-    endPoint: string;
-    customParams?: Record<string, unknown>;
-  } & AxiosRequestConfig
-): Promise<T | null> {
+export async function getDataFromServer<T>(config: {
+  endPoint: string;
+  customParams?: Record<string, unknown>;
+  token?: string;
+}): Promise<T | null> {
   try {
-    const axiosConfig: AxiosRequestConfig = {
-      ...config, // Spread other Axios config options
-      params: config.customParams,
-      url: `${BASE_END_POINT}${config.endPoint}`,
-      method: "GET",
-    };
-
-    const response: AxiosResponse<T> = await axios(axiosConfig);
-
-    if (response.status >= 200 && response.status < 300) {
-      return response.data;
+    // Build query string from customParams
+    let url = config.endPoint;
+    if (config.customParams) {
+      const params = new URLSearchParams();
+      Object.entries(config.customParams).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          params.append(key, String(value));
+        }
+      });
+      const queryString = params.toString();
+      if (queryString) {
+        url += `?${queryString}`;
+      }
     }
 
-    return null;
+    const response = await RequestServer(url, "GET", undefined, false, config.token);
+    return response;
   } catch (error) {
-    const axiosError = error as AxiosError;
+    console.error("Error fetching data:", error);
+    return null;
+  }
+}
 
-    if (axiosError.response) {
-      console.error(
-        "Server responded with error status:",
-        axiosError.response.status
-      );
-      console.error("Error data:", axiosError.response.data);
-    } else if (axiosError.request) {
-      console.error("No response received:", axiosError.request);
-    } else {
-      console.error("Error setting up request:", axiosError.message);
-    }
+export async function postDataToServer<T>(config: {
+  endPoint: string;
+  body?: object;
+  token?: string;
+  isFile?: boolean;
+}): Promise<T | null> {
+  try {
+    const response = await RequestServer(
+      config.endPoint,
+      "POST",
+      config.body,
+      config.isFile,
+      config.token
+    );
+    return response;
+  } catch (error) {
+    console.error("Error posting data:", error);
+    return null;
+  }
+}
 
+export async function putDataToServer<T>(config: {
+  endPoint: string;
+  body?: object;
+  token?: string;
+  isFile?: boolean;
+}): Promise<T | null> {
+  try {
+    const response = await RequestServer(
+      config.endPoint,
+      "PUT",
+      config.body,
+      config.isFile,
+      config.token
+    );
+    return response;
+  } catch (error) {
+    console.error("Error updating data:", error);
+    return null;
+  }
+}
+
+export async function deleteDataFromServer<T>(config: {
+  endPoint: string;
+  token?: string;
+}): Promise<T | null> {
+  try {
+    const response = await RequestServer(config.endPoint, "DELETE", undefined, false, config.token);
+    return response;
+  } catch (error) {
+    console.error("Error deleting data:", error);
     return null;
   }
 }

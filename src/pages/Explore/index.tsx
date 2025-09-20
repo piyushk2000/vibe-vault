@@ -12,7 +12,6 @@ import {
   CircularProgress,
   Pagination,
   Button,
-  IconButton,
   FormControl,
   InputLabel,
   Select,
@@ -23,14 +22,12 @@ import {
 import { Search, Clear, ChevronLeft, ChevronRight, Sort } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../redux/store';
-import { fetchAnime, fetchMovies, fetchShows, fetchBooks, clearAnime, clearMovies, clearShows, clearBooks } from '../../redux/mediaSlice';
+import { fetchAnime, fetchMovies, fetchShows, fetchBooks } from '../../redux/mediaSlice';
 import { setSearch } from '../../redux/searchSlice';
 import MediaCard from '../../components/cards/MediaCard';
 import { COLORS } from '../../theme/colors';
-import axios from 'axios';
+import { RequestServer } from '../../config/api';
 import { debounce } from 'lodash';
-
-const API_BASE_URL = 'http://localhost:3000';
 
 const SearchMedia: React.FC = () => {
   const theme = useTheme();
@@ -105,7 +102,7 @@ const SearchMedia: React.FC = () => {
     debouncedSearch(searchQuery, currentTab, 1, sortBy);
   }, [searchQuery, currentTab, sortBy, debouncedSearch]);
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setCurrentTab(newValue);
     setCurrentPage(1);
     // Reset sort to default for new tab
@@ -128,7 +125,7 @@ const SearchMedia: React.FC = () => {
     dispatch(setSearch(''));
   };
 
-  const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
+  const handlePageChange = (_: React.ChangeEvent<unknown>, page: number) => {
     setCurrentPage(page);
     fetchPageData(page);
   };
@@ -203,20 +200,18 @@ const SearchMedia: React.FC = () => {
     review?: string;
   }) => {
     try {
-      const response = await axios.post(
-        `${API_BASE_URL}/myMedia`,
+      const response = await RequestServer(
+        '/myMedia',
+        'POST',
         {
           ...mediaData,
           type: currentTab === 0 ? 'ANIME' : currentTab === 1 ? 'MOVIE' : currentTab === 2 ? 'SHOW' : 'BOOK',
         },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        false,
+        token
       );
 
-      if (response.data.success) {
+      if (response?.success) {
         // Show success message or update UI
         console.log('Added to library successfully');
       }
@@ -518,9 +513,9 @@ const SearchMedia: React.FC = () => {
                 </Box>
               ) : (
                 /* For Movies/Shows (with total pages) - use full pagination */
-                getCurrentPagination().totalPages && getCurrentPagination().totalPages > 1 && (
+                getCurrentPagination().totalPages && getCurrentPagination().totalPages! > 1 && (
                   <Pagination
-                    count={getCurrentPagination().totalPages}
+                    count={getCurrentPagination().totalPages || 1}
                     page={getCurrentPagination().currentPage}
                     onChange={handlePageChange}
                     color="primary"
@@ -555,7 +550,7 @@ const SearchMedia: React.FC = () => {
                   <>
                     Page {getCurrentPagination().currentPage}
                     {getCurrentPagination().totalResults && (
-                      <> • {getCurrentPagination().totalResults.toLocaleString()} total results</>
+                      <> • {getCurrentPagination().totalResults?.toLocaleString()} total results</>
                     )}
                   </>
                 ) : (

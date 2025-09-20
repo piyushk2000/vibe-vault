@@ -25,9 +25,7 @@ import { Person, Favorite, Movie, Tv, Animation } from '@mui/icons-material';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import { COLORS } from '../../theme/colors';
-import axios from 'axios';
-
-const API_BASE_URL = 'http://localhost:3000';
+import { RequestServer } from '../../config/api';
 
 interface Match {
   id: number;
@@ -70,14 +68,10 @@ const MatchPage: React.FC = () => {
   const fetchMatches = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.get(`${API_BASE_URL}/matches`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await RequestServer('/matches', 'GET', undefined, false, token);
 
-      if (response.data.success) {
-        setMatches(response.data.data);
+      if (response?.success) {
+        setMatches(response.data);
       }
     } catch (error) {
       setError('Failed to fetch matches');
@@ -90,14 +84,10 @@ const MatchPage: React.FC = () => {
   const fetchCommonMedia = async (matchId: number) => {
     try {
       setDetailsLoading(true);
-      const response = await axios.get(`${API_BASE_URL}/matches/${matchId}/common-media`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await RequestServer(`/matches/${matchId}/common-media`, 'GET', undefined, false, token);
 
-      if (response.data.success) {
-        setCommonMedia(response.data.data);
+      if (response?.success) {
+        setCommonMedia(response.data);
       }
     } catch (error) {
       console.error('Failed to fetch common media:', error);
