@@ -43,6 +43,10 @@ const SearchMedia: React.FC = () => {
     books,
     isLoading, 
     error, 
+    animeError,
+    moviesError,
+    showsError,
+    booksError,
     animePagination, 
     moviesPagination, 
     showsPagination,
@@ -259,6 +263,21 @@ const SearchMedia: React.FC = () => {
     }
   };
 
+  const getCurrentError = () => {
+    switch (currentTab) {
+      case 0:
+        return animeError;
+      case 1:
+        return moviesError;
+      case 2:
+        return showsError;
+      case 3:
+        return booksError;
+      default:
+        return null;
+    }
+  };
+
   const getTabLabel = (index: number) => {
     switch (index) {
       case 0:
@@ -273,16 +292,6 @@ const SearchMedia: React.FC = () => {
         return '';
     }
   };
-
-  if (error) {
-    return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Alert severity="error" sx={{ mb: 3 }}>
-          {error}
-        </Alert>
-      </Container>
-    );
-  }
 
   return (
     <Container maxWidth="lg" sx={{ py: isMobile ? 2 : 4 }}>
@@ -444,6 +453,11 @@ const SearchMedia: React.FC = () => {
       )}
 
       {/* Media Grid */}
+      {getCurrentError() && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {getCurrentError()}
+        </Alert>
+      )}
       {!isLoading && (
         <>
           <Grid container spacing={isMobile ? 2 : 3}>

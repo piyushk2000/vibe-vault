@@ -28,6 +28,10 @@ interface MediaState {
   currentMedia: Media | null;
   isLoading: boolean;
   error: string | null;
+  animeError: string | null;
+  moviesError: string | null;
+  showsError: string | null;
+  booksError: string | null;
   animePagination: PaginationInfo;
   moviesPagination: PaginationInfo;
   showsPagination: PaginationInfo;
@@ -42,6 +46,10 @@ const initialState: MediaState = {
   currentMedia: null,
   isLoading: false,
   error: null,
+  animeError: null,
+  moviesError: null,
+  showsError: null,
+  booksError: null,
   animePagination: {
     currentPage: 1,
     totalPages: null,
@@ -186,6 +194,10 @@ const mediaSlice = createSlice({
     },
     clearError: (state) => {
       state.error = null;
+      state.animeError = null;
+      state.moviesError = null;
+      state.showsError = null;
+      state.booksError = null;
     },
     clearAnime: (state) => {
       state.anime = [];
@@ -219,7 +231,7 @@ const mediaSlice = createSlice({
       // Fetch Anime
       .addCase(fetchAnime.pending, (state) => {
         state.isLoading = true;
-        state.error = null;
+        state.animeError = null;
       })
       .addCase(fetchAnime.fulfilled, (state, action) => {
         state.isLoading = false;
@@ -234,12 +246,12 @@ const mediaSlice = createSlice({
       })
       .addCase(fetchAnime.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.error.message || 'Failed to fetch anime';
+        state.animeError = action.error.message || 'Failed to fetch anime';
       })
       // Fetch Movies
       .addCase(fetchMovies.pending, (state) => {
         state.isLoading = true;
-        state.error = null;
+        state.moviesError = null;
       })
       .addCase(fetchMovies.fulfilled, (state, action) => {
         state.isLoading = false;
@@ -252,17 +264,17 @@ const mediaSlice = createSlice({
           state.moviesPagination = action.payload.data.pagination;
         } else {
           // Handle API error responses
-          state.error = action.payload.message || 'Failed to fetch movies';
+          state.moviesError = action.payload.message || 'Failed to fetch movies';
         }
       })
       .addCase(fetchMovies.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.error.message || 'Failed to fetch movies';
+        state.moviesError = action.error.message || 'Failed to fetch movies';
       })
       // Fetch Shows
       .addCase(fetchShows.pending, (state) => {
         state.isLoading = true;
-        state.error = null;
+        state.showsError = null;
       })
       .addCase(fetchShows.fulfilled, (state, action) => {
         state.isLoading = false;
@@ -275,17 +287,17 @@ const mediaSlice = createSlice({
           state.showsPagination = action.payload.data.pagination;
         } else {
           // Handle API error responses
-          state.error = action.payload.message || 'Failed to fetch shows';
+          state.showsError = action.payload.message || 'Failed to fetch shows';
         }
       })
       .addCase(fetchShows.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.error.message || 'Failed to fetch shows';
+        state.showsError = action.error.message || 'Failed to fetch shows';
       })
       // Fetch Books
       .addCase(fetchBooks.pending, (state) => {
         state.isLoading = true;
-        state.error = null;
+        state.booksError = null;
       })
       .addCase(fetchBooks.fulfilled, (state, action) => {
         state.isLoading = false;
@@ -300,7 +312,7 @@ const mediaSlice = createSlice({
       })
       .addCase(fetchBooks.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.error.message || 'Failed to fetch books';
+        state.booksError = action.error.message || 'Failed to fetch books';
       })
       // Fetch Media by ID
       .addCase(fetchMediaById.pending, (state) => {
