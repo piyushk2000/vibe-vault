@@ -100,8 +100,17 @@ const SearchMedia: React.FC = () => {
 
   // Handle search and sort changes
   useEffect(() => {
-    setCurrentPage(1);
-    debouncedSearch(searchQuery, currentTab, 1, sortBy);
+    // Don't fetch if we already have data for the default parameters
+    const isDefaultParams = searchQuery === '' && (
+      (currentTab === 0 && sortBy === 'popularity') ||
+      (currentTab === 3 && sortBy === 'new') ||
+      ((currentTab === 1 || currentTab === 2) && sortBy === 'popularity.desc')
+    );
+    
+    if (!isDefaultParams || getCurrentMedia().length === 0) {
+      setCurrentPage(1);
+      debouncedSearch(searchQuery, currentTab, 1, sortBy);
+    }
   }, [searchQuery, currentTab, sortBy, debouncedSearch]);
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
@@ -235,6 +244,21 @@ const SearchMedia: React.FC = () => {
 
   const getCurrentMedia = () => {
     switch (currentTab) {
+      case 0:
+        return anime;
+      case 1:
+        return movies;
+      case 2:
+        return shows;
+      case 3:
+        return books;
+      default:
+        return [];
+    }
+  };
+
+  const getCurrentMediaForTab = (tab: number) => {
+    switch (tab) {
       case 0:
         return anime;
       case 1:
