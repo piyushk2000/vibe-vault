@@ -477,13 +477,13 @@ const SearchMedia: React.FC = () => {
       )}
 
       {/* Media Grid */}
-      {getCurrentError() && (
-        <Alert severity="error" sx={{ mb: 3 }}>
-          {getCurrentError()}
-        </Alert>
-      )}
       {!isLoading && (
         <>
+          {getCurrentError() && (
+            <Alert severity="error" sx={{ mb: 3 }}>
+              {getCurrentError()}
+            </Alert>
+          )}
           <Grid container spacing={isMobile ? 2 : 3}>
             {getCurrentMedia().length > 0 ? (
               getCurrentMedia().map((media, index) => (

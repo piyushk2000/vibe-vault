@@ -243,6 +243,9 @@ const mediaSlice = createSlice({
           }
           state.animePagination = action.payload.data.pagination;
           state.animeError = null; 
+        } else {
+          // Handle API error responses
+          state.animeError = action.payload.message || 'Failed to fetch anime';
         }
       })
       .addCase(fetchAnime.rejected, (state, action) => {
@@ -312,6 +315,9 @@ const mediaSlice = createSlice({
           }
           state.booksPagination = action.payload.data.pagination;
           state.booksError = null; // Clear error on success
+        } else {
+          // Handle API error responses
+          state.booksError = action.payload.message || 'Failed to fetch books';
         }
       })
       .addCase(fetchBooks.rejected, (state, action) => {
