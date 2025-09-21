@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="vibeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="30%" style="stop-color:#58A6FF;stop-opacity:1" />
+      <stop offset="90%" style="stop-color:#79C0FF;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <text x="50" y="75" font-family="Arial, sans-serif" font-size="80" font-weight="bold" text-anchor="middle" fill="url(#vibeGradient)">V</text>
+</svg>
