@@ -39,8 +39,10 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
+  const lastSentMessageTime = useRef<number>(0);
   const theme = useTheme();
   const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const inputMinHeight = isMobile ? 44 : 36;
   
   const [message, setMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -49,7 +51,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
   const { messages, messagesLoading, typingUsers } = useSelector(
     (state: RootState) => state.connection
   );
-  const { token } = useSelector((state: RootState) => state.auth);
+  const { token, user } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     if (connection) {
@@ -69,7 +71,29 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
     // Set up socket listeners
     const handleNewMessage = (data: any) => {
       if (data.connectionId === connection.id) {
-        dispatch(addMessage(data.message));
+        const currentTime = Date.now();
+        const timeSinceLastSent = currentTime - lastSentMessageTime.current;
+        const isRecentMessage = timeSinceLastSent < 5000; // 5 seconds window
+        
+        // If message came back within 5 seconds of sending, assume it's ours
+        // Otherwise, check sender ID
+        const isFromMe = isRecentMessage || (user ? data.message.sender.id === user.id : false);
+        
+        const messageWithCorrectFlag = {
+          ...data.message,
+          isFromMe: isFromMe
+        };
+        
+        console.log('Received message:', {
+          senderId: data.message.sender.id,
+          currentUserId: user?.id,
+          timeSinceLastSent,
+          isRecentMessage,
+          isFromMe: messageWithCorrectFlag.isFromMe,
+          content: data.message.content
+        });
+        
+        dispatch(addMessage(messageWithCorrectFlag));
       }
     };
 
@@ -92,7 +116,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
     return () => {
       socketService.removeAllListeners();
     };
-  }, [connection, dispatch, token]);
+  }, [connection, dispatch, token, user]);
 
   useEffect(() => {
     scrollToBottom();
@@ -121,6 +145,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
 
   const handleSendMessage = () => {
     if (message.trim() && connection) {
+      lastSentMessageTime.current = Date.now();
+      console.log('Sending message from user:', user?.id, 'at time:', lastSentMessageTime.current);
       socketService.sendMessage(connection.id, message.trim());
       setMessage('');
       
@@ -197,10 +223,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
   return (
     <Box 
       sx={{ 
-        height: isMobile ? '100vh' : '100%', 
+        height: isMobile ? '100vh' : undefined, // Desktop uses natural height from flex
         display: 'flex', 
         flexDirection: 'column',
         position: 'relative',
+        overflow: 'hidden', // Prevent the entire chat container from being scrollable
+        flex: isMobile ? 'none' : '1', // Desktop flexes to fill container
       }}
     >
       {/* Header */}
@@ -213,14 +241,14 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
           zIndex: theme.zIndex.appBar,
         }}
       >
-        <Toolbar sx={{ minHeight: { xs: '56px', sm: '64px' } }}>
+  <Toolbar sx={{ minHeight: { xs: '44px', sm: '48px' }, px: { xs: 1, sm: 1 } }}>
           {isMobile && onBack && (
             <IconButton 
               onClick={onBack} 
               sx={{ 
-                mr: 1,
-                minWidth: '44px',
-                minHeight: '44px',
+                mr: 0.75,
+                minWidth: '40px',
+                minHeight: '40px',
                 color: COLORS.TEXT_PRIMARY,
                 '&:hover': {
                   backgroundColor: COLORS.HOVER,
@@ -234,10 +262,10 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
           <Avatar
             src={connection.user.avatar || undefined}
             sx={{
-              width: { xs: 36, sm: 40 },
-              height: { xs: 36, sm: 40 },
+              width: { xs: 28, sm: 32 },
+              height: { xs: 28, sm: 32 },
               backgroundColor: COLORS.ACCENT,
-              mr: { xs: 1.5, sm: 2 },
+              mr: { xs: 0.75, sm: 1 },
             }}
           >
             {connection.user.name.charAt(0).toUpperCase()}
@@ -245,12 +273,13 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
           
           <Box sx={{ flex: 1, minWidth: 0 }}>
             <Typography 
-              variant={isSmallMobile ? "subtitle1" : "h6"} 
+              variant={isSmallMobile ? "subtitle2" : "subtitle1"} 
               sx={{ 
-                fontWeight: 'bold',
+                fontWeight: 600,
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
+                fontSize: { xs: '0.9rem', sm: '1rem' },
               }}
             >
               {connection.user.name}
@@ -290,13 +319,13 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
         sx={{ 
           flex: 1, 
           overflow: 'auto', 
-          p: { xs: 0.5, sm: 1 },
+          p: { xs: 0.15, sm: 0.35 },
           backgroundColor: COLORS.BACKGROUND_DARK,
           position: 'relative',
           // Ensure proper scrolling on mobile
           WebkitOverflowScrolling: 'touch',
           // Account for mobile keyboard
-          paddingBottom: isMobile ? { xs: '8px', sm: '16px' } : '16px',
+          paddingBottom: isMobile ? { xs: '6px', sm: '10px' } : '10px',
         }}
       >
         {messagesLoading ? (
@@ -330,33 +359,33 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
                     sx={{
                       display: 'flex',
                       justifyContent: msg.isFromMe ? 'flex-end' : 'flex-start',
-                      px: { xs: 0.5, sm: 1 },
-                      py: { xs: 0.25, sm: 0.5 },
+                      px: { xs: 0.18, sm: 0.36 },
+                      py: { xs: 0.08, sm: 0.16 },
                     }}
                   >
                     <Paper
                       sx={{
-                        maxWidth: { xs: '85%', sm: '80%', md: '70%' },
-                        p: { xs: 1, sm: 1.5 },
+                        maxWidth: { xs: '90%', sm: '80%', md: '65%' },
+                        p: { xs: 0.42, sm: 0.66 },
                         backgroundColor: msg.isFromMe ? COLORS.ACCENT : COLORS.CARD_BACKGROUND,
                         color: msg.isFromMe ? 'white' : COLORS.TEXT_PRIMARY,
-                        borderRadius: { xs: 2.5, sm: 2 },
-                        borderTopRightRadius: msg.isFromMe ? { xs: 0.5, sm: 0.5 } : { xs: 2.5, sm: 2 },
-                        borderTopLeftRadius: msg.isFromMe ? { xs: 2.5, sm: 2 } : { xs: 0.5, sm: 0.5 },
-                        borderBottomRightRadius: msg.isFromMe ? { xs: 0.5, sm: 0.5 } : { xs: 2.5, sm: 2 },
-                        borderBottomLeftRadius: msg.isFromMe ? { xs: 2.5, sm: 2 } : { xs: 0.5, sm: 0.5 },
+                        borderRadius: { xs: 2, sm: 1.5 },
+                        borderTopRightRadius: msg.isFromMe ? { xs: 0.4, sm: 0.4 } : { xs: 2, sm: 1.5 },
+                        borderTopLeftRadius: msg.isFromMe ? { xs: 2, sm: 1.5 } : { xs: 0.4, sm: 0.4 },
+                        borderBottomRightRadius: msg.isFromMe ? { xs: 0.4, sm: 0.4 } : { xs: 2, sm: 1.5 },
+                        borderBottomLeftRadius: msg.isFromMe ? { xs: 2, sm: 1.5 } : { xs: 0.4, sm: 0.4 },
                         alignSelf: msg.isFromMe ? 'flex-end' : 'flex-start',
                         marginLeft: msg.isFromMe ? 'auto' : 0,
                         marginRight: msg.isFromMe ? 0 : 'auto',
-                        boxShadow: isMobile ? '0 1px 2px rgba(0,0,0,0.1)' : 'none',
+                        boxShadow: isMobile ? '0 1px 2px rgba(0,0,0,0.06)' : 'none',
                       }}
                     >
                       <Typography 
-                        variant="body1" 
+                        variant="body2" 
                         sx={{ 
-                          mb: 0.5,
-                          fontSize: { xs: '0.9rem', sm: '1rem' },
-                          lineHeight: 1.4,
+                          mb: 0.32,
+                          fontSize: { xs: '0.76rem', sm: '0.86rem' },
+                          lineHeight: 1.26,
                           wordBreak: 'break-word',
                         }}
                       >
@@ -366,7 +395,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
                         variant="caption"
                         sx={{
                           opacity: 0.7,
-                          fontSize: { xs: '0.65rem', sm: '0.7rem' },
+                          fontSize: { xs: '0.56rem', sm: '0.6rem' },
                           display: 'block',
                           textAlign: msg.isFromMe ? 'right' : 'left',
                         }}
@@ -439,19 +468,20 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
           bottom: 0,
           left: 0,
           right: 0,
-          p: { xs: 1, sm: 2 },
+          p: { xs: 0.35, sm: 0.6 },
           backgroundColor: COLORS.CARD_BACKGROUND,
           borderTop: `1px solid ${COLORS.BORDER}`,
           zIndex: 1000,
           // Add safe area padding for mobile devices
-          paddingBottom: isMobile ? 'max(8px, env(safe-area-inset-bottom))' : undefined,
+          paddingBottom: isMobile ? 'max(6px, env(safe-area-inset-bottom))' : undefined,
         }}
       >
-        <Box sx={{ display: 'flex', gap: { xs: 0.5, sm: 1 }, alignItems: 'flex-end' }}>
+        <Box sx={{ display: 'flex', gap: { xs: 0.18, sm: 0.36 }, alignItems: 'center' , justifyContent: 'center', }}>
           <TextField
             fullWidth
+            size="small"
             multiline
-            maxRows={isMobile ? 3 : 4}
+            maxRows={1}
             placeholder="Type a message..."
             value={message}
             onChange={(e) => handleTyping(e.target.value)}
@@ -464,8 +494,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
             sx={{
               '& .MuiOutlinedInput-root': {
                 backgroundColor: COLORS.BACKGROUND_LIGHT,
-                borderRadius: { xs: 3, sm: 3 },
-                fontSize: { xs: '16px', sm: '14px' }, // Prevent zoom on iOS
+                borderRadius: { xs: 2, sm: 2.5 },
+                fontSize: { xs: '14px', sm: '12.5px' }, 
                 '& fieldset': {
                   borderColor: COLORS.BORDER,
                 },
@@ -478,41 +508,28 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
                 },
               },
               '& .MuiInputBase-input': {
-                padding: { xs: '12px 14px', sm: '16.5px 14px' },
+                padding: { xs: '7px 9px', sm: '10px 9px' },
+              },
+              '& .MuiInputBase-input::placeholder': {
+                color: COLORS.TEXT_SECONDARY,
+                opacity: 0.95,
               },
             }}
-            InputProps={{
-              endAdornment: isMobile && message.trim() ? (
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={handleSendMessage}
-                    size="small"
-                    sx={{
-                      color: COLORS.ACCENT,
-                      '&:hover': {
-                        backgroundColor: COLORS.ACCENT_BACKGROUND,
-                      },
-                    }}
-                  >
-                    <Send fontSize="small" />
-                  </IconButton>
-                </InputAdornment>
-              ) : undefined,
-            }}
+
           />
           {(!isMobile || !message.trim()) && (
             <IconButton
               onClick={handleSendMessage}
               disabled={!message.trim()}
               sx={{
-                minWidth: { xs: '44px', sm: '48px' },
-                minHeight: { xs: '44px', sm: '48px' },
+                minWidth: { xs: '34px', sm: '38px' },
+                minHeight: { xs: '34px', sm: '38px' },
                 backgroundColor: message.trim() ? COLORS.ACCENT : COLORS.TEXT_INACTIVE,
                 color: 'white',
-                transition: 'all 0.2s ease',
+                transition: 'all 0.15s ease',
                 '&:hover': {
                   backgroundColor: message.trim() ? COLORS.ACCENT_HOVER : COLORS.TEXT_INACTIVE,
-                  transform: message.trim() ? 'scale(1.05)' : 'none',
+                  transform: message.trim() ? 'scale(1.03)' : 'none',
                 },
                 '&:disabled': {
                   backgroundColor: COLORS.TEXT_INACTIVE,
@@ -520,7 +537,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
                 },
               }}
             >
-              <Send fontSize={isMobile ? 'small' : 'medium'} />
+              <Send fontSize={isMobile ? 'small' : 'small'} />
             </IconButton>
           )}
         </Box>

@@ -243,12 +243,12 @@ const Matched: React.FC = () => {
 
   // Desktop: Split view
   return (
-    <Container maxWidth="xl" sx={{ py: 4, height: '100vh' }}>
-      <Box sx={{ display: 'flex', height: '80vh', gap: 2 }}>
+    <Container maxWidth="xl" sx={{ py: 2.5, height: 'calc(100vh - 64px)' }}> {/* Account for navbar + padding */}
+      <Box sx={{ display: 'flex', height: '100%', gap: 1.5 }}>
         {/* Left Panel - Connections List */}
         <Paper
           sx={{
-            width: 400,
+            width: 300,
             backgroundColor: COLORS.CARD_BACKGROUND,
             border: `1px solid ${COLORS.BORDER}`,
             borderRadius: 2,
@@ -258,15 +258,17 @@ const Matched: React.FC = () => {
           }}
         >
           {/* Header */}
-          <Box sx={{ p: 3, borderBottom: `1px solid ${COLORS.BORDER}` }}>
+          <Box sx={{ p: 1.5, borderBottom: `1px solid ${COLORS.BORDER}` }}>
             <Typography
               variant="h6"
               sx={{
-                fontWeight: 'bold',
+                fontWeight: 700,
+                fontSize: { xs: '1rem', sm: '1.125rem' },
                 background: `linear-gradient(45deg, ${COLORS.ACCENT} 30%, ${COLORS.ACCENT_LIGHT} 90%)`,
                 backgroundClip: 'text',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
+                mb: 0.25,
               }}
             >
               Your Matches
@@ -298,7 +300,7 @@ const Matched: React.FC = () => {
                           '&:hover': {
                             backgroundColor: COLORS.CARD_HOVER,
                           },
-                          py: 2,
+                          py: 1.25,
                         }}
                       >
                         <ListItemAvatar>
@@ -314,8 +316,8 @@ const Matched: React.FC = () => {
                             <Avatar
                               src={connection.user.avatar || undefined}
                               sx={{
-                                width: 50,
-                                height: 50,
+                                width: { xs: 44, sm: 48 },
+                                height: { xs: 44, sm: 48 },
                                 backgroundColor: COLORS.ACCENT,
                               }}
                             >
