@@ -242,6 +242,7 @@ const mediaSlice = createSlice({
             state.anime = action.payload.data.data;
           }
           state.animePagination = action.payload.data.pagination;
+          state.animeError = null; 
         }
       })
       .addCase(fetchAnime.rejected, (state, action) => {
@@ -262,6 +263,7 @@ const mediaSlice = createSlice({
             state.movies = action.payload.data.data;
           }
           state.moviesPagination = action.payload.data.pagination;
+          state.moviesError = null; // Clear error on success
         } else {
           // Handle API error responses
           state.moviesError = action.payload.message || 'Failed to fetch movies';
@@ -285,6 +287,7 @@ const mediaSlice = createSlice({
             state.shows = action.payload.data.data;
           }
           state.showsPagination = action.payload.data.pagination;
+          state.showsError = null; // Clear error on success
         } else {
           // Handle API error responses
           state.showsError = action.payload.message || 'Failed to fetch shows';
@@ -308,6 +311,7 @@ const mediaSlice = createSlice({
             state.books = action.payload.data.data;
           }
           state.booksPagination = action.payload.data.pagination;
+          state.booksError = null; // Clear error on success
         }
       })
       .addCase(fetchBooks.rejected, (state, action) => {
@@ -323,6 +327,7 @@ const mediaSlice = createSlice({
         state.isLoading = false;
         if (action.payload.success) {
           state.currentMedia = action.payload.data;
+          state.error = null; // Clear error on success
         }
       })
       .addCase(fetchMediaById.rejected, (state, action) => {
