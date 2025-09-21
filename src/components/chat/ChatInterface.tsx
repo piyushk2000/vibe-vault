@@ -52,6 +52,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
     (state: RootState) => state.connection
   );
   const { token, user } = useSelector((state: RootState) => state.auth);
+  const { profile } = useSelector((state: RootState) => state.profile);
 
   useEffect(() => {
     if (connection) {
@@ -322,6 +323,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
           p: { xs: 0.15, sm: 0.35 },
           backgroundColor: COLORS.BACKGROUND_DARK,
           position: 'relative',
+          minHeight: 0, // Ensure it can shrink
           // Ensure proper scrolling on mobile
           WebkitOverflowScrolling: 'touch',
           // Account for mobile keyboard
@@ -361,8 +363,24 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
                       justifyContent: msg.isFromMe ? 'flex-end' : 'flex-start',
                       px: { xs: 0.18, sm: 0.36 },
                       py: { xs: 0.08, sm: 0.16 },
+                      alignItems: 'flex-start',
                     }}
                   >
+                    {!msg.isFromMe && (
+                      <Avatar
+                        src={connection.user.avatar || undefined}
+                        sx={{
+                          width: { xs: 28, sm: 32 },
+                          height: { xs: 28, sm: 32 },
+                          backgroundColor: COLORS.ACCENT,
+                          mr: { xs: 0.5, sm: 0.75 },
+                          mt: 0.25,
+                        }}
+                      >
+                        {connection.user.name.charAt(0).toUpperCase()}
+                      </Avatar>
+                    )}
+                    
                     <Paper
                       sx={{
                         maxWidth: { xs: '90%', sm: '80%', md: '65%' },
@@ -403,6 +421,21 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
                         {formatMessageTime(msg.createdAt)}
                       </Typography>
                     </Paper>
+
+                    {msg.isFromMe && (
+                      <Avatar
+                        src={profile?.avatar || undefined}
+                        sx={{
+                          width: { xs: 28, sm: 32 },
+                          height: { xs: 28, sm: 32 },
+                          backgroundColor: COLORS.ACCENT,
+                          ml: { xs: 0.5, sm: 0.75 },
+                          mt: 0.25,
+                        }}
+                      >
+                        {user?.name?.charAt(0).toUpperCase() || 'U'}
+                      </Avatar>
+                    )}
                   </ListItem>
                 ))}
               </React.Fragment>
@@ -410,13 +443,26 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
             
             {/* Typing Indicator */}
             {typingUsers.length > 0 && (
-              <ListItem sx={{ justifyContent: 'flex-start', px: { xs: 0.5, sm: 1 } }}>
+              <ListItem sx={{ justifyContent: 'flex-start', px: { xs: 0.18, sm: 0.36 }, py: { xs: 0.08, sm: 0.16 }, alignItems: 'flex-start' }}>
+                <Avatar
+                  src={connection.user.avatar || undefined}
+                  sx={{
+                    width: { xs: 28, sm: 32 },
+                    height: { xs: 28, sm: 32 },
+                    backgroundColor: COLORS.ACCENT,
+                    mr: { xs: 0.5, sm: 0.75 },
+                    mt: 0.25,
+                  }}
+                >
+                  {connection.user.name.charAt(0).toUpperCase()}
+                </Avatar>
                 <Paper
                   sx={{
-                    p: { xs: 1, sm: 1.5 },
+                    p: { xs: 0.42, sm: 0.66 },
                     backgroundColor: COLORS.CARD_BACKGROUND,
-                    borderRadius: { xs: 2.5, sm: 2 },
-                    borderTopLeftRadius: { xs: 0.5, sm: 0.5 },
+                    borderRadius: { xs: 2, sm: 1.5 },
+                    borderTopLeftRadius: { xs: 0.4, sm: 0.4 },
+                    boxShadow: isMobile ? '0 1px 2px rgba(0,0,0,0.06)' : 'none',
                   }}
                 >
                   <Typography 
@@ -424,7 +470,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
                     sx={{ 
                       fontStyle: 'italic', 
                       opacity: 0.7,
-                      fontSize: { xs: '0.85rem', sm: '0.875rem' },
+                      fontSize: { xs: '0.76rem', sm: '0.86rem' },
                     }}
                   >
                     typing...
