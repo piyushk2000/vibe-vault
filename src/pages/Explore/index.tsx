@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   Box,
   Container,
@@ -15,6 +15,7 @@ import {
   FormControl,
   InputLabel,
   Select,
+  SelectChangeEvent,
   MenuItem,
 } from '@mui/material';
 import { Search, Clear, ChevronLeft, ChevronRight, Sort } from '@mui/icons-material';
@@ -32,10 +33,19 @@ import AuthModal from '../../components/auth/AuthModal';
 const SearchMedia: React.FC = () => {
   const isMobile = useIsMobile();
   const [currentTab, setCurrentTab] = useState(0);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [sortBy, setSortBy] = useState('popularity');
   const [authModalOpen, setAuthModalOpen] = useState(false);
+
+  // Store filter state per tab
+  const [tabStates, setTabStates] = useState({
+    0: { searchQuery: '', currentPage: 1, sortBy: 'popularity' }, // Anime
+    1: { searchQuery: '', currentPage: 1, sortBy: 'popularity.desc' }, // Movies
+    2: { searchQuery: '', currentPage: 1, sortBy: 'popularity.desc' }, // Shows
+    3: { searchQuery: '', currentPage: 1, sortBy: 'new' }, // Books
+  });
+
+  // Get current tab's state
+  const currentTabState = tabStates[currentTab as keyof typeof tabStates];
+  const { searchQuery, currentPage, sortBy } = currentTabState;
   
   const dispatch = useDispatch<AppDispatch>();
   const { 
@@ -98,48 +108,51 @@ const SearchMedia: React.FC = () => {
     // Don't load movies, shows, books initially to avoid rate limiting
   }, [dispatch]);
 
-  // Handle search and sort changes
+  // Handle search changes - trigger debounced search when search query changes
+  const prevTabRef = useRef(currentTab);
   useEffect(() => {
-    // Don't fetch if we already have data for the default parameters
-    const isDefaultParams = searchQuery === '' && (
-      (currentTab === 0 && sortBy === 'popularity') ||
-      (currentTab === 3 && sortBy === 'new') ||
-      ((currentTab === 1 || currentTab === 2) && sortBy === 'popularity.desc')
-    );
+    const isTabSwitch = prevTabRef.current !== currentTab;
+    prevTabRef.current = currentTab;
     
-    if (!isDefaultParams || getCurrentMedia().length === 0) {
-      setCurrentPage(1);
-      debouncedSearch(searchQuery, currentTab, 1, sortBy);
+    if (isTabSwitch) {
+      // Don't fetch on tab switch - handleTabChange will handle it
+      return;
     }
-  }, [searchQuery, currentTab, sortBy, debouncedSearch]);
+    
+    debouncedSearch(searchQuery, currentTab, currentPage, sortBy);
+  }, [searchQuery, currentTab, sortBy, debouncedSearch, currentPage]);
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setCurrentTab(newValue);
-    setCurrentPage(1);
-    // Reset sort to default for new tab
-    if (newValue === 0) {
-      setSortBy('popularity'); // Anime
-    } else if (newValue === 3) {
-      setSortBy('new'); // Books
-    } else {
-      setSortBy('popularity.desc'); // Movies/Shows
-    }
 
-    // Load data for the tab if not already loaded
+    // Load data for the tab if not already loaded or if filters don't match
     const currentMedia = getCurrentMediaForTab(newValue);
-    if (currentMedia.length === 0) {
+    const tabState = tabStates[newValue as keyof typeof tabStates];
+    
+    // Check if we need to fetch new data
+    const hasData = currentMedia.length > 0;
+    const isDefaultState = tabState.searchQuery === '' && 
+      tabState.currentPage === 1 && 
+      ((newValue === 0 && tabState.sortBy === 'popularity') ||
+       (newValue === 3 && tabState.sortBy === 'new') ||
+       ((newValue === 1 || newValue === 2) && tabState.sortBy === 'popularity.desc'));
+    
+    if (!hasData || !isDefaultState) {
       // Small delay to avoid overwhelming the API
       setTimeout(() => {
-        const sortParam = getSortParam(newValue, newValue === 0 ? 'popularity' : newValue === 3 ? 'new' : 'popularity.desc');
+        const sortParam = getSortParam(newValue, tabState.sortBy);
         switch (newValue) {
+          case 0:
+            dispatch(fetchAnime({ page: tabState.currentPage, search: tabState.searchQuery, sort: sortParam, append: false }));
+            break;
           case 1:
-            dispatch(fetchMovies({ page: 1, search: '', sort: sortParam, append: false }));
+            dispatch(fetchMovies({ page: tabState.currentPage, search: tabState.searchQuery, sort: sortParam, append: false }));
             break;
           case 2:
-            dispatch(fetchShows({ page: 1, search: '', sort: sortParam, append: false }));
+            dispatch(fetchShows({ page: tabState.currentPage, search: tabState.searchQuery, sort: sortParam, append: false }));
             break;
           case 3:
-            dispatch(fetchBooks({ page: 1, search: '', sort: sortParam, append: false }));
+            dispatch(fetchBooks({ page: tabState.currentPage, search: tabState.searchQuery, sort: sortParam, append: false }));
             break;
         }
       }, 500); // 500ms delay
@@ -147,12 +160,39 @@ const SearchMedia: React.FC = () => {
   };
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(event.target.value);
-    dispatch(setSearch(event.target.value));
+    const newSearchQuery = event.target.value;
+    setTabStates(prev => ({
+      ...prev,
+      [currentTab]: {
+        ...prev[currentTab as keyof typeof prev],
+        searchQuery: newSearchQuery,
+        currentPage: 1, // Reset to page 1 when searching
+      }
+    }));
+    dispatch(setSearch(newSearchQuery));
+  };
+
+  const handleSortChange = (event: SelectChangeEvent<string>) => {
+    const newSortBy = event.target.value;
+    setTabStates(prev => ({
+      ...prev,
+      [currentTab]: {
+        ...prev[currentTab as keyof typeof prev],
+        sortBy: newSortBy,
+        currentPage: 1, // Reset to page 1 when sorting
+      }
+    }));
   };
 
   const handleClearSearch = () => {
-    setSearchQuery('');
+    setTabStates(prev => ({
+      ...prev,
+      [currentTab]: {
+        ...prev[currentTab as keyof typeof prev],
+        searchQuery: '',
+        currentPage: 1, // Reset to page 1 when clearing search
+      }
+    }));
     dispatch(setSearch(''));
   };
 
@@ -162,13 +202,25 @@ const SearchMedia: React.FC = () => {
       return; // Don't navigate to invalid pages
     }
     
-    setCurrentPage(page);
+    setTabStates(prev => ({
+      ...prev,
+      [currentTab]: {
+        ...prev[currentTab as keyof typeof prev],
+        currentPage: page,
+      }
+    }));
     fetchPageData(page);
   };
 
   const handlePrevPage = () => {
     const newPage = currentPage - 1;
-    setCurrentPage(newPage);
+    setTabStates(prev => ({
+      ...prev,
+      [currentTab]: {
+        ...prev[currentTab as keyof typeof prev],
+        currentPage: newPage,
+      }
+    }));
     fetchPageData(newPage);
   };
 
@@ -180,7 +232,13 @@ const SearchMedia: React.FC = () => {
       return; // Don't navigate beyond page 500
     }
     
-    setCurrentPage(newPage);
+    setTabStates(prev => ({
+      ...prev,
+      [currentTab]: {
+        ...prev[currentTab as keyof typeof prev],
+        currentPage: newPage,
+      }
+    }));
     fetchPageData(newPage);
   };
 
@@ -401,18 +459,30 @@ const SearchMedia: React.FC = () => {
               },
             }}
             InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Search sx={{ color: COLORS.TEXT_SECONDARY }} />
-                </InputAdornment>
-              ),
-              endAdornment: searchQuery && (
+              endAdornment: (
                 <InputAdornment position="end">
+                  {searchQuery && (
+                    <Button
+                      onClick={handleClearSearch}
+                      sx={{ 
+                        minWidth: 'auto', 
+                        p: 0.5,
+                        color: COLORS.TEXT_SECONDARY,
+                        '&:hover': {
+                          backgroundColor: 'transparent',
+                          color: COLORS.ACCENT,
+                        }
+                      }}
+                    >
+                      <Clear />
+                    </Button>
+                  )}
                   <Button
-                    onClick={handleClearSearch}
+                    onClick={() => debouncedSearch(searchQuery, currentTab, 1, sortBy)}
                     sx={{ 
                       minWidth: 'auto', 
                       p: 0.5,
+                      ml: searchQuery ? 0.5 : 0,
                       color: COLORS.TEXT_SECONDARY,
                       '&:hover': {
                         backgroundColor: 'transparent',
@@ -420,7 +490,7 @@ const SearchMedia: React.FC = () => {
                       }
                     }}
                   >
-                    <Clear />
+                    <Search />
                   </Button>
                 </InputAdornment>
               ),
@@ -449,7 +519,7 @@ const SearchMedia: React.FC = () => {
             <Select
               value={sortBy}
               label="Sort By"
-              onChange={(e) => setSortBy(e.target.value)}
+              onChange={handleSortChange}
               startAdornment={
                 <InputAdornment position="start">
                   <Sort sx={{ color: COLORS.TEXT_SECONDARY, mr: 1 }} />
