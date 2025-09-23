@@ -92,12 +92,10 @@ const SearchMedia: React.FC = () => {
     }
   };
 
-  // Initial load
+  // Initial load - only load anime first
   useEffect(() => {
     dispatch(fetchAnime({ page: 1, search: '', sort: 'popularity', append: false }));
-    dispatch(fetchMovies({ page: 1, search: '', sort: 'popularity.desc', append: false }));
-    dispatch(fetchShows({ page: 1, search: '', sort: 'popularity.desc', append: false }));
-    dispatch(fetchBooks({ page: 1, search: '', sort: 'new', append: false }));
+    // Don't load movies, shows, books initially to avoid rate limiting
   }, [dispatch]);
 
   // Handle search and sort changes
@@ -125,6 +123,26 @@ const SearchMedia: React.FC = () => {
       setSortBy('new'); // Books
     } else {
       setSortBy('popularity.desc'); // Movies/Shows
+    }
+
+    // Load data for the tab if not already loaded
+    const currentMedia = getCurrentMediaForTab(newValue);
+    if (currentMedia.length === 0) {
+      // Small delay to avoid overwhelming the API
+      setTimeout(() => {
+        const sortParam = getSortParam(newValue, newValue === 0 ? 'popularity' : newValue === 3 ? 'new' : 'popularity.desc');
+        switch (newValue) {
+          case 1:
+            dispatch(fetchMovies({ page: 1, search: '', sort: sortParam, append: false }));
+            break;
+          case 2:
+            dispatch(fetchShows({ page: 1, search: '', sort: sortParam, append: false }));
+            break;
+          case 3:
+            dispatch(fetchBooks({ page: 1, search: '', sort: sortParam, append: false }));
+            break;
+        }
+      }, 500); // 500ms delay
     }
   };
 
@@ -488,7 +506,35 @@ const SearchMedia: React.FC = () => {
       {!isLoading && (
         <>
           {getCurrentError() && (
-            <Alert severity="error" sx={{ mb: 3 }}>
+            <Alert 
+              severity="error" 
+              sx={{ mb: 3 }}
+              action={
+                <Button 
+                  color="inherit" 
+                  size="small" 
+                  onClick={() => {
+                    const sortParam = getSortParam(currentTab, sortBy);
+                    switch (currentTab) {
+                      case 0:
+                        dispatch(fetchAnime({ page: currentPage, search: searchQuery, sort: sortParam, append: false }));
+                        break;
+                      case 1:
+                        dispatch(fetchMovies({ page: currentPage, search: searchQuery, sort: sortParam, append: false }));
+                        break;
+                      case 2:
+                        dispatch(fetchShows({ page: currentPage, search: searchQuery, sort: sortParam, append: false }));
+                        break;
+                      case 3:
+                        dispatch(fetchBooks({ page: currentPage, search: searchQuery, sort: sortParam, append: false }));
+                        break;
+                    }
+                  }}
+                >
+                  Retry
+                </Button>
+              }
+            >
               {getCurrentError()}
             </Alert>
           )}

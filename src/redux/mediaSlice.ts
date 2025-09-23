@@ -274,6 +274,7 @@ const mediaSlice = createSlice({
       })
       .addCase(fetchMovies.rejected, (state, action) => {
         state.isLoading = false;
+        console.error('Movies fetch failed:', action.error);
         state.moviesError = action.error.message || 'Failed to fetch movies';
       })
       // Fetch Shows
@@ -298,6 +299,7 @@ const mediaSlice = createSlice({
       })
       .addCase(fetchShows.rejected, (state, action) => {
         state.isLoading = false;
+        console.error('Shows fetch failed:', action.error);
         state.showsError = action.error.message || 'Failed to fetch shows';
       })
       // Fetch Books
