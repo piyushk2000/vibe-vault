@@ -43,6 +43,14 @@ const SearchMedia: React.FC = () => {
     3: { searchQuery: '', currentPage: 1, sortBy: 'new' }, // Books
   });
 
+  // Track what filters were last used to load data for each tab
+  const [lastLoadedFilters, setLastLoadedFilters] = useState({
+    0: { searchQuery: '', currentPage: 1, sortBy: 'popularity' }, // Anime
+    1: null, // Movies - not loaded yet
+    2: null, // Shows - not loaded yet  
+    3: null, // Books - not loaded yet
+  });
+
   // Get current tab's state
   const currentTabState = tabStates[currentTab as keyof typeof tabStates];
   const { searchQuery, currentPage, sortBy } = currentTabState;
@@ -105,6 +113,11 @@ const SearchMedia: React.FC = () => {
   // Initial load - only load anime first
   useEffect(() => {
     dispatch(fetchAnime({ page: 1, search: '', sort: 'popularity', append: false }));
+    // Update last loaded filters for initial anime load
+    setLastLoadedFilters(prev => ({
+      ...prev,
+      0: { searchQuery: '', currentPage: 1, sortBy: 'popularity' }
+    }));
     // Don't load movies, shows, books initially to avoid rate limiting
   }, [dispatch]);
 
@@ -120,6 +133,11 @@ const SearchMedia: React.FC = () => {
     }
     
     debouncedSearch(searchQuery, currentTab, currentPage, sortBy);
+    // Update last loaded filters when search/sort changes
+    setLastLoadedFilters(prev => ({
+      ...prev,
+      [currentTab]: { searchQuery, currentPage, sortBy }
+    }));
   }, [searchQuery, currentTab, sortBy, debouncedSearch, currentPage]);
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
@@ -128,16 +146,16 @@ const SearchMedia: React.FC = () => {
     // Load data for the tab if not already loaded or if filters don't match
     const currentMedia = getCurrentMediaForTab(newValue);
     const tabState = tabStates[newValue as keyof typeof tabStates];
+    const lastFilters = lastLoadedFilters[newValue as keyof typeof lastLoadedFilters];
     
     // Check if we need to fetch new data
     const hasData = currentMedia.length > 0;
-    const isDefaultState = tabState.searchQuery === '' && 
-      tabState.currentPage === 1 && 
-      ((newValue === 0 && tabState.sortBy === 'popularity') ||
-       (newValue === 3 && tabState.sortBy === 'new') ||
-       ((newValue === 1 || newValue === 2) && tabState.sortBy === 'popularity.desc'));
+    const filtersMatch = lastFilters && 
+      lastFilters.searchQuery === tabState.searchQuery &&
+      lastFilters.currentPage === tabState.currentPage &&
+      lastFilters.sortBy === tabState.sortBy;
     
-    if (!hasData || !isDefaultState) {
+    if (!hasData || !filtersMatch) {
       // Small delay to avoid overwhelming the API
       setTimeout(() => {
         const sortParam = getSortParam(newValue, tabState.sortBy);
@@ -155,6 +173,11 @@ const SearchMedia: React.FC = () => {
             dispatch(fetchBooks({ page: tabState.currentPage, search: tabState.searchQuery, sort: sortParam, append: false }));
             break;
         }
+        // Update last loaded filters
+        setLastLoadedFilters(prev => ({
+          ...prev,
+          [newValue]: { ...tabState }
+        }));
       }, 500); // 500ms delay
     }
   };
