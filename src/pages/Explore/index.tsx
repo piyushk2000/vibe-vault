@@ -27,6 +27,7 @@ import { COLORS } from '../../theme/colors';
 import { RequestServer } from '../../config/api';
 import { debounce } from 'lodash';
 import { useIsMobile } from '../../utils/mobile';
+import AuthModal from '../../components/auth/AuthModal';
 
 const SearchMedia: React.FC = () => {
   const isMobile = useIsMobile();
@@ -34,6 +35,7 @@ const SearchMedia: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState('popularity');
+  const [authModalOpen, setAuthModalOpen] = useState(false);
   
   const dispatch = useDispatch<AppDispatch>();
   const { 
@@ -221,6 +223,11 @@ const SearchMedia: React.FC = () => {
     status: string;
     review?: string;
   }) => {
+    if (!token) {
+      setAuthModalOpen(true);
+      return;
+    }
+
     try {
       const response = await RequestServer(
         '/myMedia',
@@ -318,14 +325,15 @@ const SearchMedia: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: isMobile ? 2 : 4 }}>
-      {/* Header */}
-      <Box sx={{ mb: isMobile ? 2 : 4 }}>
-        <Typography
-          variant={isMobile ? "h5" : "h4"}
-          sx={{
-            fontWeight: 'bold',
-            mb: isMobile ? 1 : 2,
+    <>
+      <Container maxWidth="lg" sx={{ py: isMobile ? 2 : 4 }}>
+        {/* Header */}
+        <Box sx={{ mb: isMobile ? 2 : 4 }}>
+          <Typography
+            variant={isMobile ? "h5" : "h4"}
+            sx={{
+              fontWeight: 'bold',
+              mb: isMobile ? 1 : 2,
             background: `linear-gradient(45deg, ${COLORS.ACCENT} 30%, ${COLORS.ACCENT_LIGHT} 90%)`,
             backgroundClip: 'text',
             WebkitBackgroundClip: 'text',
@@ -492,7 +500,7 @@ const SearchMedia: React.FC = () => {
                     <MediaCard
                       media={media}
                       onAddToLibrary={handleAddToLibrary}
-                      showAddButton={!!token}
+                      showAddButton={true}
                     />
                   </Box>
                 </Grid>
@@ -641,6 +649,12 @@ const SearchMedia: React.FC = () => {
         </>
       )}
     </Container>
+
+    <AuthModal
+      open={authModalOpen}
+      onClose={() => setAuthModalOpen(false)}
+    />
+    </>
   );
 };
 

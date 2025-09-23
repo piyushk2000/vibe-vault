@@ -12,6 +12,7 @@ import {
   Tab,
   Badge,
   useTheme,
+  Button,
 } from '@mui/material';
 import { AccountCircle, Logout, Person, Edit, Menu as MenuIcon } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
@@ -24,12 +25,14 @@ import { COLORS } from '../../theme/colors';
 import { getTouchTargetStyles, createTransition } from '../../theme/utils';
 import ProfileModal from '../profile/ProfileModal';
 import MobileNavDrawer from '../navigation/MobileNavDrawer';
+import AuthModal from '../auth/AuthModal';
 import { useIsMobile } from '../../utils/mobile';
 
 const Navbar: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const location = useLocation();
@@ -70,11 +73,21 @@ const Navbar: React.FC = () => {
   };
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: string) => {
+    if (!user && newValue !== '/explore') {
+      setAuthModalOpen(true);
+      return;
+    }
     navigate(newValue);
   };
 
   const handleMobileNavigation = (path: string) => {
+    if (!user && path !== '/explore') {
+      setAuthModalOpen(true);
+      setMobileDrawerOpen(false);
+      return;
+    }
     navigate(path);
+    setMobileDrawerOpen(false);
   };
 
   const getCurrentTab = () => {
@@ -207,124 +220,150 @@ const Navbar: React.FC = () => {
 
           {/* User Menu */}
           <Box>
-            <IconButton
-              size="large"
-              aria-label="User account menu"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={handleMenu}
-              color="inherit"
-              sx={{
-                ...getTouchTargetStyles(),
-                transition: createTransition(['transform'], theme.customAnimations.duration.shorter),
-                '&:hover': {
-                  transform: 'scale(1.05)',
-                },
-              }}
-            >
-              {profile?.avatar ? (
-                <Avatar
-                  src={profile.avatar}
+            {user ? (
+              <>
+                <IconButton
+                  size="large"
+                  aria-label="User account menu"
+                  aria-controls="menu-appbar"
+                  aria-haspopup="true"
+                  onClick={handleMenu}
+                  color="inherit"
                   sx={{
-                    width: { xs: 36, sm: 40 },
-                    height: { xs: 36, sm: 40 },
-                    border: `2px solid ${COLORS.ACCENT}`,
-                    transition: createTransition(['border-color'], theme.customAnimations.duration.shorter),
+                    ...getTouchTargetStyles(),
+                    transition: createTransition(['transform'], theme.customAnimations.duration.shorter),
                     '&:hover': {
-                      borderColor: COLORS.ACCENT_LIGHT,
-                    },
-                  }}
-                />
-              ) : user?.name ? (
-                <Avatar
-                  sx={{
-                    width: { xs: 36, sm: 40 },
-                    height: { xs: 36, sm: 40 },
-                    backgroundColor: COLORS.ACCENT,
-                    fontSize: '0.875rem',
-                    fontWeight: 600,
-                    border: `2px solid ${COLORS.ACCENT}`,
-                    transition: createTransition(['background-color', 'border-color'], theme.customAnimations.duration.shorter),
-                    '&:hover': {
-                      backgroundColor: COLORS.ACCENT_HOVER,
-                      borderColor: COLORS.ACCENT_LIGHT,
+                      transform: 'scale(1.05)',
                     },
                   }}
                 >
-                  {user.name.charAt(0).toUpperCase()}
-                </Avatar>
-              ) : (
-                <AccountCircle sx={{ fontSize: { xs: 36, sm: 40 } }} />
-              )}
-            </IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorEl}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'right',
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              open={Boolean(anchorEl)}
-              onClose={handleClose}
-              sx={{
-                '& .MuiPaper-root': {
-                  backgroundColor: COLORS.CARD_BACKGROUND,
-                  border: `1px solid ${COLORS.BORDER}`,
-                  borderRadius: theme.customSpacing.sm,
-                  mt: 1,
-                  boxShadow: theme.customShadows.dropdown,
-                },
-              }}
-            >
-              {user && (
-                <MenuItem
-                  disabled
+                  {profile?.avatar ? (
+                    <Avatar
+                      src={profile.avatar}
+                      sx={{
+                        width: { xs: 36, sm: 40 },
+                        height: { xs: 36, sm: 40 },
+                        border: `2px solid ${COLORS.ACCENT}`,
+                        transition: createTransition(['border-color'], theme.customAnimations.duration.shorter),
+                        '&:hover': {
+                          borderColor: COLORS.ACCENT_LIGHT,
+                        },
+                      }}
+                    />
+                  ) : user?.name ? (
+                    <Avatar
+                      sx={{
+                        width: { xs: 36, sm: 40 },
+                        height: { xs: 36, sm: 40 },
+                        backgroundColor: COLORS.ACCENT,
+                        fontSize: '0.875rem',
+                        fontWeight: 600,
+                        border: `2px solid ${COLORS.ACCENT}`,
+                        transition: createTransition(['background-color', 'border-color'], theme.customAnimations.duration.shorter),
+                        '&:hover': {
+                          backgroundColor: COLORS.ACCENT_HOVER,
+                          borderColor: COLORS.ACCENT_LIGHT,
+                        },
+                      }}
+                    >
+                      {user.name.charAt(0).toUpperCase()}
+                    </Avatar>
+                  ) : (
+                    <AccountCircle sx={{ fontSize: { xs: 36, sm: 40 } }} />
+                  )}
+                </IconButton>
+                <Menu
+                  id="menu-appbar"
+                  anchorEl={anchorEl}
+                  anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'right',
+                  }}
+                  keepMounted
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+                  open={Boolean(anchorEl)}
+                  onClose={handleClose}
                   sx={{
-                    opacity: 1,
-                    color: COLORS.TEXT_PRIMARY,
-                    fontWeight: 600,
+                    '& .MuiPaper-root': {
+                      backgroundColor: COLORS.CARD_BACKGROUND,
+                      border: `1px solid ${COLORS.BORDER}`,
+                      borderRadius: theme.customSpacing.sm,
+                      mt: 1,
+                      boxShadow: theme.customShadows.dropdown,
+                    },
                   }}
                 >
-                  <Person sx={{ mr: 1, color: COLORS.ACCENT }} />
-                  {user.name}
-                </MenuItem>
-              )}
-              <MenuItem
-                onClick={() => { setProfileModalOpen(true); handleClose(); }}
+                  {user && (
+                    <MenuItem
+                      disabled
+                      sx={{
+                        opacity: 1,
+                        color: COLORS.TEXT_PRIMARY,
+                        fontWeight: 600,
+                      }}
+                    >
+                      <Person sx={{ mr: 1, color: COLORS.ACCENT }} />
+                      {user.name}
+                    </MenuItem>
+                  )}
+                  <MenuItem
+                    onClick={() => { setProfileModalOpen(true); handleClose(); }}
+                    sx={{
+                      ...getTouchTargetStyles(),
+                      color: COLORS.TEXT_SECONDARY,
+                      transition: createTransition(['background-color', 'color'], theme.customAnimations.duration.shorter),
+                      '&:hover': {
+                        backgroundColor: COLORS.HOVER,
+                        color: COLORS.TEXT_PRIMARY,
+                      },
+                    }}
+                  >
+                    <Edit sx={{ mr: 1 }} />
+                    Edit Profile
+                  </MenuItem>
+                  <MenuItem
+                    onClick={handleLogout}
+                    sx={{
+                      ...getTouchTargetStyles(),
+                      color: COLORS.TEXT_SECONDARY,
+                      transition: createTransition(['background-color', 'color'], theme.customAnimations.duration.shorter),
+                      '&:hover': {
+                        backgroundColor: COLORS.ERROR_BACKGROUND,
+                        color: COLORS.ERROR,
+                      },
+                    }}
+                  >
+                    <Logout sx={{ mr: 1 }} />
+                    Logout
+                  </MenuItem>
+                </Menu>
+              </>
+            ) : (
+              <Button
+                variant="contained"
+                onClick={() => setAuthModalOpen(true)}
                 sx={{
-                  ...getTouchTargetStyles(),
-                  color: COLORS.TEXT_SECONDARY,
-                  transition: createTransition(['background-color', 'color'], theme.customAnimations.duration.shorter),
+                  background: `linear-gradient(45deg, ${COLORS.ACCENT} 30%, ${COLORS.ACCENT_LIGHT} 90%)`,
+                  color: 'white',
+                  px: 3,
+                  py: 1,
+                  borderRadius: 2,
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  transition: createTransition(['transform', 'box-shadow'], theme.customAnimations.duration.shorter),
                   '&:hover': {
-                    backgroundColor: COLORS.HOVER,
-                    color: COLORS.TEXT_PRIMARY,
+                    transform: 'scale(1.05)',
+                    boxShadow: `0 4px 16px ${COLORS.ACCENT}40`,
+                    background: `linear-gradient(45deg, ${COLORS.ACCENT_LIGHT} 30%, ${COLORS.ACCENT} 90%)`,
                   },
                 }}
               >
-                <Edit sx={{ mr: 1 }} />
-                Edit Profile
-              </MenuItem>
-              <MenuItem
-                onClick={handleLogout}
-                sx={{
-                  ...getTouchTargetStyles(),
-                  color: COLORS.TEXT_SECONDARY,
-                  transition: createTransition(['background-color', 'color'], theme.customAnimations.duration.shorter),
-                  '&:hover': {
-                    backgroundColor: COLORS.ERROR_BACKGROUND,
-                    color: COLORS.ERROR,
-                  },
-                }}
-              >
-                <Logout sx={{ mr: 1 }} />
-                Logout
-              </MenuItem>
-            </Menu>
+                Login
+              </Button>
+            )}
           </Box>
         </Toolbar>
       </AppBar>
@@ -346,6 +385,12 @@ const Navbar: React.FC = () => {
       <ProfileModal
         open={profileModalOpen}
         onClose={() => setProfileModalOpen(false)}
+      />
+
+      {/* Auth Modal */}
+      <AuthModal
+        open={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
       />
     </>
   );

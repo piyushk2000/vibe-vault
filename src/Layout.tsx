@@ -34,7 +34,7 @@ export default function Layout() {
   // Check authentication and redirect if needed
   useEffect(() => {
     // Public routes that don't require redirection
-    const publicRoutes = ['/login', '/signup', '/error'];
+    const publicRoutes = ['/login', '/signup', '/error', '/explore'];
     
     // If user is not logged in and not on a public route, redirect to login
     if (!isLoggedIn && !publicRoutes.includes(location.pathname) && !location.pathname.startsWith('/error')) {
@@ -46,9 +46,9 @@ export default function Layout() {
       navigate('/explore');
     }
     
-    // If user is at root, redirect appropriately
+    // If user is at root, redirect to explore
     if (location.pathname === '/') {
-      navigate(isLoggedIn ? '/explore' : '/login');
+      navigate('/explore');
     }
   }, [isLoggedIn, location.pathname, navigate]);
 
