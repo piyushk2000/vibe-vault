@@ -597,7 +597,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
             }}
 
           />
-          {(!isMobile || !message.trim()) && (
+          {(!isMobile || message.trim()) && (
             <IconButton
               onClick={handleSendMessage}
               disabled={!message.trim()}
