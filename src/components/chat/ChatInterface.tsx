@@ -334,6 +334,40 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
             <Typography color="textSecondary">Loading messages...</Typography>
           </Box>
+        ) : messages.length === 0 ? (
+          <Box sx={{ 
+            display: 'flex', 
+            flexDirection: 'column',
+            justifyContent: 'center', 
+            alignItems: 'center',
+            py: 8,
+            px: 2,
+            textAlign: 'center',
+            minHeight:'75vh',
+            height: '100%',
+            width: '100%'
+          }}>
+            <Typography 
+              variant="h6" 
+              sx={{ 
+                color: COLORS.TEXT_SECONDARY,
+                mb: 1,
+                fontWeight: 500
+              }}
+            >
+              No messages yet
+            </Typography>
+            <Typography 
+              variant="body2" 
+              sx={{ 
+                color: COLORS.TEXT_SECONDARY,
+                opacity: 0.7,
+                maxWidth: '280px'
+              }}
+            >
+              Start a conversation by sending the first message!
+            </Typography>
+          </Box>
         ) : (
           <List sx={{ p: 0 }}>
             {Object.entries(messageGroups).map(([dateKey, dateMessages]) => (
@@ -563,7 +597,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
             }}
 
           />
-          {(!isMobile || !message.trim()) && (
+          {(!isMobile || message.trim()) && (
             <IconButton
               onClick={handleSendMessage}
               disabled={!message.trim()}
