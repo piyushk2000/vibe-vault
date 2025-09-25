@@ -1,5 +1,4 @@
-import { Outlet, Route, Routes } from "react-router-dom";
-import { PrivateRoute } from "./App";
+import { Outlet, Route, Routes, Navigate } from "react-router-dom";
 import Navbar from "./components/header/header";
 import SearchMedia from "./pages/Explore";
 import LoginPage from "./pages/login";
@@ -12,15 +11,46 @@ import Matched from "./pages/matched";
 import ErrorPage from "./pages/error";
 import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { RootState } from "./redux/store";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, AppDispatch } from "./redux/store";
+import { initializeAuth } from "./redux/authSlice";
 import socketService from "./services/socket";
+
+const PrivateRoute = () => {
+  const token = localStorage.getItem("token");
+  
+  if (!token) {
+    // Redirect to error page for unauthorized access
+    return (
+      <Navigate
+        to="/error"
+        state={{
+          errorCode: '401',
+          errorMessage: 'Unauthorized Access',
+          error: 'You need to be logged in to access this page',
+        }}
+        replace
+      />
+    );
+  }
+  
+  return <Outlet />;
+};
 
 export default function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch<AppDispatch>();
   const isLoggedIn = localStorage.getItem("token") !== null;
   const { token } = useSelector((state: RootState) => state.auth);
+
+  // Initialize auth on app startup
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      dispatch(initializeAuth());
+    }
+  }, [dispatch]);
 
   // Initialize socket connection when user is logged in
   useEffect(() => {

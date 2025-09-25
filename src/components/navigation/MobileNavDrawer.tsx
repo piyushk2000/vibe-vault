@@ -202,7 +202,7 @@ const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                 border: `2px solid ${COLORS.ACCENT}`,
               }}
             >
-              {user.name.charAt(0).toUpperCase()}
+              {user?.name?.charAt(0).toUpperCase() || '?'}
             </Avatar>
             <Box sx={{ flex: 1, minWidth: 0 }}>
               <Typography
@@ -215,7 +215,7 @@ const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                   whiteSpace: 'nowrap',
                 }}
               >
-                {user.name}
+                {user?.name || 'User'}
               </Typography>
               <Typography
                 variant="body2"
@@ -226,7 +226,7 @@ const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                   whiteSpace: 'nowrap',
                 }}
               >
-                {user.email}
+                {user?.email || ''}
               </Typography>
             </Box>
           </Box>

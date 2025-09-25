@@ -40,7 +40,7 @@ const SearchMedia: React.FC = () => {
     0: { searchQuery: '', currentPage: 1, sortBy: 'popularity' }, // Anime
     1: { searchQuery: '', currentPage: 1, sortBy: 'popularity.desc' }, // Movies
     2: { searchQuery: '', currentPage: 1, sortBy: 'popularity.desc' }, // Shows
-    3: { searchQuery: '', currentPage: 1, sortBy: 'new' }, // Books
+    3: { searchQuery: '', currentPage: 1, sortBy: 'rating' }, // Books
   });
 
   // Track what filters were last used to load data for each tab

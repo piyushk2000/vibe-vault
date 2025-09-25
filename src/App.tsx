@@ -9,27 +9,6 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { COLORS } from "./theme/colors";
 import theme from "./theme/theme";
 
-export function PrivateRoute() {
-  const token = localStorage.getItem("token");
-  
-  if (!token) {
-    // Redirect to error page for unauthorized access
-    return (
-      <Navigate
-        to="/error"
-        state={{
-          errorCode: '401',
-          errorMessage: 'Unauthorized Access',
-          error: 'You need to be logged in to access this page',
-        }}
-        replace
-      />
-    );
-  }
-  
-  return <Outlet />;
-}
-
 function App() {
   const isLoading = useSelector((state: any) => state.loading.isLoading);
 

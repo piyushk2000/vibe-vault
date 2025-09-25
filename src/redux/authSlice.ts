@@ -22,6 +22,33 @@ const initialState: AuthState = {
 };
 
 // Async thunks
+export const initializeAuth = createAsyncThunk(
+  'auth/initializeAuth',
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        return rejectWithValue('No token found');
+      }
+
+      // Validate token by making a request to get user profile or a protected endpoint
+      const response = await RequestServer('/profile', 'GET');
+      
+      if (response && response.success) {
+        return response;
+      } else {
+        // Token is invalid, remove it
+        localStorage.removeItem('token');
+        return rejectWithValue('Invalid token');
+      }
+    } catch (error: any) {
+      // Token is invalid, remove it
+      localStorage.removeItem('token');
+      return rejectWithValue(error.message || 'Token validation failed');
+    }
+  }
+);
+
 export const signUp = createAsyncThunk(
   'auth/signUp',
   async ({ name, email, password }: { name: string; email: string; password: string }, { rejectWithValue }) => {
@@ -80,6 +107,29 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // Initialize Auth
+      .addCase(initializeAuth.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(initializeAuth.fulfilled, (state, action) => {
+        state.isLoading = false;
+        if (action.payload?.success && action.payload?.data) {
+          state.user = action.payload.data;
+          state.token = localStorage.getItem('token'); // Ensure token is set
+          state.error = null;
+        } else {
+          state.user = null;
+          state.token = null;
+          state.error = action.payload?.message || 'Auth initialization failed';
+        }
+      })
+      .addCase(initializeAuth.rejected, (state, action) => {
+        state.isLoading = false;
+        state.user = null;
+        state.token = null;
+        state.error = null; // Don't show error for initialization failures
+      })
       // Sign Up
       .addCase(signUp.pending, (state) => {
         state.isLoading = true;

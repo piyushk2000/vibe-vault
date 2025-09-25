@@ -24,7 +24,7 @@ export const RequestServer = async (
   tokenAPI?: string | null,
   getAbortController?: (ab: AbortController, clearTimeout: () => void) => void
 ) => {
-  const authToken = tokenAPI || localStorage.getItem("authToken");
+  const authToken = tokenAPI || localStorage.getItem("token");
   const controller = new AbortController();
 
   const id = setTimeout(() => {
