@@ -343,7 +343,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
             py: 8,
             px: 2,
             textAlign: 'center',
-            minHeight:'75vh',
+            minHeight:'65vh',
             height: '100%',
             width: '100%'
           }}>
