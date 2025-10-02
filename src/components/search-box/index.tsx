@@ -27,10 +27,24 @@ export default function MediaSeachBox() {
         p: '2px 4px', 
         display: 'flex', 
         alignItems: 'center', 
-        width: 400, 
-        backgroundColor: COLORS.SEARCH_BOX_BACKGROUND // Use background color
+        width: 400,
+        maxWidth: '100%',
+        backgroundColor: COLORS.SEARCH_BOX_BACKGROUND,
+        backdropFilter: 'blur(16px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(16px) saturate(180%)',
+        border: `1px solid ${COLORS.GLASS_BORDER}`,
+        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)',
+        transition: 'all 0.3s ease',
+        '&:hover': {
+          borderColor: COLORS.GLASS_BORDER_STRONG,
+          boxShadow: '0 6px 20px rgba(99, 102, 241, 0.15)',
+        },
+        '&:focus-within': {
+          borderColor: COLORS.ACCENT,
+          boxShadow: `0 0 0 3px ${COLORS.ACCENT_BACKGROUND}`,
+        },
       }}
-      onKeyDown={handleKeyDown} // Add onKeyDown event
+      onKeyDown={handleKeyDown}
     >
       <InputBase
         sx={{ 

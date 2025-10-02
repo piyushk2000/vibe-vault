@@ -129,13 +129,17 @@ const EditableMediaCard: React.FC<EditableMediaCardProps> = ({
           width: 280,
           height: 'auto',
           backgroundColor: COLORS.CARD_BACKGROUND,
-          border: `1px solid ${COLORS.CARD_BORDER}`,
+          backdropFilter: 'blur(16px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(16px) saturate(180%)',
+          border: `1px solid ${COLORS.GLASS_BORDER}`,
+          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)',
           transition: 'all 0.3s ease',
           cursor: 'pointer',
           '&:hover': {
             backgroundColor: COLORS.CARD_HOVER,
-            transform: 'translateY(-4px)',
-            boxShadow: `0 8px 32px ${COLORS.OVERLAY_DARK}`,
+            borderColor: COLORS.GLASS_BORDER_STRONG,
+            transform: 'translateY(-6px)',
+            boxShadow: '0 12px 48px rgba(99, 102, 241, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
           },
         }}
         onClick={handleCardClick}
@@ -171,10 +175,13 @@ const EditableMediaCard: React.FC<EditableMediaCardProps> = ({
               label={userMedia.media.type}
               size="small"
               sx={{
-                backgroundColor: COLORS.ACCENT,
+                background: `linear-gradient(135deg, ${COLORS.ACCENT} 0%, ${COLORS.ACCENT_LIGHT} 100%)`,
                 color: 'white',
                 mr: 1,
                 mb: 1,
+                border: `1px solid ${COLORS.GLASS_BORDER}`,
+                backdropFilter: 'blur(4px)',
+                WebkitBackdropFilter: 'blur(4px)',
               }}
             />
             <Chip

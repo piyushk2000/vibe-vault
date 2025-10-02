@@ -138,9 +138,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ open, onClose, defaultTab = 'logi
       fullWidth
       sx={{
         '& .MuiDialog-paper': {
-          backgroundColor: COLORS.CARD_BACKGROUND,
-          border: `1px solid ${COLORS.BORDER}`,
+          backgroundColor: COLORS.DIALOG_BACKGROUND,
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+          border: `1px solid ${COLORS.GLASS_BORDER}`,
           borderRadius: 2,
+          boxShadow: '0 24px 64px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
         },
       }}
     >
@@ -149,10 +152,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ open, onClose, defaultTab = 'logi
           variant="h5"
           sx={{
             fontWeight: 'bold',
-            background: `linear-gradient(45deg, ${COLORS.ACCENT} 30%, ${COLORS.ACCENT_LIGHT} 90%)`,
+            background: `linear-gradient(135deg, ${COLORS.ACCENT} 0%, ${COLORS.ACCENT_LIGHT} 100%)`,
             backgroundClip: 'text',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
+            filter: 'drop-shadow(0 0 12px rgba(99, 102, 241, 0.4))',
           }}
         >
           VibeVault
@@ -249,9 +253,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ open, onClose, defaultTab = 'logi
               disabled={isLoading}
               sx={{
                 py: 1.5,
-                background: `linear-gradient(45deg, ${COLORS.ACCENT} 30%, ${COLORS.ACCENT_LIGHT} 90%)`,
+                background: `linear-gradient(135deg, ${COLORS.ACCENT} 0%, ${COLORS.ACCENT_LIGHT} 100%)`,
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
+                border: `1px solid ${COLORS.GLASS_BORDER}`,
+                boxShadow: '0 4px 16px rgba(99, 102, 241, 0.2)',
                 '&:hover': {
-                  background: `linear-gradient(45deg, ${COLORS.ACCENT_LIGHT} 30%, ${COLORS.ACCENT} 90%)`,
+                  background: `linear-gradient(135deg, ${COLORS.ACCENT_LIGHT} 0%, ${COLORS.ACCENT} 100%)`,
+                  boxShadow: '0 8px 24px rgba(99, 102, 241, 0.35)',
                 },
                 '&:disabled': {
                   background: COLORS.BUTTON_DISABLED,
@@ -375,9 +384,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ open, onClose, defaultTab = 'logi
               disabled={isLoading}
               sx={{
                 py: 1.5,
-                background: `linear-gradient(45deg, ${COLORS.ACCENT} 30%, ${COLORS.ACCENT_LIGHT} 90%)`,
+                background: `linear-gradient(135deg, ${COLORS.ACCENT} 0%, ${COLORS.ACCENT_LIGHT} 100%)`,
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
+                border: `1px solid ${COLORS.GLASS_BORDER}`,
+                boxShadow: '0 4px 16px rgba(99, 102, 241, 0.2)',
                 '&:hover': {
-                  background: `linear-gradient(45deg, ${COLORS.ACCENT_LIGHT} 30%, ${COLORS.ACCENT} 90%)`,
+                  background: `linear-gradient(135deg, ${COLORS.ACCENT_LIGHT} 0%, ${COLORS.ACCENT} 100%)`,
+                  boxShadow: '0 8px 24px rgba(99, 102, 241, 0.35)',
                 },
                 '&:disabled': {
                   background: COLORS.BUTTON_DISABLED,

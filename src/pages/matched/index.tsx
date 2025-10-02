@@ -243,38 +243,41 @@ const Matched: React.FC = () => {
 
   // Desktop: Split view
   return (
-    <Container maxWidth="xl" sx={{ py: 2.5, height: 'calc(100vh - 64px)' }}> {/* Account for navbar + padding */}
-      <Box sx={{ display: 'flex', height: '100%', gap: 1.5 }}>
+    <Container maxWidth="xl" sx={{ py: 3, height: 'calc(100vh - 80px)' }}>
+      <Box sx={{ display: 'flex', height: '100%', gap: 2 }}>
         {/* Left Panel - Connections List */}
         <Paper
           sx={{
-            width: 300,
+            width: 360,
             backgroundColor: COLORS.CARD_BACKGROUND,
-            border: `1px solid ${COLORS.BORDER}`,
-            borderRadius: 2,
+            backdropFilter: 'blur(16px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(16px) saturate(180%)',
+            border: `1px solid ${COLORS.GLASS_BORDER}`,
+            borderRadius: 3,
             overflow: 'hidden',
             display: 'flex',
             flexDirection: 'column',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05) inset',
           }}
         >
           {/* Header */}
-          <Box sx={{ p: 1.5, borderBottom: `1px solid ${COLORS.BORDER}` }}>
+          <Box sx={{ p: 2.5, borderBottom: `1px solid ${COLORS.GLASS_BORDER}` }}>
             <Typography
-              variant="h6"
+              variant="h5"
               sx={{
                 fontWeight: 700,
-                fontSize: { xs: '1rem', sm: '1.125rem' },
-                background: `linear-gradient(45deg, ${COLORS.ACCENT} 30%, ${COLORS.ACCENT_LIGHT} 90%)`,
+                background: `linear-gradient(135deg, ${COLORS.ACCENT} 0%, ${COLORS.ACCENT_LIGHT} 100%)`,
                 backgroundClip: 'text',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
-                mb: 0.25,
+                mb: 0.5,
+                filter: 'drop-shadow(0 0 8px rgba(99, 102, 241, 0.3))',
               }}
             >
-              Your Matches
+              Messages
             </Typography>
-            <Typography variant="body2" color="textSecondary">
-              {connections.length} connections
+            <Typography variant="body2" sx={{ color: COLORS.TEXT_SECONDARY, fontSize: '0.875rem' }}>
+              {connections.length} {connections.length === 1 ? 'conversation' : 'conversations'}
             </Typography>
           </Box>
 
@@ -296,11 +299,18 @@ const Matched: React.FC = () => {
                         onClick={() => handleConnectionSelect(connection)}
                         sx={{
                           cursor: 'pointer',
-                          backgroundColor: selectedConnectionId === connection.id ? COLORS.CARD_HOVER : 'transparent',
+                          backgroundColor: selectedConnectionId === connection.id ? COLORS.SELECTED : 'transparent',
+                          backdropFilter: selectedConnectionId === connection.id ? 'blur(8px)' : 'none',
+                          WebkitBackdropFilter: selectedConnectionId === connection.id ? 'blur(8px)' : 'none',
+                          borderLeft: selectedConnectionId === connection.id ? `3px solid ${COLORS.ACCENT}` : '3px solid transparent',
+                          transition: 'all 0.2s ease',
                           '&:hover': {
-                            backgroundColor: COLORS.CARD_HOVER,
+                            backgroundColor: COLORS.HOVER,
+                            backdropFilter: 'blur(8px)',
+                            WebkitBackdropFilter: 'blur(8px)',
                           },
-                          py: 1.25,
+                          py: 2,
+                          px: 2,
                         }}
                       >
                         <ListItemAvatar>
@@ -309,16 +319,27 @@ const Matched: React.FC = () => {
                             anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                             badgeContent={
                               connection.lastMessage && !connection.lastMessage.isFromMe && !connection.lastMessage.isRead ? (
-                                <Circle sx={{ color: COLORS.ACCENT, fontSize: 12 }} />
+                                <Box
+                                  sx={{
+                                    width: 12,
+                                    height: 12,
+                                    borderRadius: '50%',
+                                    background: `linear-gradient(135deg, ${COLORS.ACCENT} 0%, ${COLORS.ACCENT_LIGHT} 100%)`,
+                                    border: `2px solid ${COLORS.CARD_BACKGROUND}`,
+                                    boxShadow: `0 0 8px ${COLORS.ACCENT}`,
+                                  }}
+                                />
                               ) : null
                             }
                           >
                             <Avatar
                               src={connection.user.avatar || undefined}
                               sx={{
-                                width: { xs: 44, sm: 48 },
-                                height: { xs: 44, sm: 48 },
-                                backgroundColor: COLORS.ACCENT,
+                                width: 56,
+                                height: 56,
+                                background: `linear-gradient(135deg, ${COLORS.ACCENT} 0%, ${COLORS.ACCENT_LIGHT} 100%)`,
+                                border: `2px solid ${COLORS.GLASS_BORDER}`,
+                                boxShadow: '0 4px 12px rgba(99, 102, 241, 0.2)',
                               }}
                             >
                               {connection.user.name.charAt(0).toUpperCase()}
@@ -327,7 +348,15 @@ const Matched: React.FC = () => {
                         </ListItemAvatar>
                         <ListItemText
                           primary={
-                            <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                            <Typography 
+                              variant="subtitle1" 
+                              sx={{ 
+                                fontWeight: 600,
+                                fontSize: '1rem',
+                                color: COLORS.TEXT_PRIMARY,
+                                mb: 0.5,
+                              }}
+                            >
                               {connection.user.name}
                             </Typography>
                           }
@@ -336,23 +365,38 @@ const Matched: React.FC = () => {
                               {connection.lastMessage ? (
                                 <Typography
                                   variant="body2"
-                                  color="textSecondary"
                                   sx={{
                                     overflow: 'hidden',
                                     textOverflow: 'ellipsis',
                                     whiteSpace: 'nowrap',
-                                    fontWeight: !connection.lastMessage.isFromMe && !connection.lastMessage.isRead ? 'bold' : 'normal',
+                                    fontWeight: !connection.lastMessage.isFromMe && !connection.lastMessage.isRead ? 600 : 400,
+                                    color: !connection.lastMessage.isFromMe && !connection.lastMessage.isRead ? COLORS.TEXT_PRIMARY : COLORS.TEXT_SECONDARY,
+                                    fontSize: '0.875rem',
+                                    mb: 0.5,
                                   }}
                                 >
                                   {connection.lastMessage.isFromMe ? 'You: ' : ''}
                                   {connection.lastMessage.content}
                                 </Typography>
                               ) : (
-                                <Typography variant="body2" color="textSecondary">
+                                <Typography 
+                                  variant="body2" 
+                                  sx={{ 
+                                    color: COLORS.TEXT_SECONDARY,
+                                    fontSize: '0.875rem',
+                                    mb: 0.5,
+                                  }}
+                                >
                                   Say hello! 👋
                                 </Typography>
                               )}
-                              <Typography variant="caption" color="textSecondary">
+                              <Typography 
+                                variant="caption" 
+                                sx={{ 
+                                  color: COLORS.TEXT_TERTIARY,
+                                  fontSize: '0.75rem',
+                                }}
+                              >
                                 {formatDistanceToNow(new Date(connection.updatedAt), { addSuffix: true })}
                               </Typography>
                             </Box>
@@ -382,9 +426,14 @@ const Matched: React.FC = () => {
           sx={{
             flex: 1,
             backgroundColor: COLORS.CARD_BACKGROUND,
-            border: `1px solid ${COLORS.BORDER}`,
-            borderRadius: 2,
+            backdropFilter: 'blur(16px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(16px) saturate(180%)',
+            border: `1px solid ${COLORS.GLASS_BORDER}`,
+            borderRadius: 3,
             overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05) inset',
           }}
         >
           {currentConnection ? (

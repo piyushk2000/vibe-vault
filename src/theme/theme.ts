@@ -31,14 +31,16 @@ const animations = {
   },
 };
 
-// Enhanced shadows
+// Glassmorphism shadows
 const shadows = {
-  card: '0 2px 8px rgba(1, 4, 9, 0.15)',
-  cardHover: '0 8px 25px rgba(1, 4, 9, 0.25)',
-  modal: '0 16px 48px rgba(1, 4, 9, 0.4)',
-  dropdown: '0 4px 16px rgba(1, 4, 9, 0.2)',
-  button: '0 2px 4px rgba(1, 4, 9, 0.1)',
-  buttonHover: '0 4px 8px rgba(1, 4, 9, 0.15)',
+  card: '0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05) inset',
+  cardHover: '0 12px 48px rgba(99, 102, 241, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
+  modal: '0 24px 64px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
+  dropdown: '0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08) inset',
+  button: '0 4px 16px rgba(99, 102, 241, 0.2)',
+  buttonHover: '0 8px 24px rgba(99, 102, 241, 0.35)',
+  glass: '0 8px 32px rgba(0, 0, 0, 0.25)',
+  glassStrong: '0 12px 40px rgba(0, 0, 0, 0.4)',
 };
 
 // Responsive breakpoints configuration
@@ -162,8 +164,12 @@ const theme = createTheme({
       styleOverrides: {
         paper: {
           backgroundColor: COLORS.DIALOG_BACKGROUND,
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
           color: COLORS.DIALOG_TEXT,
           borderRadius: spacing.md,
+          border: `1px solid ${COLORS.GLASS_BORDER}`,
+          boxShadow: shadows.modal,
         },
       },
     },
@@ -171,12 +177,16 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           backgroundColor: COLORS.CARD_BACKGROUND,
+          backdropFilter: 'blur(16px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(16px) saturate(180%)',
           border: `1px solid ${COLORS.CARD_BORDER}`,
           borderRadius: spacing.md,
           transition: `all ${animations.duration.standard}ms ${animations.easing.easeInOut}`,
+          boxShadow: shadows.card,
           '&:hover': {
             backgroundColor: COLORS.CARD_HOVER,
             boxShadow: shadows.cardHover,
+            borderColor: COLORS.GLASS_BORDER_STRONG,
           },
         },
       },
@@ -188,13 +198,24 @@ const theme = createTheme({
           textTransform: 'none',
           fontWeight: 600,
           transition: `all ${animations.duration.shorter}ms ${animations.easing.easeInOut}`,
-          minHeight: '44px', // Accessibility: minimum touch target
+          minHeight: '44px',
         },
         contained: {
+          background: `linear-gradient(135deg, ${COLORS.ACCENT} 0%, ${COLORS.ACCENT_HOVER} 100%)`,
           boxShadow: shadows.button,
           '&:hover': {
+            background: `linear-gradient(135deg, ${COLORS.ACCENT_LIGHT} 0%, ${COLORS.ACCENT} 100%)`,
             boxShadow: shadows.buttonHover,
-            transform: 'translateY(-1px)',
+            transform: 'translateY(-2px)',
+          },
+        },
+        outlined: {
+          borderColor: COLORS.GLASS_BORDER,
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          '&:hover': {
+            borderColor: COLORS.ACCENT,
+            backgroundColor: COLORS.ACCENT_BACKGROUND,
           },
         },
       },
@@ -203,17 +224,21 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           '& .MuiOutlinedInput-root': {
+            backgroundColor: COLORS.INPUT_BACKGROUND,
+            backdropFilter: 'blur(12px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(12px) saturate(180%)',
             borderRadius: spacing.sm,
             transition: `all ${animations.duration.shorter}ms ${animations.easing.easeInOut}`,
             '& fieldset': {
               borderColor: COLORS.BORDER,
             },
             '&:hover fieldset': {
-              borderColor: COLORS.ACCENT,
+              borderColor: COLORS.GLASS_BORDER_STRONG,
             },
             '&.Mui-focused fieldset': {
               borderColor: COLORS.ACCENT,
               borderWidth: '2px',
+              boxShadow: `0 0 0 3px ${COLORS.ACCENT_BACKGROUND}`,
             },
           },
         },
@@ -226,6 +251,7 @@ const theme = createTheme({
             backgroundColor: COLORS.ACCENT,
             height: '3px',
             borderRadius: '2px',
+            boxShadow: `0 0 8px ${COLORS.ACCENT}`,
           },
         },
       },
@@ -239,6 +265,13 @@ const theme = createTheme({
           transition: `all ${animations.duration.shorter}ms ${animations.easing.easeInOut}`,
           '&:hover': {
             backgroundColor: COLORS.HOVER,
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+          },
+          '&.Mui-selected': {
+            backgroundColor: COLORS.TAB_SELECTED_BACKGROUND,
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
           },
         },
       },
@@ -249,6 +282,28 @@ const theme = createTheme({
           minWidth: '44px',
           minHeight: '44px',
           transition: `all ${animations.duration.shorter}ms ${animations.easing.easeInOut}`,
+          '&:hover': {
+            backgroundColor: COLORS.HOVER,
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+          },
+        },
+      },
+    },
+    MuiAppBar: {
+      styleOverrides: {
+        root: {
+          backgroundColor: COLORS.NAV_BACKGROUND,
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+          borderBottom: `1px solid ${COLORS.GLASS_BORDER}`,
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          backgroundImage: 'none',
         },
       },
     },

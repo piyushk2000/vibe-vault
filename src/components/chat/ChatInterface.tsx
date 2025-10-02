@@ -237,12 +237,15 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
         position="static" 
         elevation={0}
         sx={{ 
-          backgroundColor: COLORS.CARD_BACKGROUND,
-          borderBottom: `1px solid ${COLORS.BORDER}`,
+          backgroundColor: COLORS.GLASS_BACKGROUND_STRONG,
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+          borderBottom: `1px solid ${COLORS.GLASS_BORDER}`,
           zIndex: theme.zIndex.appBar,
+          flexShrink: 0,
         }}
       >
-  <Toolbar sx={{ minHeight: { xs: '44px', sm: '48px' }, px: { xs: 1, sm: 1 } }}>
+  <Toolbar sx={{ minHeight: { xs: '56px', sm: '64px' }, px: { xs: 2, sm: 2.5 } }}>
           {isMobile && onBack && (
             <IconButton 
               onClick={onBack} 
@@ -263,10 +266,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
           <Avatar
             src={connection.user.avatar || undefined}
             sx={{
-              width: { xs: 28, sm: 32 },
-              height: { xs: 28, sm: 32 },
-              backgroundColor: COLORS.ACCENT,
-              mr: { xs: 0.75, sm: 1 },
+              width: { xs: 36, sm: 40 },
+              height: { xs: 36, sm: 40 },
+              background: `linear-gradient(135deg, ${COLORS.ACCENT} 0%, ${COLORS.ACCENT_LIGHT} 100%)`,
+              border: `2px solid ${COLORS.GLASS_BORDER}`,
+              mr: { xs: 1, sm: 1.5 },
+              boxShadow: '0 4px 12px rgba(99, 102, 241, 0.2)',
             }}
           >
             {connection.user.name.charAt(0).toUpperCase()}
@@ -274,13 +279,14 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
           
           <Box sx={{ flex: 1, minWidth: 0 }}>
             <Typography 
-              variant={isSmallMobile ? "subtitle2" : "subtitle1"} 
+              variant="h6"
               sx={{ 
                 fontWeight: 600,
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
-                fontSize: { xs: '0.9rem', sm: '1rem' },
+                fontSize: { xs: '1rem', sm: '1.125rem' },
+                color: COLORS.TEXT_PRIMARY,
               }}
             >
               {connection.user.name}
@@ -290,7 +296,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
                 variant="caption" 
                 sx={{ 
                   color: COLORS.ACCENT,
-                  fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                  fontSize: { xs: '0.75rem', sm: '0.8125rem' },
+                  fontWeight: 500,
                 }}
               >
                 typing...
@@ -320,14 +327,11 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
         sx={{ 
           flex: 1, 
           overflow: 'auto', 
-          p: { xs: 0.15, sm: 0.35 },
+          p: { xs: 1.5, sm: 2 },
           backgroundColor: COLORS.BACKGROUND_DARK,
           position: 'relative',
-          minHeight: 0, // Ensure it can shrink
-          // Ensure proper scrolling on mobile
+          minHeight: 0,
           WebkitOverflowScrolling: 'touch',
-          // Account for mobile keyboard
-          paddingBottom: isMobile ? { xs: '6px', sm: '10px' } : '10px',
         }}
       >
         {messagesLoading ? (
@@ -395,8 +399,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
                     sx={{
                       display: 'flex',
                       justifyContent: msg.isFromMe ? 'flex-end' : 'flex-start',
-                      px: { xs: 0.18, sm: 0.36 },
-                      py: { xs: 0.08, sm: 0.16 },
+                      px: 0,
+                      py: 0.75,
                       alignItems: 'flex-start',
                     }}
                   >
@@ -404,11 +408,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
                       <Avatar
                         src={connection.user.avatar || undefined}
                         sx={{
-                          width: { xs: 28, sm: 32 },
-                          height: { xs: 28, sm: 32 },
-                          backgroundColor: COLORS.ACCENT,
-                          mr: { xs: 0.5, sm: 0.75 },
-                          mt: 0.25,
+                          width: { xs: 32, sm: 36 },
+                          height: { xs: 32, sm: 36 },
+                          background: `linear-gradient(135deg, ${COLORS.ACCENT} 0%, ${COLORS.ACCENT_LIGHT} 100%)`,
+                          border: `2px solid ${COLORS.GLASS_BORDER}`,
+                          mr: 1,
+                          flexShrink: 0,
                         }}
                       >
                         {connection.user.name.charAt(0).toUpperCase()}
@@ -417,27 +422,32 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
                     
                     <Paper
                       sx={{
-                        maxWidth: { xs: '90%', sm: '80%', md: '65%' },
-                        p: { xs: 0.42, sm: 0.66 },
-                        backgroundColor: msg.isFromMe ? COLORS.ACCENT : COLORS.CARD_BACKGROUND,
+                        maxWidth: { xs: '85%', sm: '75%', md: '60%' },
+                        p: { xs: 1.25, sm: 1.5 },
+                        background: msg.isFromMe 
+                          ? `linear-gradient(135deg, ${COLORS.ACCENT} 0%, ${COLORS.ACCENT_LIGHT} 100%)`
+                          : COLORS.GLASS_BACKGROUND_LIGHT,
+                        backdropFilter: msg.isFromMe ? 'none' : 'blur(12px) saturate(180%)',
+                        WebkitBackdropFilter: msg.isFromMe ? 'none' : 'blur(12px) saturate(180%)',
                         color: msg.isFromMe ? 'white' : COLORS.TEXT_PRIMARY,
-                        borderRadius: { xs: 2, sm: 1.5 },
-                        borderTopRightRadius: msg.isFromMe ? { xs: 0.4, sm: 0.4 } : { xs: 2, sm: 1.5 },
-                        borderTopLeftRadius: msg.isFromMe ? { xs: 2, sm: 1.5 } : { xs: 0.4, sm: 0.4 },
-                        borderBottomRightRadius: msg.isFromMe ? { xs: 0.4, sm: 0.4 } : { xs: 2, sm: 1.5 },
-                        borderBottomLeftRadius: msg.isFromMe ? { xs: 2, sm: 1.5 } : { xs: 0.4, sm: 0.4 },
+                        border: msg.isFromMe ? 'none' : `1px solid ${COLORS.GLASS_BORDER}`,
+                        borderRadius: 2.5,
+                        borderTopRightRadius: msg.isFromMe ? 0.5 : 2.5,
+                        borderTopLeftRadius: msg.isFromMe ? 2.5 : 0.5,
                         alignSelf: msg.isFromMe ? 'flex-end' : 'flex-start',
                         marginLeft: msg.isFromMe ? 'auto' : 0,
                         marginRight: msg.isFromMe ? 0 : 'auto',
-                        boxShadow: isMobile ? '0 1px 2px rgba(0,0,0,0.06)' : 'none',
+                        boxShadow: msg.isFromMe 
+                          ? '0 4px 16px rgba(99, 102, 241, 0.3)'
+                          : '0 2px 8px rgba(0, 0, 0, 0.15)',
                       }}
                     >
                       <Typography 
-                        variant="body2" 
+                        variant="body1" 
                         sx={{ 
-                          mb: 0.32,
-                          fontSize: { xs: '0.76rem', sm: '0.86rem' },
-                          lineHeight: 1.26,
+                          mb: 0.5,
+                          fontSize: { xs: '0.9375rem', sm: '1rem' },
+                          lineHeight: 1.5,
                           wordBreak: 'break-word',
                         }}
                       >
@@ -446,8 +456,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
                       <Typography
                         variant="caption"
                         sx={{
-                          opacity: 0.7,
-                          fontSize: { xs: '0.56rem', sm: '0.6rem' },
+                          opacity: 0.75,
+                          fontSize: { xs: '0.6875rem', sm: '0.75rem' },
                           display: 'block',
                           textAlign: msg.isFromMe ? 'right' : 'left',
                         }}
@@ -460,11 +470,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
                       <Avatar
                         src={profile?.avatar || undefined}
                         sx={{
-                          width: { xs: 28, sm: 32 },
-                          height: { xs: 28, sm: 32 },
-                          backgroundColor: COLORS.ACCENT,
-                          ml: { xs: 0.5, sm: 0.75 },
-                          mt: 0.25,
+                          width: { xs: 32, sm: 36 },
+                          height: { xs: 32, sm: 36 },
+                          background: `linear-gradient(135deg, ${COLORS.ACCENT} 0%, ${COLORS.ACCENT_LIGHT} 100%)`,
+                          border: `2px solid ${COLORS.GLASS_BORDER}`,
+                          ml: 1,
+                          flexShrink: 0,
                         }}
                       >
                         {user?.name?.charAt(0).toUpperCase() || 'U'}
@@ -477,34 +488,39 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
             
             {/* Typing Indicator */}
             {typingUsers.length > 0 && (
-              <ListItem sx={{ justifyContent: 'flex-start', px: { xs: 0.18, sm: 0.36 }, py: { xs: 0.08, sm: 0.16 }, alignItems: 'flex-start' }}>
+              <ListItem sx={{ justifyContent: 'flex-start', px: 0, py: 0.75, alignItems: 'flex-start' }}>
                 <Avatar
                   src={connection.user.avatar || undefined}
                   sx={{
-                    width: { xs: 28, sm: 32 },
-                    height: { xs: 28, sm: 32 },
-                    backgroundColor: COLORS.ACCENT,
-                    mr: { xs: 0.5, sm: 0.75 },
-                    mt: 0.25,
+                    width: { xs: 32, sm: 36 },
+                    height: { xs: 32, sm: 36 },
+                    background: `linear-gradient(135deg, ${COLORS.ACCENT} 0%, ${COLORS.ACCENT_LIGHT} 100%)`,
+                    border: `2px solid ${COLORS.GLASS_BORDER}`,
+                    mr: 1,
+                    flexShrink: 0,
                   }}
                 >
                   {connection.user.name.charAt(0).toUpperCase()}
                 </Avatar>
                 <Paper
                   sx={{
-                    p: { xs: 0.42, sm: 0.66 },
-                    backgroundColor: COLORS.CARD_BACKGROUND,
-                    borderRadius: { xs: 2, sm: 1.5 },
-                    borderTopLeftRadius: { xs: 0.4, sm: 0.4 },
-                    boxShadow: isMobile ? '0 1px 2px rgba(0,0,0,0.06)' : 'none',
+                    p: 1.5,
+                    background: COLORS.GLASS_BACKGROUND_LIGHT,
+                    backdropFilter: 'blur(12px) saturate(180%)',
+                    WebkitBackdropFilter: 'blur(12px) saturate(180%)',
+                    border: `1px solid ${COLORS.GLASS_BORDER}`,
+                    borderRadius: 2.5,
+                    borderTopLeftRadius: 0.5,
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
                   }}
                 >
                   <Typography 
-                    variant="body2" 
+                    variant="body1" 
                     sx={{ 
                       fontStyle: 'italic', 
                       opacity: 0.7,
-                      fontSize: { xs: '0.76rem', sm: '0.86rem' },
+                      fontSize: { xs: '0.9375rem', sm: '1rem' },
+                      color: COLORS.TEXT_SECONDARY,
                     }}
                   >
                     typing...
@@ -548,20 +564,21 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
           bottom: 0,
           left: 0,
           right: 0,
-          p: { xs: 0.35, sm: 0.6 },
-          backgroundColor: COLORS.CARD_BACKGROUND,
-          borderTop: `1px solid ${COLORS.BORDER}`,
+          p: { xs: 1.5, sm: 2 },
+          backgroundColor: COLORS.GLASS_BACKGROUND_STRONG,
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+          borderTop: `1px solid ${COLORS.GLASS_BORDER}`,
           zIndex: 1000,
-          // Add safe area padding for mobile devices
-          paddingBottom: isMobile ? 'max(6px, env(safe-area-inset-bottom))' : undefined,
+          flexShrink: 0,
+          paddingBottom: isMobile ? 'max(12px, env(safe-area-inset-bottom))' : undefined,
         }}
       >
-        <Box sx={{ display: 'flex', gap: { xs: 0.18, sm: 0.36 }, alignItems: 'center' , justifyContent: 'center', }}>
+        <Box sx={{ display: 'flex', gap: { xs: 1, sm: 1.5 }, alignItems: 'flex-end' }}>
           <TextField
             fullWidth
-            size="small"
             multiline
-            maxRows={1}
+            maxRows={4}
             placeholder="Type a message..."
             value={message}
             onChange={(e) => handleTyping(e.target.value)}
@@ -573,53 +590,59 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ connection, onBack, isMob
             }}
             sx={{
               '& .MuiOutlinedInput-root': {
-                backgroundColor: COLORS.BACKGROUND_LIGHT,
-                borderRadius: { xs: 2, sm: 2.5 },
-                fontSize: { xs: '14px', sm: '12.5px' }, 
+                backgroundColor: COLORS.INPUT_BACKGROUND,
+                backdropFilter: 'blur(12px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(12px) saturate(180%)',
+                borderRadius: 3,
+                fontSize: { xs: '0.9375rem', sm: '1rem' },
                 '& fieldset': {
-                  borderColor: COLORS.BORDER,
+                  borderColor: COLORS.GLASS_BORDER,
                 },
                 '&:hover fieldset': {
-                  borderColor: COLORS.ACCENT,
+                  borderColor: COLORS.GLASS_BORDER_STRONG,
                 },
                 '&.Mui-focused fieldset': {
                   borderColor: COLORS.ACCENT,
                   borderWidth: '2px',
+                  boxShadow: `0 0 0 3px ${COLORS.ACCENT_BACKGROUND}`,
                 },
               },
               '& .MuiInputBase-input': {
-                padding: { xs: '7px 9px', sm: '10px 9px' },
+                padding: { xs: '12px 16px', sm: '14px 18px' },
               },
               '& .MuiInputBase-input::placeholder': {
                 color: COLORS.TEXT_SECONDARY,
-                opacity: 0.95,
+                opacity: 0.7,
               },
             }}
-
           />
-          {(!isMobile || message.trim()) && (
-            <IconButton
-              onClick={handleSendMessage}
-              disabled={!message.trim()}
-              sx={{
-                minWidth: { xs: '34px', sm: '38px' },
-                minHeight: { xs: '34px', sm: '38px' },
-                backgroundColor: message.trim() ? COLORS.ACCENT : COLORS.TEXT_INACTIVE,
-                color: 'white',
-                transition: 'all 0.15s ease',
-                '&:hover': {
-                  backgroundColor: message.trim() ? COLORS.ACCENT_HOVER : COLORS.TEXT_INACTIVE,
-                  transform: message.trim() ? 'scale(1.03)' : 'none',
-                },
-                '&:disabled': {
-                  backgroundColor: COLORS.TEXT_INACTIVE,
-                  color: 'white',
-                },
-              }}
-            >
-              <Send fontSize={isMobile ? 'small' : 'small'} />
-            </IconButton>
-          )}
+          <IconButton
+            onClick={handleSendMessage}
+            disabled={!message.trim()}
+            sx={{
+              width: { xs: 44, sm: 48 },
+              height: { xs: 44, sm: 48 },
+              background: message.trim() 
+                ? `linear-gradient(135deg, ${COLORS.ACCENT} 0%, ${COLORS.ACCENT_LIGHT} 100%)`
+                : COLORS.DISABLED_BACKGROUND,
+              color: 'white',
+              transition: 'all 0.2s ease',
+              boxShadow: message.trim() ? '0 4px 16px rgba(99, 102, 241, 0.3)' : 'none',
+              '&:hover': {
+                background: message.trim() 
+                  ? `linear-gradient(135deg, ${COLORS.ACCENT_LIGHT} 0%, ${COLORS.ACCENT} 100%)`
+                  : COLORS.DISABLED_BACKGROUND,
+                transform: message.trim() ? 'scale(1.05)' : 'none',
+                boxShadow: message.trim() ? '0 6px 20px rgba(99, 102, 241, 0.4)' : 'none',
+              },
+              '&:disabled': {
+                background: COLORS.DISABLED_BACKGROUND,
+                color: COLORS.DISABLED_TEXT,
+              },
+            }}
+          >
+            <Send fontSize="small" />
+          </IconButton>
         </Box>
       </Box>
     </Box>

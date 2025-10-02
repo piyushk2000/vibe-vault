@@ -24,9 +24,12 @@ import {
   Fade,
 } from '@mui/material';
 import { Add, Info, Close, Star } from '@mui/icons-material';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/store';
 import { COLORS } from '../../theme/colors';
 import { getDefaultMediaImage } from '../../utils/defaultImages';
 import { getTouchTargetStyles, createTransition } from '../../theme/utils';
+import AuthModal from '../auth/AuthModal';
 
 interface Media {
   id?: number;
@@ -69,6 +72,7 @@ const MediaCard: React.FC<MediaCardProps> = ({
 }) => {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
   const [rating, setRating] = useState<number>(userRating || 0);
   const [status, setStatus] = useState(userStatus || 'PLAN_TO_WATCH');
   const [review, setReview] = useState(userReview || '');
@@ -77,6 +81,22 @@ const MediaCard: React.FC<MediaCardProps> = ({
   
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const { user } = useSelector((state: RootState) => state.auth);
+
+  const handleAddClick = (e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
+    
+    // Check if user is logged in
+    if (!user) {
+      setAuthModalOpen(true);
+      return;
+    }
+    
+    // User is logged in, show add to library dialog
+    setAddDialogOpen(true);
+  };
 
   const handleAddToLibrary = () => {
     if (onAddToLibrary) {
@@ -171,17 +191,20 @@ const MediaCard: React.FC<MediaCardProps> = ({
           width,
           maxWidth: '100%',
           backgroundColor: COLORS.CARD_BACKGROUND,
+          backdropFilter: 'blur(16px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(16px) saturate(180%)',
           border: `1px solid ${COLORS.CARD_BORDER}`,
           borderRadius: theme.customSpacing.md,
           position: 'relative',
           overflow: 'hidden',
           transition: createTransition(
-            ['transform', 'box-shadow', 'background-color'], 
+            ['transform', 'box-shadow', 'background-color', 'border-color'], 
             theme.customAnimations.duration.standard
           ),
           '&:hover': {
             backgroundColor: COLORS.CARD_HOVER,
-            transform: isMobile ? 'none' : 'translateY(-4px)',
+            borderColor: COLORS.GLASS_BORDER_STRONG,
+            transform: isMobile ? 'none' : 'translateY(-8px)',
             boxShadow: isMobile ? theme.customShadows.card : theme.customShadows.cardHover,
           },
           cursor: 'pointer',
@@ -214,7 +237,9 @@ const MediaCard: React.FC<MediaCardProps> = ({
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  background: 'rgba(0, 0, 0, 0.7)',
+                  background: 'rgba(10, 14, 26, 0.85)',
+                  backdropFilter: 'blur(8px)',
+                  WebkitBackdropFilter: 'blur(8px)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -227,11 +252,15 @@ const MediaCard: React.FC<MediaCardProps> = ({
                     setDetailsOpen(true);
                   }}
                   sx={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                    color: COLORS.PRIMARY,
+                    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                    backdropFilter: 'blur(8px)',
+                    WebkitBackdropFilter: 'blur(8px)',
+                    color: COLORS.TEXT_PRIMARY,
+                    border: `1px solid ${COLORS.GLASS_BORDER}`,
                     '&:hover': {
-                      backgroundColor: 'white',
-                      transform: 'scale(1.1)',
+                      backgroundColor: 'rgba(255, 255, 255, 0.25)',
+                      transform: 'scale(1.15)',
+                      boxShadow: '0 4px 16px rgba(255, 255, 255, 0.2)',
                     },
                   }}
                 >
@@ -239,16 +268,18 @@ const MediaCard: React.FC<MediaCardProps> = ({
                 </IconButton>
                 {showAddButton && (
                   <IconButton
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setAddDialogOpen(true);
-                    }}
+                    onClick={handleAddClick}
                     sx={{
-                      backgroundColor: COLORS.ACCENT,
+                      background: `linear-gradient(135deg, ${COLORS.ACCENT} 0%, ${COLORS.ACCENT_LIGHT} 100%)`,
+                      backdropFilter: 'blur(8px)',
+                      WebkitBackdropFilter: 'blur(8px)',
                       color: 'white',
+                      border: `1px solid ${COLORS.GLASS_BORDER}`,
+                      boxShadow: theme.customShadows.button,
                       '&:hover': {
-                        backgroundColor: COLORS.ACCENT_HOVER,
-                        transform: 'scale(1.1)',
+                        background: `linear-gradient(135deg, ${COLORS.ACCENT_LIGHT} 0%, ${COLORS.ACCENT} 100%)`,
+                        transform: 'scale(1.15)',
+                        boxShadow: theme.customShadows.buttonHover,
                       },
                     }}
                   >
@@ -266,13 +297,17 @@ const MediaCard: React.FC<MediaCardProps> = ({
                 position: 'absolute',
                 top: theme.customSpacing.sm,
                 right: theme.customSpacing.sm,
-                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                backgroundColor: 'rgba(10, 14, 26, 0.85)',
+                backdropFilter: 'blur(12px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(12px) saturate(180%)',
+                border: `1px solid ${COLORS.GLASS_BORDER}`,
                 borderRadius: theme.customSpacing.sm,
                 px: theme.customSpacing.sm,
                 py: theme.customSpacing.xs,
                 display: 'flex',
                 alignItems: 'center',
                 gap: theme.customSpacing.xs,
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
               }}
             >
               <Star sx={{ fontSize: '1rem', color: COLORS.WARNING }} />
@@ -333,12 +368,15 @@ const MediaCard: React.FC<MediaCardProps> = ({
               label={media.type}
               size="small"
               sx={{
-                backgroundColor: COLORS.ACCENT,
+                background: `linear-gradient(135deg, ${COLORS.ACCENT} 0%, ${COLORS.ACCENT_LIGHT} 100%)`,
                 color: 'white',
                 mr: theme.customSpacing.sm,
                 mb: theme.customSpacing.sm,
                 fontWeight: 600,
                 fontSize: '0.75rem',
+                border: `1px solid ${COLORS.GLASS_BORDER}`,
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
               }}
             />
             {media.genres.slice(0, variant === 'detailed' ? 3 : 2).map((genre, index) => (
@@ -411,7 +449,7 @@ const MediaCard: React.FC<MediaCardProps> = ({
                 size="small"
                 startIcon={<Add />}
                 variant="contained"
-                onClick={() => setAddDialogOpen(true)}
+                onClick={handleAddClick}
                 sx={{
                   ...getTouchTargetStyles(),
                   backgroundColor: COLORS.ACCENT,
@@ -693,6 +731,12 @@ const MediaCard: React.FC<MediaCardProps> = ({
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Auth Modal */}
+      <AuthModal
+        open={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+      />
     </>
   );
 };

@@ -20,12 +20,16 @@ const SimpleMediaCard: React.FC<SimpleMediaCardProps> = ({ imageUrl, showName })
         height: 320,
         cursor: 'pointer',
         transition: 'all 0.3s ease',
-        '&:hover': {
-          transform: 'translateY(-4px)',
-          boxShadow: `0 8px 25px rgba(0,0,0,0.15)`,
-        },
         backgroundColor: COLORS.CARD_BACKGROUND,
-        border: `1px solid ${COLORS.BORDER}`,
+        backdropFilter: 'blur(16px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(16px) saturate(180%)',
+        border: `1px solid ${COLORS.GLASS_BORDER}`,
+        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)',
+        '&:hover': {
+          transform: 'translateY(-6px)',
+          boxShadow: '0 8px 32px rgba(99, 102, 241, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
+          borderColor: COLORS.GLASS_BORDER_STRONG,
+        },
       }}
     >
       <CardMedia

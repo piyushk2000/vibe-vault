@@ -87,12 +87,16 @@ const MatchRequestCard: React.FC<MatchRequestCardProps> = ({
         sx={{
           width: isMobile ? '100%' : 320,
           backgroundColor: COLORS.CARD_BACKGROUND,
-          border: `1px solid ${COLORS.CARD_BORDER}`,
+          backdropFilter: 'blur(16px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(16px) saturate(180%)',
+          border: `1px solid ${COLORS.GLASS_BORDER}`,
+          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)',
           transition: 'all 0.3s ease',
           '&:hover': {
             backgroundColor: COLORS.CARD_HOVER,
-            transform: 'translateY(-2px)',
-            boxShadow: `0 4px 20px ${COLORS.OVERLAY_DARK}`,
+            borderColor: COLORS.GLASS_BORDER_STRONG,
+            transform: 'translateY(-4px)',
+            boxShadow: '0 8px 32px rgba(99, 102, 241, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
           },
         }}
       >
@@ -167,10 +171,13 @@ const MatchRequestCard: React.FC<MatchRequestCardProps> = ({
                     label={interest}
                     size="small"
                     sx={{
-                      backgroundColor: COLORS.ACCENT,
+                      background: `linear-gradient(135deg, ${COLORS.ACCENT} 0%, ${COLORS.ACCENT_LIGHT} 100%)`,
                       color: 'white',
                       fontSize: '0.7rem',
                       height: 24,
+                      border: `1px solid ${COLORS.GLASS_BORDER}`,
+                      backdropFilter: 'blur(4px)',
+                      WebkitBackdropFilter: 'blur(4px)',
                     }}
                   />
                 ))}
@@ -276,9 +283,13 @@ const MatchRequestCard: React.FC<MatchRequestCardProps> = ({
               disabled={isLoading}
               variant="contained"
               sx={{
-                backgroundColor: COLORS.SUCCESS,
+                background: `linear-gradient(135deg, ${COLORS.SUCCESS} 0%, #059669 100%)`,
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
+                border: `1px solid ${COLORS.GLASS_BORDER}`,
                 '&:hover': {
-                  backgroundColor: '#2e7d32',
+                  background: `linear-gradient(135deg, #059669 0%, ${COLORS.SUCCESS} 100%)`,
+                  boxShadow: '0 4px 16px rgba(16, 185, 129, 0.3)',
                 },
               }}
             >

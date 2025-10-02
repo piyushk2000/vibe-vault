@@ -78,11 +78,37 @@ const LoginPage: React.FC = () => {
     <Box
       sx={{
         minHeight: '100vh',
-        background: `linear-gradient(135deg, ${COLORS.LOGIN_GRADIENT_START} 0%, ${COLORS.LOGIN_GRADIENT_END} 100%)`,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         padding: 2,
+        position: 'relative',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: '20%',
+          left: '10%',
+          width: '300px',
+          height: '300px',
+          background: `radial-gradient(circle, ${COLORS.ACCENT}40 0%, transparent 70%)`,
+          filter: 'blur(60px)',
+          animation: 'float 8s ease-in-out infinite',
+        },
+        '&::after': {
+          content: '""',
+          position: 'absolute',
+          bottom: '20%',
+          right: '10%',
+          width: '250px',
+          height: '250px',
+          background: `radial-gradient(circle, ${COLORS.ACCENT_LIGHT}30 0%, transparent 70%)`,
+          filter: 'blur(60px)',
+          animation: 'float 10s ease-in-out infinite reverse',
+        },
+        '@keyframes float': {
+          '0%, 100%': { transform: 'translate(0, 0)' },
+          '50%': { transform: 'translate(20px, 20px)' },
+        },
       }}
     >
       <Card
@@ -90,9 +116,12 @@ const LoginPage: React.FC = () => {
           maxWidth: 400,
           width: '100%',
           backgroundColor: COLORS.LOGIN_CARD_BG,
-          backdropFilter: 'blur(10px)',
-          border: `1px solid ${COLORS.BORDER}`,
-          boxShadow: `0 8px 32px ${COLORS.LOGIN_SHADOW}`,
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+          border: `1px solid ${COLORS.GLASS_BORDER}`,
+          boxShadow: `0 8px 32px ${COLORS.LOGIN_SHADOW}, 0 0 0 1px rgba(255, 255, 255, 0.05) inset`,
+          position: 'relative',
+          zIndex: 1,
         }}
       >
         <CardContent sx={{ p: 4 }}>
@@ -101,11 +130,12 @@ const LoginPage: React.FC = () => {
               variant="h4"
               sx={{
                 fontWeight: 'bold',
-                background: `linear-gradient(45deg, ${COLORS.ACCENT} 30%, ${COLORS.ACCENT_LIGHT} 90%)`,
+                background: `linear-gradient(135deg, ${COLORS.ACCENT} 0%, ${COLORS.ACCENT_LIGHT} 100%)`,
                 backgroundClip: 'text',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 mb: 1,
+                filter: 'drop-shadow(0 0 12px rgba(99, 102, 241, 0.4))',
               }}
             >
               VibeVault
@@ -185,11 +215,16 @@ const LoginPage: React.FC = () => {
               sx={{
                 py: 1.5,
                 mb: 3,
-                background: `linear-gradient(45deg, ${COLORS.LOGIN_BUTTON_GRADIENT[0]} 30%, ${COLORS.LOGIN_BUTTON_GRADIENT[1]} 90%)`,
+                background: `linear-gradient(135deg, ${COLORS.LOGIN_BUTTON_GRADIENT[0]} 0%, ${COLORS.LOGIN_BUTTON_GRADIENT[1]} 100%)`,
                 boxShadow: `0 4px 16px ${COLORS.LOGIN_SHADOW}`,
+                border: `1px solid ${COLORS.GLASS_BORDER}`,
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
+                transition: 'all 0.3s ease',
                 '&:hover': {
-                  boxShadow: `0 6px 20px ${COLORS.LOGIN_HOVER_SHADOW}`,
-                  transform: 'translateY(-1px)',
+                  boxShadow: `0 8px 24px ${COLORS.LOGIN_HOVER_SHADOW}`,
+                  transform: 'translateY(-2px)',
+                  background: `linear-gradient(135deg, ${COLORS.LOGIN_BUTTON_GRADIENT[1]} 0%, ${COLORS.LOGIN_BUTTON_GRADIENT[0]} 100%)`,
                 },
                 '&:disabled': {
                   background: COLORS.BUTTON_DISABLED,

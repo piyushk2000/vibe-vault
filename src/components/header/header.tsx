@@ -106,8 +106,10 @@ const Navbar: React.FC = () => {
         position="sticky"
         sx={{
           backgroundColor: COLORS.NAV_BACKGROUND,
-          borderBottom: `1px solid ${COLORS.BORDER}`,
-          boxShadow: theme.customShadows.card,
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+          borderBottom: `1px solid ${COLORS.GLASS_BORDER}`,
+          boxShadow: theme.customShadows.glass,
           zIndex: theme.zIndex.appBar,
         }}
       >
@@ -146,15 +148,17 @@ const Navbar: React.FC = () => {
             component="div"
             sx={{
               fontWeight: 'bold',
-              background: `linear-gradient(45deg, ${COLORS.ACCENT} 30%, ${COLORS.ACCENT_LIGHT} 90%)`,
+              background: `linear-gradient(135deg, ${COLORS.ACCENT} 0%, ${COLORS.ACCENT_LIGHT} 100%)`,
               backgroundClip: 'text',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               cursor: 'pointer',
               flexGrow: isMobile ? 1 : 0,
-              transition: createTransition(['transform'], theme.customAnimations.duration.shorter),
+              transition: createTransition(['transform', 'filter'], theme.customAnimations.duration.shorter),
+              filter: 'drop-shadow(0 0 8px rgba(99, 102, 241, 0.3))',
               '&:hover': {
-                transform: 'scale(1.02)',
+                transform: 'scale(1.05)',
+                filter: 'drop-shadow(0 0 12px rgba(99, 102, 241, 0.5))',
               },
             }}
             onClick={() => navigate('/explore')}
@@ -289,8 +293,10 @@ const Navbar: React.FC = () => {
                   sx={{
                     '& .MuiPaper-root': {
                       backgroundColor: COLORS.CARD_BACKGROUND,
-                      border: `1px solid ${COLORS.BORDER}`,
-                      borderRadius: theme.customSpacing.sm,
+                      backdropFilter: 'blur(20px) saturate(180%)',
+                      WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                      border: `1px solid ${COLORS.GLASS_BORDER}`,
+                      borderRadius: theme.customSpacing.md,
                       mt: 1,
                       boxShadow: theme.customShadows.dropdown,
                     },
@@ -346,18 +352,19 @@ const Navbar: React.FC = () => {
                 variant="contained"
                 onClick={() => setAuthModalOpen(true)}
                 sx={{
-                  background: `linear-gradient(45deg, ${COLORS.ACCENT} 30%, ${COLORS.ACCENT_LIGHT} 90%)`,
+                  background: `linear-gradient(135deg, ${COLORS.ACCENT} 0%, ${COLORS.ACCENT_LIGHT} 100%)`,
                   color: 'white',
                   px: 3,
                   py: 1,
                   borderRadius: 2,
                   textTransform: 'none',
                   fontWeight: 600,
+                  boxShadow: theme.customShadows.button,
                   transition: createTransition(['transform', 'box-shadow'], theme.customAnimations.duration.shorter),
                   '&:hover': {
-                    transform: 'scale(1.05)',
-                    boxShadow: `0 4px 16px ${COLORS.ACCENT}40`,
-                    background: `linear-gradient(45deg, ${COLORS.ACCENT_LIGHT} 30%, ${COLORS.ACCENT} 90%)`,
+                    transform: 'translateY(-2px)',
+                    boxShadow: theme.customShadows.buttonHover,
+                    background: `linear-gradient(135deg, ${COLORS.ACCENT_LIGHT} 0%, ${COLORS.ACCENT} 100%)`,
                   },
                 }}
               >

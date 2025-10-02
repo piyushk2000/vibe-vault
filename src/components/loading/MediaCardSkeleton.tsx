@@ -41,8 +41,11 @@ const MediaCardSkeleton: React.FC<MediaCardSkeletonProps> = ({
       sx={{
         width,
         backgroundColor: COLORS.CARD_BACKGROUND,
-        border: `1px solid ${COLORS.CARD_BORDER}`,
+        backdropFilter: 'blur(16px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(16px) saturate(180%)',
+        border: `1px solid ${COLORS.GLASS_BORDER}`,
         borderRadius: theme.customSpacing.md,
+        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)',
       }}
     >
       {/* Image Skeleton */}

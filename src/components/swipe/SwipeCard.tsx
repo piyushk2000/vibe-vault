@@ -122,10 +122,16 @@ const SwipeCard: React.FC<SwipeCardProps> = ({ user, onSwipe, isActive, style })
           px: 2,
           py: 1,
           borderRadius: 2,
-          backgroundColor: xValue > 0 ? COLORS.SUCCESS : COLORS.ERROR,
+          background: xValue > 0 
+            ? `linear-gradient(135deg, ${COLORS.SUCCESS} 0%, #059669 100%)`
+            : `linear-gradient(135deg, ${COLORS.ERROR} 0%, #dc2626 100%)`,
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          border: `2px solid ${xValue > 0 ? COLORS.SUCCESS : COLORS.ERROR}`,
           color: 'white',
           fontWeight: 'bold',
           transform: `rotate(${xValue > 0 ? -15 : 15}deg)`,
+          boxShadow: `0 4px 16px ${xValue > 0 ? 'rgba(16, 185, 129, 0.4)' : 'rgba(239, 68, 68, 0.4)'}`,
         }}
       >
         {xValue > 0 ? <Favorite /> : <Close />}
@@ -161,10 +167,12 @@ const SwipeCard: React.FC<SwipeCardProps> = ({ user, onSwipe, isActive, style })
           maxWidth: 400,
           position: 'relative',
           backgroundColor: COLORS.CARD_BACKGROUND,
-          border: `1px solid ${COLORS.CARD_BORDER}`,
+          backdropFilter: 'blur(16px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(16px) saturate(180%)',
+          border: `1px solid ${COLORS.GLASS_BORDER}`,
           borderRadius: 3,
           overflow: 'hidden',
-          boxShadow: `0 8px 32px ${COLORS.OVERLAY_DARK}`,
+          boxShadow: `0 12px 48px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05) inset`,
         }}
       >
         {getSwipeIndicator()}
@@ -176,13 +184,17 @@ const SwipeCard: React.FC<SwipeCardProps> = ({ user, onSwipe, isActive, style })
             top: 16,
             right: 16,
             zIndex: 10,
-            backgroundColor: 'rgba(0,0,0,0.8)',
+            backgroundColor: 'rgba(10, 14, 26, 0.85)',
+            backdropFilter: 'blur(12px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(12px) saturate(180%)',
+            border: `1px solid ${COLORS.GLASS_BORDER}`,
             borderRadius: 2,
             px: 1.5,
             py: 0.5,
             display: 'flex',
             alignItems: 'center',
             gap: 0.5,
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
           }}
         >
           <TrendingUp sx={{ fontSize: 16, color: getMatchColor(matchPercentage) }} />
@@ -279,9 +291,12 @@ const SwipeCard: React.FC<SwipeCardProps> = ({ user, onSwipe, isActive, style })
                 label={user.mbtiType}
                 size="small"
                 sx={{
-                  backgroundColor: COLORS.WARNING,
+                  background: `linear-gradient(135deg, ${COLORS.WARNING} 0%, #d97706 100%)`,
                   color: 'white',
                   fontSize: '0.7rem',
+                  border: `1px solid ${COLORS.GLASS_BORDER}`,
+                  backdropFilter: 'blur(4px)',
+                  WebkitBackdropFilter: 'blur(4px)',
                 }}
               />
             )}
@@ -331,9 +346,12 @@ const SwipeCard: React.FC<SwipeCardProps> = ({ user, onSwipe, isActive, style })
                     label={interest}
                     size="small"
                     sx={{
-                      backgroundColor: COLORS.ACCENT,
+                      background: `linear-gradient(135deg, ${COLORS.ACCENT} 0%, ${COLORS.ACCENT_LIGHT} 100%)`,
                       color: 'white',
                       fontSize: '0.75rem',
+                      border: `1px solid ${COLORS.GLASS_BORDER}`,
+                      backdropFilter: 'blur(4px)',
+                      WebkitBackdropFilter: 'blur(4px)',
                     }}
                   />
                 ))}
@@ -356,7 +374,10 @@ const SwipeCard: React.FC<SwipeCardProps> = ({ user, onSwipe, isActive, style })
                       alignItems: 'center',
                       gap: 1,
                       p: 1,
-                      backgroundColor: COLORS.BACKGROUND_LIGHT,
+                      backgroundColor: COLORS.GLASS_BACKGROUND_LIGHT,
+                      backdropFilter: 'blur(8px)',
+                      WebkitBackdropFilter: 'blur(8px)',
+                      border: `1px solid ${COLORS.GLASS_BORDER}`,
                       borderRadius: 1,
                     }}
                   >
@@ -388,10 +409,15 @@ const SwipeCard: React.FC<SwipeCardProps> = ({ user, onSwipe, isActive, style })
                           label={media.type}
                           size="small"
                           sx={{
-                            backgroundColor: media.type === 'BOOK' ? '#8B4513' : COLORS.TEXT_SECONDARY,
+                            background: media.type === 'BOOK' 
+                              ? 'linear-gradient(135deg, #8B4513 0%, #654321 100%)'
+                              : `linear-gradient(135deg, ${COLORS.ACCENT} 0%, ${COLORS.ACCENT_LIGHT} 100%)`,
                             color: 'white',
                             fontSize: '0.7rem',
                             height: 20,
+                            border: `1px solid ${COLORS.GLASS_BORDER}`,
+                            backdropFilter: 'blur(4px)',
+                            WebkitBackdropFilter: 'blur(4px)',
                           }}
                         />
                         <Typography variant="caption" color="textSecondary">

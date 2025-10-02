@@ -189,8 +189,11 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, onClose }) => {
       fullScreen={isMobile}
       sx={{
         '& .MuiDialog-paper': {
-          backgroundColor: COLORS.CARD_BACKGROUND,
-          border: `1px solid ${COLORS.BORDER}`,
+          backgroundColor: COLORS.DIALOG_BACKGROUND,
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+          border: `1px solid ${COLORS.GLASS_BORDER}`,
+          boxShadow: '0 24px 64px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
         },
       }}
     >
@@ -405,8 +408,11 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, onClose }) => {
                 label={interest}
                 onDelete={() => handleRemoveInterest(interest)}
                 sx={{
-                  backgroundColor: COLORS.ACCENT,
+                  background: `linear-gradient(135deg, ${COLORS.ACCENT} 0%, ${COLORS.ACCENT_LIGHT} 100%)`,
                   color: 'white',
+                  border: `1px solid ${COLORS.GLASS_BORDER}`,
+                  backdropFilter: 'blur(4px)',
+                  WebkitBackdropFilter: 'blur(4px)',
                   '& .MuiChip-deleteIcon': {
                     color: 'white',
                   },
@@ -426,9 +432,14 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, onClose }) => {
           variant="contained"
           disabled={isLoading}
           sx={{
-            backgroundColor: COLORS.ACCENT,
+            background: `linear-gradient(135deg, ${COLORS.ACCENT} 0%, ${COLORS.ACCENT_LIGHT} 100%)`,
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            border: `1px solid ${COLORS.GLASS_BORDER}`,
+            boxShadow: '0 4px 16px rgba(99, 102, 241, 0.2)',
             '&:hover': {
-              backgroundColor: COLORS.ACCENT_HOVER,
+              background: `linear-gradient(135deg, ${COLORS.ACCENT_LIGHT} 0%, ${COLORS.ACCENT} 100%)`,
+              boxShadow: '0 8px 24px rgba(99, 102, 241, 0.35)',
             },
           }}
         >
