@@ -14,7 +14,7 @@ import {
   useTheme,
   Button,
 } from '@mui/material';
-import { AccountCircle, Logout, Person, Edit, Menu as MenuIcon } from '@mui/icons-material';
+import { AccountCircle, Logout, Edit, Menu as MenuIcon } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { logout } from '../../redux/authSlice';
@@ -245,35 +245,40 @@ const Navbar: React.FC = () => {
                     <Avatar
                       src={profile.avatar}
                       sx={{
-                        width: { xs: 36, sm: 40 },
-                        height: { xs: 36, sm: 40 },
-                        border: `2px solid ${COLORS.ACCENT}`,
-                        transition: createTransition(['border-color'], theme.customAnimations.duration.shorter),
+                        width: { xs: 40, sm: 44 },
+                        height: { xs: 40, sm: 44 },
+                        border: `2px solid ${COLORS.GLASS_BORDER}`,
+                        boxShadow: '0 4px 12px rgba(124, 58, 237, 0.25)',
+                        transition: createTransition(['border-color', 'box-shadow', 'transform'], theme.customAnimations.duration.shorter),
                         '&:hover': {
-                          borderColor: COLORS.ACCENT_LIGHT,
+                          borderColor: COLORS.ACCENT,
+                          boxShadow: '0 6px 16px rgba(124, 58, 237, 0.4)',
+                          transform: 'scale(1.05)',
                         },
                       }}
                     />
                   ) : user?.name ? (
                     <Avatar
                       sx={{
-                        width: { xs: 36, sm: 40 },
-                        height: { xs: 36, sm: 40 },
-                        backgroundColor: COLORS.ACCENT,
-                        fontSize: '0.875rem',
-                        fontWeight: 600,
-                        border: `2px solid ${COLORS.ACCENT}`,
-                        transition: createTransition(['background-color', 'border-color'], theme.customAnimations.duration.shorter),
+                        width: { xs: 40, sm: 44 },
+                        height: { xs: 40, sm: 44 },
+                        background: `linear-gradient(135deg, ${COLORS.ACCENT} 0%, ${COLORS.ACCENT_LIGHT} 100%)`,
+                        fontSize: '1rem',
+                        fontWeight: 700,
+                        border: `2px solid ${COLORS.GLASS_BORDER}`,
+                        boxShadow: '0 4px 12px rgba(124, 58, 237, 0.25)',
+                        transition: createTransition(['border-color', 'box-shadow', 'transform'], theme.customAnimations.duration.shorter),
                         '&:hover': {
-                          backgroundColor: COLORS.ACCENT_HOVER,
                           borderColor: COLORS.ACCENT_LIGHT,
+                          boxShadow: '0 6px 16px rgba(124, 58, 237, 0.4)',
+                          transform: 'scale(1.05)',
                         },
                       }}
                     >
                       {user.name.charAt(0).toUpperCase()}
                     </Avatar>
                   ) : (
-                    <AccountCircle sx={{ fontSize: { xs: 36, sm: 40 } }} />
+                    <AccountCircle sx={{ fontSize: { xs: 40, sm: 44 } }} />
                   )}
                 </IconButton>
                 <Menu
@@ -292,57 +297,108 @@ const Navbar: React.FC = () => {
                   onClose={handleClose}
                   sx={{
                     '& .MuiPaper-root': {
-                      backgroundColor: COLORS.CARD_BACKGROUND,
+                      minWidth: 280,
+                      backgroundColor: COLORS.GLASS_BACKGROUND_STRONG,
                       backdropFilter: 'blur(20px) saturate(180%)',
                       WebkitBackdropFilter: 'blur(20px) saturate(180%)',
                       border: `1px solid ${COLORS.GLASS_BORDER}`,
-                      borderRadius: theme.customSpacing.md,
-                      mt: 1,
-                      boxShadow: theme.customShadows.dropdown,
+                      borderRadius: theme.customSpacing.lg,
+                      mt: 1.5,
+                      boxShadow: '0 12px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(167, 139, 250, 0.1) inset',
+                      py: 1,
                     },
                   }}
                 >
                   {user && (
-                    <MenuItem
-                      disabled
+                    <Box
                       sx={{
-                        opacity: 1,
-                        color: COLORS.TEXT_PRIMARY,
-                        fontWeight: 600,
+                        px: 2,
+                        py: 1.5,
+                        borderBottom: `1px solid ${COLORS.GLASS_BORDER}`,
+                        mb: 1,
                       }}
                     >
-                      <Person sx={{ mr: 1, color: COLORS.ACCENT }} />
-                      {user.name}
-                    </MenuItem>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                        <Avatar
+                          src={profile?.avatar || undefined}
+                          sx={{
+                            width: 48,
+                            height: 48,
+                            background: `linear-gradient(135deg, ${COLORS.ACCENT} 0%, ${COLORS.ACCENT_LIGHT} 100%)`,
+                            border: `2px solid ${COLORS.GLASS_BORDER}`,
+                            boxShadow: '0 4px 12px rgba(124, 58, 237, 0.25)',
+                          }}
+                        >
+                          {user.name?.charAt(0).toUpperCase() || '?'}
+                        </Avatar>
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                          <Typography
+                            variant="subtitle1"
+                            sx={{
+                              fontWeight: 600,
+                              color: COLORS.TEXT_PRIMARY,
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              mb: 0.25,
+                            }}
+                          >
+                            {user.name}
+                          </Typography>
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              color: COLORS.TEXT_SECONDARY,
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              display: 'block',
+                            }}
+                          >
+                            {user.email}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Box>
                   )}
                   <MenuItem
                     onClick={() => { setProfileModalOpen(true); handleClose(); }}
                     sx={{
                       ...getTouchTargetStyles(),
+                      mx: 1,
+                      mb: 0.5,
+                      borderRadius: theme.customSpacing.sm,
                       color: COLORS.TEXT_SECONDARY,
                       transition: createTransition(['background-color', 'color'], theme.customAnimations.duration.shorter),
                       '&:hover': {
                         backgroundColor: COLORS.HOVER,
+                        backdropFilter: 'blur(8px)',
+                        WebkitBackdropFilter: 'blur(8px)',
                         color: COLORS.TEXT_PRIMARY,
                       },
                     }}
                   >
-                    <Edit sx={{ mr: 1 }} />
+                    <Edit sx={{ mr: 1.5, fontSize: 20 }} />
                     Edit Profile
                   </MenuItem>
                   <MenuItem
                     onClick={handleLogout}
                     sx={{
                       ...getTouchTargetStyles(),
+                      mx: 1,
+                      mb: 0.5,
+                      borderRadius: theme.customSpacing.sm,
                       color: COLORS.TEXT_SECONDARY,
                       transition: createTransition(['background-color', 'color'], theme.customAnimations.duration.shorter),
                       '&:hover': {
                         backgroundColor: COLORS.ERROR_BACKGROUND,
+                        backdropFilter: 'blur(8px)',
+                        WebkitBackdropFilter: 'blur(8px)',
                         color: COLORS.ERROR,
                       },
                     }}
                   >
-                    <Logout sx={{ mr: 1 }} />
+                    <Logout sx={{ mr: 1.5, fontSize: 20 }} />
                     Logout
                   </MenuItem>
                 </Menu>

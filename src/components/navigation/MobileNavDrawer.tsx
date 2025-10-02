@@ -134,15 +134,18 @@ const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
       onClose={onClose}
       sx={{
         '& .MuiDrawer-paper': {
-          width: 280,
-          backgroundColor: COLORS.NAV_BACKGROUND,
-          borderRight: `1px solid ${COLORS.BORDER}`,
+          width: 300,
+          backgroundColor: COLORS.GLASS_BACKGROUND_STRONG,
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+          borderRight: `1px solid ${COLORS.GLASS_BORDER}`,
           display: 'flex',
           flexDirection: 'column',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
         },
       }}
       ModalProps={{
-        keepMounted: true, // Better open performance on mobile
+        keepMounted: true,
       }}
     >
       {/* Header */}
@@ -151,19 +154,20 @@ const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          p: theme.customSpacing.md,
-          borderBottom: `1px solid ${COLORS.BORDER}`,
-          minHeight: '64px',
+          p: theme.customSpacing.lg,
+          borderBottom: `1px solid ${COLORS.GLASS_BORDER}`,
+          minHeight: '72px',
         }}
       >
         <Typography
-          variant="h6"
+          variant="h5"
           sx={{
             fontWeight: 'bold',
-            background: `linear-gradient(45deg, ${COLORS.ACCENT} 30%, ${COLORS.ACCENT_LIGHT} 90%)`,
+            background: `linear-gradient(135deg, ${COLORS.ACCENT} 0%, ${COLORS.ACCENT_LIGHT} 100%)`,
             backgroundClip: 'text',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
+            filter: 'drop-shadow(0 0 8px rgba(124, 58, 237, 0.3))',
           }}
         >
           VibeVault
@@ -173,6 +177,7 @@ const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
           sx={{
             ...getTouchTargetStyles(),
             color: COLORS.TEXT_SECONDARY,
+            transition: createTransition(['background-color', 'color'], theme.customAnimations.duration.shorter),
             '&:hover': {
               backgroundColor: COLORS.HOVER,
               color: COLORS.TEXT_PRIMARY,
@@ -187,19 +192,22 @@ const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
       {user && (
         <Box
           sx={{
-            p: theme.customSpacing.md,
-            borderBottom: `1px solid ${COLORS.BORDER}`,
+            p: theme.customSpacing.lg,
+            borderBottom: `1px solid ${COLORS.GLASS_BORDER}`,
+            backgroundColor: COLORS.GLASS_BACKGROUND_LIGHT,
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: theme.customSpacing.sm }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: theme.customSpacing.md }}>
             <Avatar
               src={profile?.avatar || undefined}
               sx={{
-                width: 48,
-                height: 48,
-                backgroundColor: COLORS.ACCENT,
-                mr: theme.customSpacing.md,
-                border: `2px solid ${COLORS.ACCENT}`,
+                width: 56,
+                height: 56,
+                background: `linear-gradient(135deg, ${COLORS.ACCENT} 0%, ${COLORS.ACCENT_LIGHT} 100%)`,
+                border: `2px solid ${COLORS.GLASS_BORDER}`,
+                boxShadow: '0 4px 12px rgba(124, 58, 237, 0.25)',
               }}
             >
               {user?.name?.charAt(0).toUpperCase() || '?'}
@@ -213,6 +221,7 @@ const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',
+                  mb: 0.25,
                 }}
               >
                 {user?.name || 'User'}
@@ -224,6 +233,7 @@ const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',
+                  fontSize: '0.875rem',
                 }}
               >
                 {user?.email || ''}
@@ -245,14 +255,19 @@ const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                   sx={{
                     ...getTouchTargetStyles(),
                     minHeight: '56px',
-                    mx: theme.customSpacing.sm,
+                    mx: theme.customSpacing.md,
                     mb: theme.customSpacing.xs,
-                    borderRadius: theme.customSpacing.sm,
+                    borderRadius: theme.customSpacing.md,
                     backgroundColor: isActive ? COLORS.SELECTED : 'transparent',
+                    backdropFilter: isActive ? 'blur(8px)' : 'none',
+                    WebkitBackdropFilter: isActive ? 'blur(8px)' : 'none',
+                    borderLeft: isActive ? `3px solid ${COLORS.ACCENT}` : '3px solid transparent',
                     color: isActive ? COLORS.NAV_ACTIVE : COLORS.NAV_INACTIVE,
-                    transition: createTransition(['background-color', 'color'], theme.customAnimations.duration.shorter),
+                    transition: createTransition(['background-color', 'color', 'border-color'], theme.customAnimations.duration.shorter),
                     '&:hover': {
-                      backgroundColor: isActive ? COLORS.SELECTED : COLORS.HOVER,
+                      backgroundColor: COLORS.HOVER,
+                      backdropFilter: 'blur(8px)',
+                      WebkitBackdropFilter: 'blur(8px)',
                       color: COLORS.NAV_ACTIVE,
                     },
                   }}
@@ -302,8 +317,11 @@ const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
       {user && (
         <Box
           sx={{
-            borderTop: `1px solid ${COLORS.BORDER}`,
-            p: theme.customSpacing.sm,
+            borderTop: `1px solid ${COLORS.GLASS_BORDER}`,
+            p: theme.customSpacing.md,
+            backgroundColor: COLORS.GLASS_BACKGROUND_LIGHT,
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
           }}
         >
           <List sx={{ py: 0 }}>
@@ -312,12 +330,15 @@ const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                 onClick={handleEditProfile}
                 sx={{
                   ...getTouchTargetStyles(),
-                  minHeight: '48px',
-                  borderRadius: theme.customSpacing.sm,
+                  minHeight: '52px',
+                  borderRadius: theme.customSpacing.md,
                   color: COLORS.TEXT_SECONDARY,
+                  mb: theme.customSpacing.xs,
                   transition: createTransition(['background-color', 'color'], theme.customAnimations.duration.shorter),
                   '&:hover': {
                     backgroundColor: COLORS.HOVER,
+                    backdropFilter: 'blur(8px)',
+                    WebkitBackdropFilter: 'blur(8px)',
                     color: COLORS.TEXT_PRIMARY,
                   },
                 }}
@@ -333,12 +354,14 @@ const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                 onClick={handleLogout}
                 sx={{
                   ...getTouchTargetStyles(),
-                  minHeight: '48px',
-                  borderRadius: theme.customSpacing.sm,
+                  minHeight: '52px',
+                  borderRadius: theme.customSpacing.md,
                   color: COLORS.TEXT_SECONDARY,
                   transition: createTransition(['background-color', 'color'], theme.customAnimations.duration.shorter),
                   '&:hover': {
                     backgroundColor: COLORS.ERROR_BACKGROUND,
+                    backdropFilter: 'blur(8px)',
+                    WebkitBackdropFilter: 'blur(8px)',
                     color: COLORS.ERROR,
                   },
                 }}

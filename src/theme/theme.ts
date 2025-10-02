@@ -31,16 +31,16 @@ const animations = {
   },
 };
 
-// Glassmorphism shadows
+// Enhanced Glassmorphism shadows
 const shadows = {
-  card: '0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05) inset',
-  cardHover: '0 12px 48px rgba(99, 102, 241, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
-  modal: '0 24px 64px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
-  dropdown: '0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08) inset',
-  button: '0 4px 16px rgba(99, 102, 241, 0.2)',
-  buttonHover: '0 8px 24px rgba(99, 102, 241, 0.35)',
-  glass: '0 8px 32px rgba(0, 0, 0, 0.25)',
-  glassStrong: '0 12px 40px rgba(0, 0, 0, 0.4)',
+  card: '0 8px 32px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(167, 139, 250, 0.08) inset',
+  cardHover: '0 12px 48px rgba(124, 58, 237, 0.3), 0 0 0 1px rgba(167, 139, 250, 0.15) inset',
+  modal: '0 24px 64px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(167, 139, 250, 0.12) inset',
+  dropdown: '0 8px 32px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(167, 139, 250, 0.1) inset',
+  button: '0 4px 16px rgba(124, 58, 237, 0.25)',
+  buttonHover: '0 8px 24px rgba(124, 58, 237, 0.4)',
+  glass: '0 8px 32px rgba(0, 0, 0, 0.3)',
+  glassStrong: '0 12px 40px rgba(0, 0, 0, 0.45)',
 };
 
 // Responsive breakpoints configuration
